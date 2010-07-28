@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 3.3.3
+-- version 3.3.4
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 03, 2010 at 03:06 PM
+-- Generation Time: Jul 28, 2010 at 04:11 PM
 -- Server version: 5.1.47
 -- PHP Version: 5.3.2
 
@@ -54,9 +54,8 @@ CREATE TABLE IF NOT EXISTS `mediafiles` (
   `license` varchar(1000) DEFAULT NULL,
   `tags` mediumtext,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   KEY `user` (`user`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
 
 -- --------------------------------------------------------
 
@@ -88,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `playlists` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `id` (`id`),
   KEY `creator` (`creator`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 -- --------------------------------------------------------
 
@@ -143,10 +142,11 @@ CREATE TABLE IF NOT EXISTS `timeslots` (
   `comment` mediumtext,
   `tags` mediumtext,
   `slotparameters` mediumtext,
+  `fallbackplaylist` bigint(20) unsigned DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
-  KEY `creator` (`creator`)
+  KEY `creator` (`creator`),
+  KEY `fallbackplaylist` (`fallbackplaylist`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -205,7 +205,8 @@ ALTER TABLE `playlistviewers`
 -- Constraints for table `timeslots`
 --
 ALTER TABLE `timeslots`
-  ADD CONSTRAINT `timeslots_ibfk_1` FOREIGN KEY (`creator`) REFERENCES `users` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `timeslots_ibfk_1` FOREIGN KEY (`creator`) REFERENCES `users` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `timeslots_ibfk_2` FOREIGN KEY (`fallbackplaylist`) REFERENCES `playlists` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users`
