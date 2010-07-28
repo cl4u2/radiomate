@@ -1,0 +1,917 @@
+= API =
+
+ * at the beginning only the user admin and the role admin exist
+ * before reserving a new slot an user must define her own non-empty fallback playlist
+ * before the definition of a playlist, files must be registered
+
+ * when editing, leaving fields to null means that fields are left untouched
+
+[[TOC]]
+
+== Users and Roles ==
+
+=== Create a New Role ===
+
+{{{
+
+{
+	"request": "createrole",
+	"username": <role creator's username>,
+	"password": <role creator's password>,
+	"role" : {
+		"rolename": <name>,
+		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
+		"canManageUsers": (true|false),  #true if the user can create/edit/delete users
+		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
+		"canRegisterFiles": (true|false), #true if the user can register local files
+		"canManageRegisteredFiles": (true|false), #true if the user can manage registered files' data (i.e. change, delete)
+		"canSearchRegisteredFiles": (true|false), #true if the user can perform searchs among the registered files
+		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
+		"fixedSlotTime": (true|false), #true if the fixedSlotTimesList field has to be considered
+		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
+		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
+		"canListNetcasts": (true|false) #ability to list archive/podcasts/netcasts
+	}
+}
+
+
+{
+	"response": ("rolecreated" | "notallowed" | "alreadyexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"role" : { #the role that has been created or null
+		"rolename": <name>,
+		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
+		"canManageUsers": (true|false),  #true if the user can create/edit/delete users
+		"canListUsers": (true|false),  #true if the user can see the details of the users
+		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
+		"canRegisterFiles": (true|false), #true if the user can register local files
+		"canManageRegisteredFiles": (true|false), #true if the user can manage registered files' data (i.e. change, delete)
+		"canSearchRegisteredFiles": (true|false), #true if the user can perform searchs among the registered files
+		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
+		"fixedSlotTime": (true|false), #true if the fixedSlotTimesList field has to be considered
+		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
+		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
+	}
+}
+
+}}}
+
+=== Edit an Existing Role ===
+
+{{{
+
+{
+	"request": "editrole",
+	"username": <role editor's username>,
+	"password": <role editor's password>,
+	"remove": (true|false), #delete an existing role
+	"role" : {
+		"rolename": <name>, #if "remove" is true, then only this field is taken in consideration
+		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
+		"canManageUsers": (true|false),  #true if the user can create/edit/delete users
+		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
+		"canRegisterFiles": (true|false), #true if the user can register local files
+		"canManageRegisteredFiles": (true|false), #true if the user can manage registered files' data (i.e. change, delete)
+		"canSearchRegisteredFiles": (true|false), #true if the user can perform searchs among the registered files
+		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
+		"fixedSlotTime": (true|false), #true if the fixedSlotTimesList field has to be considered
+		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
+		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
+	}
+}
+
+
+{
+	"response": ("roleedited" | "notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"removed": (true|false), #existing role deleted
+	"role" : { #the role that has been edited or null
+		"rolename": <name>,
+		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
+		"canManageUsers": (true|false),  #true if the user can create/edit/delete users
+		"canListUsers": (true|false),  #true if the user can see the details of the users
+		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
+		"canRegisterFiles": (true|false), #true if the user can register local files
+		"canManageRegisteredFiles": (true|false), #true if the user can manage registered files' data (i.e. change, delete)
+		"canSearchRegisteredFiles": (true|false), #true if the user can perform searchs among the registered files
+		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
+		"fixedSlotTime": (true|false), #true if the fixedSlotTimesList field has to be considered
+		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
+		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
+	}
+}
+
+}}}
+
+
+=== Create a New User ===
+
+{{{
+
+{
+	"request":"createuser",
+	"username": <creator's username>,
+	"password": <creator's password>,
+	"user" : {
+		"name": <username>,
+		"password": <password>,
+		"displayname": <name to be displayed>,
+		"rolename": <existing role name>
+	}
+}
+
+
+{
+	"response":("usercreated"|"notallowed" | "alreadyexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"user" : { #the user that has been created or null
+		"name": <name>,
+		"password": <password>,
+		"displayname": <name to be displayed>,
+		"rolename": <existing role name>
+	}
+}
+
+}}}
+
+=== Edit an Existing User ===
+
+{{{
+
+{
+	"request":"edituser",
+	"username": <editor's username>,
+	"password": <editor's password>,
+	"remove": (true|false), #remove an existing user
+	"user" : {
+		"name": <name>,
+		"password": <password>,
+		"displayname": <name to be displayed>,
+		"rolename": <existing role name>
+	}
+}
+
+
+{
+	"response":("useredited"|"notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"removed": (true|false), #existing user removed
+	"user" : { #the user that has been edited or null
+		"name": <name>,
+		"password": <password>,
+		"displayname": <name to be displayed>,
+		"rolename": <existing role name>
+	}
+}
+
+}}}
+
+=== List/Display One or More Users ===
+
+{{{
+
+{
+	"request":"listusers",
+	"username": <username>,
+	"password": <password>,
+	"requsername": <name of the requested user or null for a list of all users>
+}
+
+
+{
+	"response":("userlistfollows"|"notallowed"| "servererror"|"error"),
+	"responsen": (0|1|2|4),
+	"description": <textual description>,
+    "userlist" : [ # an array of users
+		"user" : { 
+			"name": <username>,
+			"displayname": <name to be displayed>,
+			"rolename": <role name>
+		}
+		"user" : { 
+			"name": <username>,
+			"displayname": <name to be displayed>,
+			"rolename": <role name>
+		}
+		...
+	]
+}
+
+}}}
+
+
+== Files and Playlists ==
+
+=== Register an Audio File ===
+
+{{{
+
+{
+	"request": "registerfile",
+	"username": <username>,
+	"password": <password>,
+	"mediafile": {
+		"path": <local path of the file>,
+		"title": <title of the track>,
+		"author": <author of the track>,
+		"album": <album>,
+		"genre": <genre>,
+		"year": <year of pubblication>,
+		"comment": <comment>,
+		"license": <license of the file>,
+		"tags": <tags>
+	}
+}
+
+{
+	"response":("fileregistered" | "notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"mediafile": { #the file that has been registered or null
+		"id": <new given id of the file>,
+		"path": <local path of the file>,
+		"title": <title of the track>,
+		"author": <author of the track>,
+		"album": <album>,
+		"genre": <genre>,
+		"year": <year of pubblication>,
+		"comment": <comment>,
+		"license": <license of the file>,
+		"tags": <tags>
+	}
+}
+
+}}}
+
+
+=== Search for an Audio File ===
+
+{{{
+{
+	"request": "searchfiles",
+	"username": <username>,
+	"password": <password>,
+	"mediafile": {
+		"id": <id of the file>,
+		"path": <partial or complete local path of the file>,
+		"title": <partial or complete title of the track>,
+		"author": <partial or complete author of the track>,
+		"album": <partial or complete album>,
+		"genre": <partial or complete genre>,
+		"year": <year of pubblication>,
+		"comment": <partial or complete comment>,
+		"license": <partial or complete license of the file>,
+		"tags": <one or more tags>
+	}
+}
+
+{
+	"response":("filesfound" | "notallowed" | "notfound" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"mediafilelist":[ #a list of the files that have been found or null
+		"mediafile": { 
+			"id": <id of the file>,
+			"path": <local path of the file>,
+			"title": <title of the track>,
+			"author": <author of the track>,
+			"album": <album>,
+			"genre": <genre>,
+			"year": <year of pubblication>,
+			"comment": <comment>,
+			"license": <license of the file>,
+			"tags": <tags>
+		}
+		"mediafile": { 
+			"id": <id of the file>,
+			"path": <local path of the file>,
+			"title": <title of the track>,
+			"author": <author of the track>,
+			"album": <album>,
+			"genre": <genre>,
+			"year": <year of pubblication>,
+			"comment": <comment>,
+			"license": <license of the file>,
+			"tags": <tags>
+		}
+	...
+	]
+}
+
+}}}
+
+=== Edit an Audio File ===
+
+{{{
+{
+	"request": "editfile",
+	"username": <username>,
+	"password": <password>,
+	"remove": (true|false), #unregister a file
+	"mediafile": {
+		"id": <id of the file>,
+		"path": <new local path of the file or null to leave unchanged>,
+		"title": <new title of the track or null to leave unchanged>,
+		"author": <new author of the track or null to leave unchanged>,
+		"album": <new album or null to leave unchanged>,
+		"genre": <new genre or null to leave unchanged>,
+		"year": <new year of pubblication or null to leave unchanged>,
+		"comment": <new comment or null to leave unchanged>,
+		"license": <new license of the file or null to leave unchanged>,
+		"tags": <new tags or null to leave unchanged>
+	}
+}
+
+{
+	"response":("fileedited" | "notallowed" | "filenotregistered" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"removed": (true|false), #if the file has been unregistered
+	"mediafile": { #the edited file or null
+		"id": <id of the file>,
+		"path": <local path of the file>,
+		"title": <title of the track>,
+		"author": <author of the track>,
+		"album": <album>,
+		"genre": <genre>,
+		"year": <year of pubblication>,
+		"comment": <comment>,
+		"license": <license of the file>,
+		"tags": <tags>
+	}
+}
+
+}}}
+
+
+=== Create a New Playlist ===
+
+{{{
+
+{
+	"request": "createplaylist",
+	"username": <username>,
+	"password": <password>,
+	"playlist": {
+			"title": <a name for the playlist>,
+			"description": <a description of the playlist>,
+			"comment": <comment>,
+			"tags": <tags>,
+			"fallback": (true|false), #true if this will be the user's fallback playlist
+			"viewers": [ # a list of usernames of other users that can watch and play this playlist
+				<username>,
+				<username>
+			]
+			"owners": [ # a list of usernames of other users that can manage this playlist
+				<username>,
+				<username>
+			]
+	}
+}
+
+{
+	"response":("playlistcreated" | "notallowed" | "servererror" | "error"),
+	"responsen": (0|1|3|4),
+	"description": <textual description>,
+	"playlist": { #new playlist or null
+			"id": <a new given id for the playlist>,
+			"title": <the name of the playlist>,
+			"description": <the description of the playlist>,
+			"comment": <comment>,
+			"tags": <tags>,
+			"fallback": (true|false), #true if this will be the user's fallback playlist
+			"viewers": [ # a list of usernames of users that can watch and play this playlist
+				<username>,
+				<username>
+			]
+			"owners": [ # a list of usernames of users that can manage this playlist
+				<username>,
+				<username>
+			]
+	}
+}
+
+}}}
+
+=== Edit an Existing Playlist ===
+
+{{{
+
+{
+	"request": "editplaylist",
+	"username": <username>,
+	"password": <password>,
+	"playlist": {
+			"id": <the id of the existing playlist that we are editing>,
+			"title": <a new name for the playlist or null to leave unchanged>,
+			"description": <a new description of the playlist or null to leave unchanged>,
+			"comment": <a new comment or null to leave unchanged>,
+			"tags": <new tags or null to leave unchanged>,
+			"fallback": (true|false|null) #true if this will be the user's fallback playlist, null to leave unchanged
+			"viewers": [ # a list of usernames of other users that can watch and play this playlist, or null to leave unchanged
+				<username>,
+				<username>
+			]
+			"owners": [ # a list of usernames of other users that can manage this playlist, or null to leave unchanged
+				<username>,
+				<username>
+			]
+	}
+}
+
+{
+	"response":("playlistedited" | "notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"viewers": [ # a list of usernames of users that can watch and play this playlist
+		<username>,
+		<username>
+	]
+	"owners": [ # a list of usernames of users that can manage this playlist
+		<username>,
+		<username>
+	]
+	"playlist": { #new playlist or null
+			"id": <the id of the playlist>,
+			"title": <the name of the playlist>,
+			"description": <the description of the playlist>,
+			"comment": <comment>,
+			"tags": <tags>,
+			"fallback": (true|false) #true if this will be the user's fallback playlist
+	}
+}
+
+}}}
+
+
+=== Add Files to an Existing Playlist ===
+
+{{{
+
+{	
+	"request": "addfilestoplaylist",
+	"username": <username>,
+	"password": <password>,
+	"playlistid": <id of an existing playlist>,
+	"tracks": [ #ordered list of file ids
+		<id of a registered file>,
+		<id of a registered file>,
+		...
+	]
+}
+
+{
+	"response":("filesadded" | "notallowed" | "filesdontexist" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"playlistid": <id of an existing playlist>,
+	"tracks": [ #ordered list of file ids or null
+		<id of a registered file>,
+		<id of a registered file>,
+		...
+	]
+}
+
+}}}
+
+
+=== Remove Files from an Existing Playlist ===
+
+{{{
+
+{	
+	"request": "removefilesfromplaylist",
+	"username": <username>,
+	"password": <password>,
+	"playlistid": <id of an existing playlist>,
+	"tracks": [ #ordered list of file ids
+		<id of a registered file in the playlist>,
+		<id of a registered file in the playlist>,
+		...
+	]
+}
+
+{
+	"response":("filesremoved" | "notallowed" | "somefilesdontexist" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"playlistid": <id of an existing playlist>
+	"removedtracks": [ #list of file ids or null
+		<id of a registered file>,
+		<id of a registered file>,
+		...
+	]
+	"notremovedtracks": [ #list of file ids or null
+		<file id>,
+		<file id>,
+		...
+	]
+}
+
+}}}
+
+
+=== Switch Positions in an Existing Playlist ===
+
+{{{
+
+{	
+	"request": "switchfilesinplaylist",
+	"username": <username>,
+	"password": <password>,
+	"playlistid": <id of an existing playlist>,
+	"tracks": [ #exactly two file ids
+		<id of a registered file in the playlist>,
+		<id of a registered file in the playlist>
+	]
+}
+
+{
+	"response":("filesswitched" | "notallowed" | "filesnotinplaylist" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"playlistid": <id of an existing playlist>,
+	"switchedtracks": [ #list of file ids or null
+		<id of a registered file in the playlist>,
+		<id of a registered file in the playlist>
+	]
+	"notinplaylist": [ # list of file ids that are not present in the playlist or null
+		<file id not in the playlist>,
+		<file id not in the playlist>
+	]
+}
+
+}}}
+
+
+=== List Users' Playlists ===
+
+List of playlists in which the user is owner or viewer 
+
+ * users with a role with the canManageAllPlaylists flag set to true are co-owners of all playlists
+ * an owner of a playlist is also viewer 
+
+{{{
+
+{
+	"request": "listuserplaylists",
+	"username": <username>,
+	"password": <password>,
+}
+
+{
+	"response":("playlistlistfollows" | "notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"playlistlist": [ #list of playlists or null
+		"playlist": { 
+				"id": <id of the playlist>,
+				"title": <name of the playlist>,
+				"description": <description of the playlist>,
+				"comment": <comment>,
+				"tags": <tags>,
+				"fallback": (true|false), #true if this is the user's fallback playlist
+				"viewers": [ # a list of usernames of users that can watch and play this playlist
+					<username>,
+					<username>
+				]
+				"owners": [ # a list of usernames of users that can manage this playlist
+					<username>,
+					<username>
+				]
+		},
+		"playlist": { 
+				"id": <the id of the playlist>,
+				"title": <the name of the playlist>,
+				"description": <the description of the playlist>,
+				"comment": <comment>,
+				"tags": <tags>,
+				"fallback": (true|false), #true if this is the user's fallback playlist
+				"viewers": [ # a list of usernames of users that can watch and play this playlist
+					<username>,
+					<username>
+				]
+				"owners": [ # a list of usernames of users that can manage this playlist
+					<username>,
+					<username>
+				]
+		},
+		...
+	]
+
+}
+
+}}}
+
+
+== Time Slots ==
+
+=== Reserve a Timeslot ===
+
+{{{
+
+{
+	"request": "createtimeslot",
+	"username": <username>,
+	"password": <password>,
+	"timeslot": {
+		"title": <title of the transmission>
+		"description": <description of the transmission>
+		"tags": <tags>
+		"slottype": <type of slot to be created>,
+		"beginningtime": {
+			"year": <year>,
+			"month": <month>,
+			"day": <day>,
+			"hour": <hour>,
+			"minute": <minute>
+		},
+		"duration": <duration of the timeslot in minutes>,
+		"slotparams": {
+			<slot-specific parameters>
+		}
+	}
+}
+
+
+{
+	"response":("timeslotcreated" | "notallowed" | "invalidslottype"| "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"timeslot": {
+		"id": <id of the new timeslot>,
+		"title": <title of the transmission>
+		"description": <description of the transmission>
+		"tags": <tags>
+		"slottype": <type of slot>,
+		"beginningtime": {
+			"year": <year>,
+			"month": <month>,
+			"day": <day>,
+			"hour": <hour>,
+			"minute": <minute>
+		},
+		"duration": <duration in minutes>,
+		"slotparams": {
+			<slot-specific parameters>
+		}
+	}
+}
+
+}}}
+
+
+=== Edit a Timeslot ===
+
+{{{
+
+{
+	"request": "createtimeslot",
+	"username": <username>,
+	"password": <password>,
+	"remove": (true|false), #remove the timeslot?
+	"timeslot": {
+		"id": <id of the timeslot to be edited>,
+		"title": <title of the transmission>
+		"description": <description of the transmission>
+		"tags": <tags>
+		"slottype": <type of slot>,
+		"beginningtime": {
+			"year": <year>,
+			"month": <month>,
+			"day": <day>,
+			"hour": <hour>,
+			"minute": <minute>
+		},
+		"duration": <duration in minutes>,
+		"slotparams": {
+			<slot-specific parameters>
+		}
+	}
+}
+
+
+{
+	"response":("timeslotedited" | "notallowed" | "invalidslottype"| "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"removed": (true|false), #true if timeslot removed
+	"timeslot": {
+		"id": <id of the timeslot>,
+		"title": <title of the transmission>
+		"description": <description of the transmission>
+		"tags": <tags>
+		"slottype": <type of slot>,
+		"beginningtime": {
+			"year": <year>,
+			"month": <month>,
+			"day": <day>,
+			"hour": <hour>,
+			"minute": <minute>
+		},
+		"duration": <duration in minutes>,
+		"slotparams": {
+			<slot-specific parameters>
+		}
+	}
+}
+
+}}}
+
+=== List Timeslots ===
+
+{{{
+
+{
+	"request": "listtimeslots",
+	"username": <username>,
+	"password": <password>,
+	"timeslot": {
+		"title": <title of the transmission or null>
+		"description": <description of the transmission or null>
+		"tags": <zero or moretags>
+		"reservinguser": <user who reserved the timeslot, or null>
+		"from": { #or null
+			"year": <year>,
+			"month": <month>,
+			"day": <day>,
+			"hour": <hour>,
+			"minute": <minute>
+		},
+		"to": {
+			"year": <year>,
+			"month": <month>,
+			"day": <day>,
+			"hour": <hour>,
+			"minute": <minute>
+		}
+	}
+}
+
+{
+	"response":("timeslotlistfollows" | "notallowed" | "notimeslotsfound"| "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"timeslotlist": [
+		"timeslot": {
+			"id": <id of the timeslot>,
+			"title": <title of the transmission or null>
+			"description": <description of the transmission or null>
+			"tags": <zero or moretags>
+			"reservinguser": <user who reserved the timeslot, or null>
+			"slottype": <type of slot>,
+			"beginningtime": {
+				"year": <year>,
+				"month": <month>,
+				"day": <day>,
+				"hour": <hour>,
+				"minute": <minute>
+			},
+			"duration": <duration in minutes>,
+			"slotparams": {
+				<slot-specific parameters>
+			}
+		},
+		"timeslot": {
+			"id": <id of the timeslot>,
+			"title": <title of the transmission or null>
+			"description": <description of the transmission or null>
+			"tags": <zero or moretags>
+			"reservinguser": <user who reserved the timeslot, or null>
+			"slottype": <type of slot>,
+			"beginningtime": {
+				"year": <year>,
+				"month": <month>,
+				"day": <day>,
+				"hour": <hour>,
+				"minute": <minute>
+			},
+			"duration": <duration in minutes>,
+			"slotparams": {
+				<slot-specific parameters>
+			}
+		},
+		...
+	]
+}
+		
+
+}}}
+
+
+=== Test Slot ===
+
+{{{
+
+{
+	"request": "createtestslot",
+	"username": <username>,
+	"password": <password>,
+	"testslot": {
+		"slottype": <type of slot to be created>,
+		"duration": <duration of the testslot in minutes>,
+		"slotparams": {
+			<slot-specific parameters>
+		}
+	}
+}
+
+
+{
+	"response":("testslotcreated" | "notallowed" | "invalidslottype"| "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"testslot": {
+		"mountpoint": <mountpoint of the new testslot>,
+		"slottype": <type of slot>,
+		"duration": <duration in minutes>,
+		"slotparams": {
+			<slot-specific parameters>
+		}
+	}
+}
+
+}}}
+
+
+== Archive/Podcasts/Netcasts ==
+
+=== List/Search Archive/Podcasts/Netcasts ===
+
+{
+	"request": "listnetcasts",
+	"username": <username>,
+	"password": <password>,
+	"netcast": {
+		"user": <owner of the transmission, or null>
+		"title": <complete or partial title of the transmission, or null>
+		"description": <complete or partial description of the transmission>
+		"tags": <zero or more tags>
+		"slottype": <type of slot>,
+		"from": { # or null
+			"year": <year>,
+			"month": <month>,
+			"day": <day>,
+			"hour": <hour>,
+			"minute": <minute>
+		},
+		"to": { #or null
+			"year": <year>,
+			"month": <month>,
+			"day": <day>,
+			"hour": <hour>,
+			"minute": <minute>
+		}
+		"limit": <maximum number of transmissions to display, or null>
+	}
+}
+
+{
+	"response":("netcastlistfollows" | "notallowed" | "nonetcastsfound"| "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"netcastlist": [
+		"netcast": {
+			"id": <id of the timeslot/netcast>,
+			"user": <owner of the transmission, or null>
+			"title": <complete or partial title of the transmission, or null>
+			"description": <complete or partial description of the transmission>
+			"tags": <zero or more tags>
+			"slottype": <type of slot>,
+			"beginningtime": {
+				"year": <year>,
+				"month": <month>,
+				"day": <day>,
+				"hour": <hour>,
+				"minute": <minute>
+			},
+			"duration": <duration in minutes>,
+		},
+		"netcast": {
+			"id": <id of the timeslot/netcast>,
+			"user": <owner of the transmission, or null>
+			"title": <complete or partial title of the transmission, or null>
+			"description": <complete or partial description of the transmission>
+			"tags": <zero or more tags>
+			"slottype": <type of slot>,
+			"beginningtime": {
+				"year": <year>,
+				"month": <month>,
+				"day": <day>,
+				"hour": <hour>,
+				"minute": <minute>
+			},
+			"duration": <duration in minutes>,
+		},
+		...
+	]
+}
+		
