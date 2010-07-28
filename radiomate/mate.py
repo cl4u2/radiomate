@@ -47,6 +47,8 @@ class RadioMateParentClass(object):
 										self.__setattr(name, int(value))
 								elif isinstance(self.__dict__[name], str) and isinstance(value, unicode):
 										self.__setattr(name, str(value))
+								elif isinstance(self.__dict__[name], unicode) and isinstance(value, str):
+										self.__setattr(name, str(value))
 								elif isinstance(self.__dict__[name], int) and isinstance(value, basestring):
 										self.__setattr(name, int(value))
 								else:
