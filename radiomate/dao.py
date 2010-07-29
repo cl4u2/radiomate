@@ -27,6 +27,11 @@ class RadioMateBadTimeSlotException(Exception):
 		pass
 
 
+class RadioMateDAOException(Exception):
+		"Exception to raise if there are problems interacting with the database"
+		pass
+
+
 class RadioMateParentMysqlDAO(object):
 		"The parent class from which the other classess representing MySQL Database Access Objects (DAOs) inherit"
 		def __init__(self, connection):
@@ -172,7 +177,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of role rows inserted: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def getByName(self, rolename):
 				"Get a Role from its name"
@@ -188,7 +193,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 
 						return Role(resultdicts[0])
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def removeByName(self, rolename):
 				"Remove a Role from its name"
@@ -200,7 +205,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of role rows deleted: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def getAll(self):
 				"Get the list of all Roles"
@@ -218,7 +223,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 
 						return res
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def update(self, roleobject):
 				"Update an existing Role"
@@ -230,7 +235,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of role rows updated: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 
 class UserMysqlDAO(RadioMateParentMysqlDAO):
@@ -318,7 +323,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of user rows inserted: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def getByName(self, username):
 				"Get an user from its username"
@@ -337,7 +342,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						u.role = roledao.getByName(u.rolename)
 						return u
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def removeByName(self, username):
 				"Remove an user from its username"
@@ -349,7 +354,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of user rows deleted: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def getAll(self):
 				"Get the list of all users"
@@ -370,7 +375,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 
 						return res
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def update(self, userobject):
 				"Update an existing user"
@@ -382,7 +387,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of user rows updated: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 
 class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
@@ -560,7 +565,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						print "Number of mediafile rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid)
 						return lastid
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def getById(self, mediafileid):
 				"Get a media file from its id"
@@ -576,7 +581,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 
 						return MediaFile(resultdicts[0])
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def removeById(self, mediafileid):
 				"Remove a media file from its id"
@@ -588,7 +593,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of mediafile rows deleted: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def search(self, partialmediafile):
 				"Search for a media file"
@@ -606,7 +611,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 								res.append(MediaFile(mf))
 						return res
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def update(self, mediafileobject):
 				"Update an existing media file"
@@ -620,7 +625,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						print "Number of mediafile rows updated: %d. id = %d" % (cursor.rowcount, lastid)
 						return lastid
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 
 class PlayListMysqlDAO(RadioMateParentMysqlDAO):
@@ -859,7 +864,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						return lastid
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def getById(self, playlistid):
 				"Get a Playlist from its id"
@@ -891,7 +896,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						return pl
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def removeById(self, playlistid):
 				"Remove a playlist from its id"
@@ -903,7 +908,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of playlist rows deleted: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def update(self, playlistobject):
 				"Update an existing playlist"
@@ -925,7 +930,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						return lastid
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def getByCreator(self, creatorname):
 				"Get the playlists of a given creator"
@@ -959,7 +964,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						return res
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def getByUser(self, username):
 				"Returns playlists in which the user is creator, owner or viewer"
@@ -979,7 +984,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 								res.append(pl)
 						return res
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 
 class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
@@ -1224,7 +1229,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						else:
 								return False
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def insert(self, timeslotobject):
 				"Insert a new timeslot in the database"
@@ -1240,7 +1245,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						print "Number of timeslot rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid)
 						return lastid
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def getById(self, timeslotid):
 				"Get a timeslot from its id"
@@ -1269,7 +1274,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						ts.fallbackplaylist = rs['fallbackplaylist']
 						return ts
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def removeById(self, timeslotid):
 				"Remove a timeslot from its id"
@@ -1281,7 +1286,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 						print "Number of timeslot rows deleted: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def update(self, timeslotobject):
 				"Update an existing timeslot"
@@ -1297,7 +1302,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						print "Number of timeslot rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid)
 						return lastid
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 		def getFromTo(self, fromdate, todate):
 				"Get timeslots between fromdate and todate date+time strings"
@@ -1327,7 +1332,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 								res.append(ts)
 						return res
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 		
 		def search(self, timeslotobject):
 				"Search for timeslots using the title, comment, description, tags and creator properties of timeslotobject"
@@ -1357,7 +1362,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 								res.append(ts)
 						return res
 				except MySQLdb.Error, e:
-						print "Error %d: %s" % (e.args[0], e.args[1])
+						raise RadioMateDAOException(e.args)
 
 
 

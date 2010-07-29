@@ -406,12 +406,31 @@ def timeslotdaotest():
 		rdao.removeByName(r.rolename)
 		conn.close()
 
+def exceptiontest():
+		conn = MySQLdb.connect( 
+						host = DBHOST, 
+						user = DBUSER,
+						passwd = DBPASSWORD,
+						db = DATABASE
+						)
+		try:
+				selstring = "SELECT dummyfield FROM roles"
+				cursor = conn.cursor(MySQLdb.cursors.DictCursor)
+				cursor.execute(selstring)
+				cursor.close()
+		except MySQLdb.Error, e:
+				raise RadioMateDAOException(e.args)
+		
+		conn.close()
+
+
 #execute
 print "---"
 #test0()
-roledaotest()
-userdaotest()
-mediafilesdaotest()
-playlistdaotest()
+#roledaotest()
+#userdaotest()
+#mediafilesdaotest()
+#playlistdaotest()
 timeslotdaotest()
+#exceptiontest()
 
