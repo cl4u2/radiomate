@@ -59,7 +59,7 @@ def test0():
 		jsonrequest = """
 		{
 			"request": "createrole",
-			"username": "pippo",
+			"username": "foobar",
 			"password": "secret",
 			"role" : {
 				"rolename": "testrole",
@@ -135,7 +135,7 @@ def test0():
 
 		print "+++++++++++++++++++++++++++++++++++++"
 		u = User()
-		u.name = "pippo3"
+		u.name = "foobar3"
 		u.password = "segreta"
 		u.displayname = "Mr. Pippo 3"
 		u.rolename = "scemodelvillaggio2"
@@ -147,13 +147,65 @@ def test0():
 				print u
 		udao.removeByName(u.name)
 
-def mediafilesdaotest():
+def roledaotest():
+		r = Role()
+		r.rolename = "testrole"
+		conn = MySQLdb.connect( 
+						host = DBHOST, 
+						user = DBUSER,
+						passwd = DBPASSWORD,
+						db = DATABASE
+						)
+		roledao = RoleMysqlDAO(conn)
+		roledao.insert(r)
+		r1 = roledao.getByName("testrole")
+		print r1
+		rall = roledao.getAll()
+		print rall
+		r1.canManageRoles = True
+		roledao.update(r1)
+		r2 = roledao.getByName("testrole")
+		print r2
+		roledao.removeByName("testrole")
+		conn.close()
+
+def userdaotest():
+		r = Role()
+		r.rolename = "testrole"
+		conn = MySQLdb.connect( 
+						host = DBHOST, 
+						user = DBUSER,
+						passwd = DBPASSWORD,
+						db = DATABASE
+						)
+		roledao = RoleMysqlDAO(conn)
+		roledao.insert(r)
 		u = User()
-		u.name = "pippo2"
-		u.rolename = "scemodelvillaggio2"
+		u.name = "testuser"
+		u.displayname = "Test User"
+		u.rolename = r.rolename
+		userdao = UserMysqlDAO(conn)
+		userdao.insert(u)
+		u1 = userdao.getByName(u.name)
+		print u1
+		u1.displayname = "Modified Test User"
+		userdao.update(u1)
+		u2 = userdao.getByName(u1.name)
+		print u2
+		res = userdao.getAll()
+		print res
+		userdao.removeByName(u.name)
+		roledao.removeByName(r.rolename)
+
+def mediafilesdaotest():
+		r = Role()
+		r.rolename = "testrole"
+		u = User()
+		u.name = "foobar"
+		u.rolename = r.rolename
 
 		mf = MediaFile()
-		mf.user = "pippo2"
+		mf.user = u.name
 		mf.path = "/tmp/ulululu.mp3"
 		mf.type = 'audio'
 		mf.title = "Ulululu"
@@ -170,14 +222,22 @@ def mediafilesdaotest():
 						passwd = DBPASSWORD,
 						db = DATABASE
 						)
+		rdao = RoleMysqlDAO(conn)
+		rdao.insert(r)
+
 		udao = UserMysqlDAO(conn)
 		udao.insert(u)
 		mediafiledao = MediaFileMysqlDAO(conn)
 		id = mediafiledao.insert(mf)
 		mf2 = mediafiledao.getById(id)
 		print mf2
+		mf2.license = "AGPL"
+		mediafiledao.update(mf2)
+		mf3 = mediafiledao.getById(id)
+		print mf3
 		mediafiledao.removeById(id)
 		udao.removeByName(u.name)
+		rdao.removeByName(r.rolename)
 
 def playlistdaotest():
 		conn = MySQLdb.connect( 
@@ -186,18 +246,22 @@ def playlistdaotest():
 						passwd = DBPASSWORD,
 						db = DATABASE
 						)
-		udao = UserMysqlDAO(conn)
+		r = Role()
+		r.rolename = "testrole"
+		rdao = RoleMysqlDAO(conn)
+		rdao.insert(r)
 		u1 = User()
-		u1.name = "pippo"
-		u1.rolename = "scemodelvillaggio"
+		u1.name = "foobar"
+		u1.rolename = r.rolename
+		udao = UserMysqlDAO(conn)
 		udao.insert(u1)
 		u2 = User()
-		u2.name = "pippo2"
-		u2.rolename = "scemodelvillaggio2"
+		u2.name = "foobar2"
+		u2.rolename = r.rolename
 		udao.insert(u2)
 
 		mf = MediaFile()
-		mf.user = "pippo2"
+		mf.user = "foobar2"
 		mf.path = "/tmp/ulululu.mp3"
 		mf.type = 'audio'
 		mf.title = "Ulululu"
@@ -210,7 +274,7 @@ def playlistdaotest():
 		mf.tags = "shakerobba,steam,wolves"
 
 		mf2 = MediaFile()
-		mf2.user = "pippo2"
+		mf2.user = "foobar2"
 		mf2.path = "/tmp/ulululu2.mp3"
 		mf2.type = 'audio'
 		mf2.title = "Ulululu2"
@@ -230,7 +294,7 @@ def playlistdaotest():
 
 		pl = PlayList()
 		pl.title = "just a test"
-		pl.creator = "pippo2"
+		pl.creator = "foobar2"
 		pl.fallback = False
 		pl.description = "testing dao"
 		pl.comment = ":)"
@@ -239,8 +303,8 @@ def playlistdaotest():
 		pl.addMediaFile(mf)
 		pl.addMediaFile(mf2)
 		
-		pl.addOwner("pippo")
-		pl.addViewer("pippo2")
+		pl.addOwner("foobar")
+		pl.addViewer("foobar2")
 
 		print pl
 
@@ -249,11 +313,24 @@ def playlistdaotest():
 		print plid
 		pl2 = playlistdao.getById(plid)
 		print pl2
+
+		pl2.description = "testing dao 2"
+		playlistdao.update(pl2)
+		pl3 = playlistdao.getById(pl2.id)
+		print pl3
+
+		res = playlistdao.getByUser("foobar")
+		print res
+
+		res = playlistdao.getByCreator("foobar2")
+		print res
+
 		mediafiledao.removeById(id1)
 		mediafiledao.removeById(id2)
 		playlistdao.removeById(plid)
 		udao.removeByName(u1.name)
 		udao.removeByName(u2.name)
+		rdao.removeByName(r.rolename)
 		conn.close()
 
 def timeslotdaotest():
@@ -263,18 +340,22 @@ def timeslotdaotest():
 						passwd = DBPASSWORD,
 						db = DATABASE
 						)
+		r = Role()
+		r.rolename = "testrole"
+		rdao = RoleMysqlDAO(conn)
+		rdao.insert(r)
 		udao = UserMysqlDAO(conn)
 		u1 = User()
-		u1.name = "pippo"
-		u1.rolename = "scemodelvillaggio"
+		u1.name = "foobar"
+		u1.rolename = "testrole"
 		udao.insert(u1)
 		u2 = User()
-		u2.name = "pippo2"
-		u2.rolename = "scemodelvillaggio2"
+		u2.name = "foobar2"
+		u2.rolename = "testrole"
 		udao.insert(u2)
 
 		ts = TimeSlot()
-		ts.creator = 'pippo'
+		ts.creator = 'foobar'
 		ts.slottype = 'dummy'
 		ts.slotparams = {'par1': 0, 'par2': 'ciao'}
 		ts.beginningyear = 2010
@@ -290,7 +371,7 @@ def timeslotdaotest():
 		
 		pl = PlayList()
 		pl.title = "just a test"
-		pl.creator = "pippo2"
+		pl.creator = "foobar2"
 		pl.fallback = False
 		pl.description = "testing dao"
 		pl.comment = ":)"
@@ -302,13 +383,34 @@ def timeslotdaotest():
 
 		tsdao = TimeSlotMysqlDAO(conn)
 		tsid = tsdao.insert(ts)
+
+		ts1 = tsdao.getById(tsid)
+		ts1.description = "testing dao"
+		tsdao.update(ts1)
+
+		ts2 = tsdao.getById(tsid)
+		print ts2
+
+		res = tsdao.getFromTo("2010-07-01 9:00", "2010-07-01 12:00")
+		print res
+
+		tss = TimeSlot()
+		tss.title = "show"
+		res = tsdao.search(tss)
+		print res
+		
 		tsdao.removeById(tsid)
 		playlistdao.removeById(plid)
+		udao.removeByName(u1.name)
+		udao.removeByName(u2.name)
+		rdao.removeByName(r.rolename)
 		conn.close()
 
 #execute
 print "---"
-test0()
+#test0()
+roledaotest()
+userdaotest()
 mediafilesdaotest()
 playlistdaotest()
 timeslotdaotest()

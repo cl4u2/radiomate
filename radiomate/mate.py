@@ -24,6 +24,7 @@ class RadioMateException(Exception):
 		"Just a generic Exception class"
 		pass
 
+
 class RadioMateParentClass(object):
 		"The parent class from which the other classes representing entities inherit"
 		def __setattr(self, name, value):
@@ -73,8 +74,6 @@ class RadioMateParentClass(object):
 								isinstance(self.__dict__[k], basestring):
 										d.update({k:v})
 				return d
-
-
 
 
 class Role(RadioMateParentClass):
@@ -149,7 +148,6 @@ class MediaFile(RadioMateParentClass):
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
 						self.__setattr__(k, v)
-		
 
 
 class PlayList(RadioMateParentClass):
@@ -226,7 +224,7 @@ class TimeSlot(RadioMateParentClass):
 						return
 
 				try:
-						return RadioMateParentClass.__setattr__(self, name, value)
+					return RadioMateParentClass.__setattr__(self, name, value)
 				except RadioMateException:
 						pass
 
@@ -287,6 +285,22 @@ class TimeSlot(RadioMateParentClass):
 				ts = self.getEndingTimestamp()
 				tt = time.localtime(ts)
 				return "%04d-%02d-%02d %02d:%02d" % tt[:5]
+
+		def setBeginningDateTime(self, thetime):
+				"given a string in YYYY-MM-DD HH:MM:SS format set the beginning time"
+				tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
+				self.beginningyear = tm.tm_year
+				self.beginningmonth = tm.tm_mon
+				self.beginningday = tm.tm_mday
+				self.beginninghour = tm.tm_hour
+				self.beginningminute = tm.tm_min
+		
+		def setEndingDateTime(self, thetime):
+				"given a string in YYYY-MM-DD HH:MM:SS format set the duration from the beginning time"
+				tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
+				endts = time.mktime(tm)
+				startts = self.getBeginningTimestamp()
+				self.duration = int((endts - startts)/60)
 
 
 

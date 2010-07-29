@@ -163,6 +163,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 				cursor.execute(updatestring)
 
 		def insert(self, roleobject):
+				"Create a new Role"
 				try:
 						cursor = self.conn.cursor()
 						self.__insert(roleobject, cursor)
@@ -174,6 +175,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 		
 		def getByName(self, rolename):
+				"Get a Role from its name"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__getByName(rolename, cursor)
@@ -189,6 +191,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def removeByName(self, rolename):
+				"Remove a Role from its name"
 				try:
 						cursor = self.conn.cursor()
 						self.__removeByName(rolename, cursor)
@@ -200,6 +203,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def getAll(self):
+				"Get the list of all Roles"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__getAll(cursor)
@@ -217,6 +221,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 		
 		def update(self, roleobject):
+				"Update an existing Role"
 				try:
 						cursor = self.conn.cursor()
 						self.__update(roleobject, cursor)
@@ -257,6 +262,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						password,
 						displayname,
 						role
+				FROM users
 				WHERE name = '%s'""" % username
 				#debug
 				print selectionstring
@@ -302,8 +308,8 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				print updatestring
 				cursor.execute(updatestring)
 
-
 		def insert(self, userobject):
+				"Insert a new user"
 				try:
 						cursor = self.conn.cursor()
 						self.__insert(userobject, cursor)
@@ -315,6 +321,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 		
 		def getByName(self, username):
+				"Get an user from its username"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__getByName(username, cursor)
@@ -326,13 +333,14 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						#debug
 
 						u = User(resultdicts[0])
-						roledao = RoleMysqlDAO()
+						roledao = RoleMysqlDAO(self.conn)
 						u.role = roledao.getByName(u.rolename)
 						return u
 				except MySQLdb.Error, e:
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def removeByName(self, username):
+				"Remove an user from its username"
 				try:
 						cursor = self.conn.cursor()
 						self.__removeByName(username, cursor)
@@ -344,6 +352,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def getAll(self):
+				"Get the list of all users"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__getAll(cursor)
@@ -364,6 +373,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def update(self, userobject):
+				"Update an existing user"
 				try:
 						cursor = self.conn.cursor()
 						self.__update(userobject, cursor)
@@ -464,66 +474,39 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						tags
 				FROM mediafiles
 				"""
+				def whereand(n):
+						if n == 0:
+								return " WHERE "
+						else:
+								return " AND "
 				i = 0
 				if partialmediafile.user:
-						searchstring += "WHERE user LIKE '\%%s\%' " % partialmediafile.user
+						searchstring += whereand(i) + " user LIKE '%%%s%%' " % partialmediafile.user
 						i+=1
 				if partialmediafile.path:
-						if i:
-								searchstring += " AND "
-						else:
-								searchstring += " WHERE "
+						searchstring += whereand(i) + " path LIKE '%%%s%%' " % partialmediafile.path
 						i+=1
-						searchstring += " path LIKE '\%%s\%' " % partialmediafile.path
 				if partialmediafile.title:
-						if i:
-								searchstring += " AND "
-						else:
-								searchstring += " WHERE "
+						searchstring += whereand(i) + " title LIKE '%%%s%%' " % partialmediafile.title
 						i+=1
-						searchstring += " title LIKE '\%%s\%' " % partialmediafile.title
 				if partialmediafile.author:
-						if i:
-								searchstring += " AND "
-						else:
-								searchstring += " WHERE "
+						searchstring += whereand(i) + " author LIKE '%%%s%%' " % partialmediafile.author
 						i+=1
-						searchstring += " author LIKE '\%%s\%' " % partialmediafile.author
 				if partialmediafile.album:
-						if i:
-								searchstring += " AND "
-						else:
-								searchstring += " WHERE "
+						searchstring += whereand(i) + " album LIKE '%%%s%%' " % partialmediafile.album
 						i+=1
-						searchstring += " album LIKE '\%%s\%' " % partialmediafile.album
 				if partialmediafile.genre:
-						if i:
-								searchstring += " AND "
-						else:
-								searchstring += " WHERE "
+						searchstring += whereand(i) + " genre LIKE '%%%s%%' " % partialmediafile.genre
 						i+=1
-						searchstring += " genre LIKE '\%%s\%' " % partialmediafile.genre
 				if partialmediafile.year:
-						if i:
-								searchstring += " AND "
-						else:
-								searchstring += " WHERE "
+						searchstring += whereand(i) + " year = %d " % partialmediafile.year
 						i+=1
-						searchstring += " year = %d " % partialmediafile.year
 				if partialmediafile.comment:
-						if i:
-								searchstring += " AND "
-						else:
-								searchstring += " WHERE "
+						searchstring += whereand(i) + " comment LIKE '%%%s%%' " % partialmediafile.comment
 						i+=1
-						searchstring += " comment LIKE '\%%s\%' " % partialmediafile.comment
 				if partialmediafile.license:
-						if i:
-								searchstring += " AND "
-						else:
-								searchstring += " WHERE "
+						searchstring += whereand(i) + " license LIKE '%%%s%%' " % partialmediafile.license
 						i+=1
-						searchstring += " license LIKE '\%%s\%' " % partialmediafile.license
 				#TODO: tags
 				#debug
 				print searchstring
@@ -546,7 +529,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						license = '%s',
 						tags = '%s'
 				WHERE 
-						mediafileobject.id = '%d'
+						id = '%d'
 				""" % (
 						mediafileobject.user,
 						mediafileobject.path, 
@@ -566,6 +549,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 				cursor.execute(updatestring)
 
 		def insert(self, mediafileobject):
+				"Insert a new media file"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						self.__insert(mediafileobject, cursor)
@@ -579,6 +563,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 		
 		def getById(self, mediafileid):
+				"Get a media file from its id"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__getById(mediafileid, cursor)
@@ -594,6 +579,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def removeById(self, mediafileid):
+				"Remove a media file from its id"
 				try:
 						cursor = self.conn.cursor()
 						self.__removeById(mediafileid, cursor)
@@ -605,6 +591,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def search(self, partialmediafile):
+				"Search for a media file"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__search(partialmediafile, cursor)
@@ -620,6 +607,21 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						return res
 				except MySQLdb.Error, e:
 						print "Error %d: %s" % (e.args[0], e.args[1])
+		
+		def update(self, mediafileobject):
+				"Update an existing media file"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						self.__update(mediafileobject, cursor)
+						self.conn.commit()
+						lastid = mediafileobject.id
+						cursor.close()
+						#debug
+						print "Number of mediafile rows updated: %d. id = %d" % (cursor.rowcount, lastid)
+						return lastid
+				except MySQLdb.Error, e:
+						print "Error %d: %s" % (e.args[0], e.args[1])
+
 
 class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 		"The MySQL Database Access Object for playlists"
@@ -700,6 +702,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 		def __getById(self, playlistid, cursor):
 				selectionstring = """
 				SELECT  
+						id,
 						creator,
 						fallback,
 						title,
@@ -806,6 +809,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 		def __getByCreator(self, creatorname, cursor):
 				selectionstring = """
 				SELECT  
+						id,
 						creator,
 						fallback,
 						title,
@@ -818,8 +822,26 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				print selectionstring
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
+		
+		def __getByUser(self, username, cursor):
+				"Returns playlist ids in which the user is creator, owner or viewer"
+				selectionstring = """
+				SELECT  
+						playlists.id
+				FROM playlists JOIN (playlistowners, playlistviewers)
+				ON (playlistowners.playlist = playlists.id AND playlistviewers.playlist = playlists.id)
+				WHERE 
+				playlists.creator = '%s' OR
+				playlistowners.user = '%s' OR
+				playlistviewers.user = '%s'
+				""" % (username, username, username)
+				#debug
+				print selectionstring
+				cursor.execute(selectionstring)
+				return cursor.fetchall()
 
 		def insert(self, playlistobject):
+				"Insert a new Playlist in the database"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						self.__insert(playlistobject, cursor)
@@ -840,6 +862,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 		
 		def getById(self, playlistid):
+				"Get a Playlist from its id"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__getById(playlistid, cursor)
@@ -871,6 +894,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def removeById(self, playlistid):
+				"Remove a playlist from its id"
 				try:
 						cursor = self.conn.cursor()
 						self.__removeById(playlistid, cursor)
@@ -882,6 +906,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def update(self, playlistobject):
+				"Update an existing playlist"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						self.__deleteCompilationOwnersAndViewers(playlistobject.id, cursor)
@@ -903,6 +928,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 		
 		def getByCreator(self, creatorname):
+				"Get the playlists of a given creator"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						plresultdicts = self.__getByCreator(creatorname, cursor)
@@ -931,6 +957,26 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 
 								res.append(pl)
 						cursor.close()
+						return res
+				except MySQLdb.Error, e:
+						print "Error %d: %s" % (e.args[0], e.args[1])
+
+		def getByUser(self, username):
+				"Returns playlists in which the user is creator, owner or viewer"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						plresultdicts = self.__getByUser(username, cursor)
+						cursor.close()
+
+						#debug
+						print "Number of playlist rows fetched: %d" % len(plresultdicts)
+						#debug
+						res = []
+						for plres in plresultdicts:
+								assert len(plres) == 1
+								plid = plres['id']
+								pl = self.getById(plid)
+								res.append(pl)
 						return res
 				except MySQLdb.Error, e:
 						print "Error %d: %s" % (e.args[0], e.args[1])
@@ -1062,9 +1108,107 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				print deletionstring
 				cursor.execute(deletionstring)
 		
+		def __update(self, timeslotobject, cursor):
+				updatestring = """
+				UPDATE timeslots 
+				SET 
+						creator = '%s', 
+						slottype = '%s',
+						beginningtime = '%s',
+						endingtime = '%s',
+						title = '%s',
+						description = '%s',
+						comment = '%s',
+						tags = '%s',
+						slotparameters = '%s',
+						fallbackplaylist = %d
+				WHERE id = %d
+				""" % (
+						timeslotobject.creator,
+						timeslotobject.slottype,
+						timeslotobject.getBeginningDatetime(),
+						timeslotobject.getEndingDatetime(),
+						timeslotobject.title,
+						timeslotobject.description,
+						timeslotobject.comment,
+						timeslotobject.tags,
+						json.dumps(timeslotobject.slotparams),
+						timeslotobject.fallbackplaylist,
+						timeslotobject.id
+				)
+				#debug
+				print updatestring
+				cursor.execute(updatestring)
+		
+		def __getFromTo(self, fromdate, todate, cursor):
+				"fromdate and todate are date+time strings"
+				selectionstring = """
+				SELECT  
+						id,
+						creator, 
+						slottype,
+						beginningtime,
+						endingtime,
+						title,
+						description,
+						comment,
+						slotparameters,
+						fallbackplaylist,
+						tags
+				FROM timeslots
+				WHERE beginningtime >= '%s' AND beginningtime <= '%s'""" % (fromdate, todate)
+				#debug
+				print selectionstring
+				cursor.execute(selectionstring)
+				return cursor.fetchall()
+		
+		def __search(self, timeslotobject, cursor):
+				"Search for timeslots"
+				selectionstring = """
+				SELECT  
+						id,
+						creator, 
+						slottype,
+						beginningtime,
+						endingtime,
+						title,
+						description,
+						comment,
+						slotparameters,
+						fallbackplaylist,
+						tags
+				FROM timeslots
+				"""
+
+				def whereand(n):
+						if n == 0:
+								return " WHERE "
+						else:
+								return "OR"
+				i = 0
+				if timeslotobject.title:
+						selectionstring += whereand(i) + " title LIKE '%%%s%%' " % timeslotobject.title
+						i+=1
+				if timeslotobject.description:
+						selectionstring += whereand(i) + " description LIKE '%%%s%%' " % timeslotobject.description
+						i+=1
+				if timeslotobject.comment:
+						selectionstring += whereand(i) + " comment LIKE '%%%s%%' " % timeslotobject.comment
+						i+=1
+				if timeslotobject.tags:
+						selectionstring += whereand(i) + " tags LIKE '%%%s%%' " % timeslotobject.tags
+						i+=1
+				if timeslotobject.creator:
+						selectionstring += whereand(i) + " creator = '%s'" % timeslotobject.creator
+				#debug
+				print selectionstring
+				cursor.execute(selectionstring)
+				return cursor.fetchall()
+		
 		def isGoodTimeSlot(self, timeslotobject):
+				"Returns true iff the timeslot does not conflict with existing timeslots"
 				try:
-						cursor = self.conn.cursor()
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__isGoodTimeSlot(timeslotobject, cursor)
 						cursor.close()
 						
@@ -1074,12 +1218,16 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 
 						if len(resultdicts) == 0:
 								return True
+						elif len(resultdicts) == 1:
+								if int(resultdicts[0]['id']) == timeslotobject.id:
+										return True
 						else:
 								return False
 				except MySQLdb.Error, e:
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def insert(self, timeslotobject):
+				"Insert a new timeslot in the database"
 				try:
 						if not self.isGoodTimeSlot(timeslotobject):
 								raise RadioMateBadTimeSlotException()
@@ -1095,6 +1243,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 		
 		def getById(self, timeslotid):
+				"Get a timeslot from its id"
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__getById(timeslotid, cursor)
@@ -1114,10 +1263,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						ts.description = rs['description']
 						ts.comment = rs['comment']
 						ts.tags = rs['tags']
-						begintime = int(rs['beginningtime'])
-						ts.beginningtime = begintime
-						endtime = int(rs['endingtime'])
-						ts.duration = (endtime - begintime)/60
+						ts.setBeginningDateTime(rs['beginningtime'])
+						ts.setEndingDateTime(rs['endingtime'])
 						ts.slotparams = json.loads(rs['slotparameters'])
 						ts.fallbackplaylist = rs['fallbackplaylist']
 						return ts
@@ -1125,6 +1272,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						print "Error %d: %s" % (e.args[0], e.args[1])
 
 		def removeById(self, timeslotid):
+				"Remove a timeslot from its id"
 				try:
 						cursor = self.conn.cursor()
 						self.__removeById(timeslotid, cursor)
@@ -1134,4 +1282,82 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						print "Number of timeslot rows deleted: %d" % cursor.rowcount
 				except MySQLdb.Error, e:
 						print "Error %d: %s" % (e.args[0], e.args[1])
+
+		def update(self, timeslotobject):
+				"Update an existing timeslot"
+				try:
+						if not self.isGoodTimeSlot(timeslotobject):
+								raise RadioMateBadTimeSlotException()
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						self.__update(timeslotobject, cursor)
+						self.conn.commit()
+						lastid = timeslotobject.id
+						cursor.close()
+						#debug
+						print "Number of timeslot rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid)
+						return lastid
+				except MySQLdb.Error, e:
+						print "Error %d: %s" % (e.args[0], e.args[1])
+
+		def getFromTo(self, fromdate, todate):
+				"Get timeslots between fromdate and todate date+time strings"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						resultdicts = self.__getFromTo(fromdate, todate, cursor)
+						cursor.close()
+
+						#debug
+						print "Number of timeslot rows fetched: %d" % len(resultdicts)
+						#debug
+
+						res = []
+						for rs in resultdicts:
+								ts = TimeSlot()
+								ts.id = rs['id']
+								ts.creator = rs['creator']
+								ts.slottype = rs['slottype']
+								ts.title = rs['title']
+								ts.description = rs['description']
+								ts.comment = rs['comment']
+								ts.tags = rs['tags']
+								ts.setBeginningDateTime(rs['beginningtime'])
+								ts.setEndingDateTime(rs['endingtime'])
+								ts.slotparams = json.loads(rs['slotparameters'])
+								ts.fallbackplaylist = rs['fallbackplaylist']
+								res.append(ts)
+						return res
+				except MySQLdb.Error, e:
+						print "Error %d: %s" % (e.args[0], e.args[1])
+		
+		def search(self, timeslotobject):
+				"Search for timeslots using the title, comment, description, tags and creator properties of timeslotobject"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						resultdicts = self.__search(timeslotobject, cursor)
+						cursor.close()
+
+						#debug
+						print "Number of timeslot rows fetched: %d" % len(resultdicts)
+						#debug
+
+						res = []
+						for rs in resultdicts:
+								ts = TimeSlot()
+								ts.id = rs['id']
+								ts.creator = rs['creator']
+								ts.slottype = rs['slottype']
+								ts.title = rs['title']
+								ts.description = rs['description']
+								ts.comment = rs['comment']
+								ts.tags = rs['tags']
+								ts.setBeginningDateTime(rs['beginningtime'])
+								ts.setEndingDateTime(rs['endingtime'])
+								ts.slotparams = json.loads(rs['slotparameters'])
+								ts.fallbackplaylist = rs['fallbackplaylist']
+								res.append(ts)
+						return res
+				except MySQLdb.Error, e:
+						print "Error %d: %s" % (e.args[0], e.args[1])
+
+
 
