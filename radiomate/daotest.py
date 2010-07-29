@@ -1,6 +1,7 @@
 # Test of the dao module
 
 import json
+import mysqldao as dao
 from dao import *
 import sys
 

@@ -21,6 +21,7 @@ import MySQLdb
 import json
 from mate import *
 
+# The MySQL Data Access Objects
 
 class RadioMateBadTimeSlotException(Exception):
 		"Exception to raise if a timeslot cannot fit into the radio's timetable"
