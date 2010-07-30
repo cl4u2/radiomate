@@ -20,26 +20,40 @@
 import MySQLdb
 import json
 from mate import *
+from daobase import *
 
 # The MySQL Data Access Objects
 
-class RadioMateBadTimeSlotException(Exception):
-		"Exception to raise if a timeslot cannot fit into the radio's timetable"
-		pass
+class MysqlConnectionManager(RadioMateConnectionManager):
+		"given the right parameters connect to the database"
+		def __init__(self, dbhost, dbuser, dbpassword, database):
+				RadioMateConnectionManager.__init__(self, dbhost, dbuser, dbpassword, database)
+				conn = MySQLdb.connect(
+								host = self.dbhost, 
+								user = self.dbuser, 
+								passwd = self.dbpassword, 
+								db = self.database
+								)
+				assert isinstance(conn, MySQLdb.connections.Connection)
+				self.conn = conn
 
+		def __del__(self):
+				self.conn.close()
 
-class RadioMateDAOException(Exception):
-		"Exception to raise if there are problems interacting with the database"
-		pass
+		def getMysqlConnection(self):
+				return self.conn
 
 
 class RadioMateParentMysqlDAO(object):
 		"The parent class from which the other classess representing MySQL Database Access Objects (DAOs) inherit"
-		def __init__(self, connection):
-				if isinstance(connection, MySQLdb.connections.Connection):
-						self.conn = connection
+		def __init__(self, conn):
+				if isinstance(conn, MysqlConnectionManager):
+						self.connectionmanager = conn
+						self.conn = self.connectionmanager.getMysqlConnection()
+				elif isinstance(conn, MySQLdb.connections.Connection):
+						self.conn = conn
 				else:
-						raise RadioMateException("Is not a MySQL connection: %s", self.conn)
+						raise RadioMateDAOException("Invalid object for MySQL connection: %s", self.conn)
 
 
 class RoleMysqlDAO(RadioMateParentMysqlDAO):
@@ -177,6 +191,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of role rows inserted: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 		
@@ -205,6 +220,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of role rows deleted: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
@@ -235,6 +251,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of role rows updated: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
@@ -323,6 +340,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of user rows inserted: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 		
@@ -354,6 +372,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of user rows deleted: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
@@ -387,6 +406,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of user rows updated: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 		
@@ -593,6 +613,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of mediafile rows deleted: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
@@ -908,6 +929,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of playlist rows deleted: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
@@ -1286,6 +1308,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						#debug
 						print "Number of timeslot rows deleted: %d" % cursor.rowcount
+						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 

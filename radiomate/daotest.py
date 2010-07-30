@@ -1,9 +1,11 @@
 # Test of the dao module
 
 import json
-import mysqldao as dao
+from daobase import RadioMateDAOException
 from dao import *
+from mate import *
 import sys
+import MySQLdb
 
 # connection parameters
 DBHOST="127.0.0.1"
@@ -111,7 +113,7 @@ def test0():
 						passwd = DBPASSWORD,
 						db = DATABASE
 						)
-		roledao = RoleMysqlDAO(conn)
+		roledao = RoleDAO(conn)
 		roledao.insert(r)
 		r.rolename = "scemodelvillaggio"
 		roledao.insert(r)
@@ -141,7 +143,7 @@ def test0():
 		u.displayname = "Mr. Pippo 3"
 		u.rolename = "scemodelvillaggio2"
 		print u
-		udao = UserMysqlDAO(conn)
+		udao = UserDAO(conn)
 		udao.insert(u)
 		ulist = udao.getAll()
 		for u in ulist:
@@ -151,13 +153,13 @@ def test0():
 def roledaotest():
 		r = Role()
 		r.rolename = "testrole"
-		conn = MySQLdb.connect( 
-						host = DBHOST, 
-						user = DBUSER,
-						passwd = DBPASSWORD,
-						db = DATABASE
+		cm = DBConnectionManager(
+						dbhost = DBHOST, 
+						dbuser = DBUSER,
+						dbpassword = DBPASSWORD,
+						database = DATABASE
 						)
-		roledao = RoleMysqlDAO(conn)
+		roledao = RoleDAO(cm)
 		roledao.insert(r)
 		r1 = roledao.getByName("testrole")
 		print r1
@@ -168,24 +170,23 @@ def roledaotest():
 		r2 = roledao.getByName("testrole")
 		print r2
 		roledao.removeByName("testrole")
-		conn.close()
 
 def userdaotest():
 		r = Role()
 		r.rolename = "testrole"
-		conn = MySQLdb.connect( 
-						host = DBHOST, 
-						user = DBUSER,
-						passwd = DBPASSWORD,
-						db = DATABASE
+		cm = DBConnectionManager(
+						dbhost = DBHOST, 
+						dbuser = DBUSER,
+						dbpassword = DBPASSWORD,
+						database = DATABASE
 						)
-		roledao = RoleMysqlDAO(conn)
+		roledao = RoleDAO(cm)
 		roledao.insert(r)
 		u = User()
 		u.name = "testuser"
 		u.displayname = "Test User"
 		u.rolename = r.rolename
-		userdao = UserMysqlDAO(conn)
+		userdao = UserDAO(cm)
 		userdao.insert(u)
 		u1 = userdao.getByName(u.name)
 		print u1
@@ -217,18 +218,18 @@ def mediafilesdaotest():
 		mf.comment = "very good music"
 		mf.license = "CC"
 		mf.tags = "shakerobba,steam,wolves"
-		conn = MySQLdb.connect( 
-						host = DBHOST, 
-						user = DBUSER,
-						passwd = DBPASSWORD,
-						db = DATABASE
+		cm = DBConnectionManager(
+						dbhost = DBHOST, 
+						dbuser = DBUSER,
+						dbpassword = DBPASSWORD,
+						database = DATABASE
 						)
-		rdao = RoleMysqlDAO(conn)
+		rdao = RoleDAO(cm)
 		rdao.insert(r)
 
-		udao = UserMysqlDAO(conn)
+		udao = UserDAO(cm)
 		udao.insert(u)
-		mediafiledao = MediaFileMysqlDAO(conn)
+		mediafiledao = MediaFileDAO(cm)
 		id = mediafiledao.insert(mf)
 		mf2 = mediafiledao.getById(id)
 		print mf2
@@ -241,20 +242,20 @@ def mediafilesdaotest():
 		rdao.removeByName(r.rolename)
 
 def playlistdaotest():
-		conn = MySQLdb.connect( 
-						host = DBHOST, 
-						user = DBUSER,
-						passwd = DBPASSWORD,
-						db = DATABASE
+		cm = DBConnectionManager(
+						dbhost = DBHOST, 
+						dbuser = DBUSER,
+						dbpassword = DBPASSWORD,
+						database = DATABASE
 						)
 		r = Role()
 		r.rolename = "testrole"
-		rdao = RoleMysqlDAO(conn)
+		rdao = RoleDAO(cm)
 		rdao.insert(r)
 		u1 = User()
 		u1.name = "foobar"
 		u1.rolename = r.rolename
-		udao = UserMysqlDAO(conn)
+		udao = UserDAO(cm)
 		udao.insert(u1)
 		u2 = User()
 		u2.name = "foobar2"
@@ -287,7 +288,7 @@ def playlistdaotest():
 		mf2.license = "CC"
 		mf2.tags = "shakerobba,steam,wolves,sequel"
 		
-		mediafiledao = MediaFileMysqlDAO(conn)
+		mediafiledao = MediaFileDAO(cm)
 		id1 = mediafiledao.insert(mf)
 		id2 = mediafiledao.insert(mf2)
 		mf = mediafiledao.getById(id1)
@@ -309,7 +310,7 @@ def playlistdaotest():
 
 		print pl
 
-		playlistdao = PlayListMysqlDAO(conn)
+		playlistdao = PlayListDAO(cm)
 		plid = playlistdao.insert(pl)
 		print plid
 		pl2 = playlistdao.getById(plid)
@@ -332,20 +333,19 @@ def playlistdaotest():
 		udao.removeByName(u1.name)
 		udao.removeByName(u2.name)
 		rdao.removeByName(r.rolename)
-		conn.close()
 
 def timeslotdaotest():
-		conn = MySQLdb.connect( 
-						host = DBHOST, 
-						user = DBUSER,
-						passwd = DBPASSWORD,
-						db = DATABASE
+		cm = DBConnectionManager(
+						dbhost = DBHOST, 
+						dbuser = DBUSER,
+						dbpassword = DBPASSWORD,
+						database = DATABASE
 						)
 		r = Role()
 		r.rolename = "testrole"
-		rdao = RoleMysqlDAO(conn)
+		rdao = RoleDAO(cm)
 		rdao.insert(r)
-		udao = UserMysqlDAO(conn)
+		udao = UserDAO(cm)
 		u1 = User()
 		u1.name = "foobar"
 		u1.rolename = "testrole"
@@ -377,12 +377,12 @@ def timeslotdaotest():
 		pl.description = "testing dao"
 		pl.comment = ":)"
 		pl.tags = "test,prova,foo,bar"
-		playlistdao = PlayListMysqlDAO(conn)
+		playlistdao = PlayListDAO(cm)
 		plid = playlistdao.insert(pl)
 
 		ts.fallbackplaylist = plid
 
-		tsdao = TimeSlotMysqlDAO(conn)
+		tsdao = TimeSlotDAO(cm)
 		tsid = tsdao.insert(ts)
 
 		ts1 = tsdao.getById(tsid)
@@ -405,7 +405,6 @@ def timeslotdaotest():
 		udao.removeByName(u1.name)
 		udao.removeByName(u2.name)
 		rdao.removeByName(r.rolename)
-		conn.close()
 
 def exceptiontest():
 		conn = MySQLdb.connect( 
