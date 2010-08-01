@@ -204,10 +204,13 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 
 						#debug
 						print "Number of role rows fetched: %d" % len(resultdicts)
-						assert len(resultdicts) == 1
+						assert len(resultdicts) <= 1
 						#debug
 
-						return Role(resultdicts[0])
+						if len(resultdicts) == 1:
+								return Role(resultdicts[0])
+						else:
+								return None
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
@@ -279,6 +282,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				cursor.execute(insertionstring)
 
 		def __getByName(self, username, cursor):
+				#TODO: passwords should NEVER leave the database!!!
 				selectionstring = """
 				SELECT  
 						name,
@@ -353,13 +357,16 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 
 						#debug
 						print "Number of user rows fetched: %d" % len(resultdicts)
-						assert len(resultdicts) == 1
+						assert len(resultdicts) <= 1
 						#debug
 
-						u = User(resultdicts[0])
-						roledao = RoleMysqlDAO(self.conn)
-						u.role = roledao.getByName(u.rolename)
-						return u
+						if len(resultdicts) == 1:
+								u = User(resultdicts[0])
+								roledao = RoleMysqlDAO(self.conn)
+								u.role = roledao.getByName(u.rolename)
+								return u
+						else:
+								return None
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 

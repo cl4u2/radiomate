@@ -37,7 +37,7 @@ class RadioMateParentClass(object):
 		def __setattr__(self, name, value):
 						# check correctness of name
 						if not name in self.__dict__.keys():
-								raise RadioMateException("Wrong parameter name: %s" % name)
+								raise RadioMateException("wrong parameter name: %s" % name)
 						# check value and insert it
 						try:
 								if type(self.__dict__[name]) == type(value):
@@ -53,7 +53,7 @@ class RadioMateParentClass(object):
 								elif isinstance(self.__dict__[name], int) and isinstance(value, basestring):
 										self.__setattr(name, int(value))
 								else:
-										raise RadioMateException("Wrong parameter type: %s (%s) in %s (%s)" \
+										raise RadioMateException("wrong parameter type: %s (%s) in %s (%s)" \
 														% (value, type(value), name, type(self.__dict__[name])))
 						except ValueError:
 										raise RadioMateException("Cannot convert %s (%s) to %s" % \
@@ -116,8 +116,9 @@ class User(RadioMateParentClass):
 		def __setattr__(self, name, value):
 				try:
 						return RadioMateParentClass.__setattr__(self, name, value)
-				except RadioMateException:
-						pass
+				except RadioMateException, e:
+						#debug
+						print str(e)
 				if name != "role":
 						raise RadioMateException("Wrong parameter name: %s" % name)
 				if isinstance(value, basestring):
