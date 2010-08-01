@@ -1,5 +1,5 @@
 
-from jsonic import *
+from jsonif import *
 
 def roletest():
 		jp = RadioMateJSONProcessor()
