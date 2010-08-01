@@ -54,6 +54,7 @@
 		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
 		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
 		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
+		"canListNetcasts": (true|false) #ability to list archive/podcasts/netcasts
 	}
 }
 
@@ -67,9 +68,8 @@
 	"request": "editrole",
 	"username": <role editor's username>,
 	"password": <role editor's password>,
-	"remove": (true|false), #delete an existing role
 	"role" : {
-		"rolename": <name>, #if "remove" is true, then only this field is taken in consideration
+		"rolename": <name>, #mandatory
 		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
 		"canManageUsers": (true|false),  #true if the user can create/edit/delete users
 		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
@@ -81,6 +81,7 @@
 		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
 		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
 		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
+		"canListNetcasts": (true|false) #ability to list archive/podcasts/netcasts
 	}
 }
 
@@ -89,8 +90,7 @@
 	"response": ("roleedited" | "notallowed" | "dontexists" | "servererror" | "error"),
 	"responsen": (0|1|2|3|4),
 	"description": <textual description>,
-	"removed": (true|false), #existing role deleted
-	"role" : { #the role that has been edited or null
+	"role" : { #the role whose editing was requested, or null
 		"rolename": <name>,
 		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
 		"canManageUsers": (true|false),  #true if the user can create/edit/delete users
@@ -104,11 +104,123 @@
 		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
 		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
 		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
+		"canListNetcasts": (true|false) #ability to list archive/podcasts/netcasts
 	}
 }
 
 }}}
 
+=== Remove an Existing Role ===
+
+{{{
+
+{
+	"request": "removerole",
+	"username": <role editor's username>,
+	"password": <role editor's password>,
+	"rolename": <name> 
+}
+
+
+{
+	"response": ("roleremoved" | "notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"rolename": <name>,
+}
+
+}}}
+
+=== List all Roles ===
+
+{{{
+
+{
+	"request": "listroles",
+	"username": <requestor's username>,
+	"password": <requestor's password>,
+}
+
+
+{
+	"response": ("rolelistfollows" | "notallowed" | "servererror" | "error"),
+	"responsen": (0|1|3|4),
+	"description": <textual description>,
+	"listlength": <number of items in the list>,
+	"rolelist" : [ # list of roles, or null
+			"role" : { 
+				"rolename": <name>,
+				"canManageRoles": (true|false),  
+				"canManageUsers": (true|false),  
+				"canListUsers": (true|false),  
+				"canManageAllPlaylists": (true|false),  
+				"canRegisterFiles": (true|false), 
+				"canManageRegisteredFiles": (true|false), 
+				"canSearchRegisteredFiles": (true|false), 
+				"canManageTimetable": (true|false),  
+				"fixedSlotTime": (true|false), 
+				"fixedSlotTimesList": <array of fixed slot times, in minutes>, 
+				"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+				"canCreateTestMountpoint": (true|false), 
+				"canListNetcasts": (true|false) 
+			},
+			"role" : { 
+				"rolename": <name>,
+				"canManageRoles": (true|false),  
+				"canManageUsers": (true|false),  
+				"canListUsers": (true|false),  
+				"canManageAllPlaylists": (true|false),  
+				"canRegisterFiles": (true|false), 
+				"canManageRegisteredFiles": (true|false), 
+				"canSearchRegisteredFiles": (true|false), 
+				"canManageTimetable": (true|false),  
+				"fixedSlotTime": (true|false),
+				"fixedSlotTimesList": <array of fixed slot times, in minutes>, 
+				"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+				"canCreateTestMountpoint": (true|false), 
+				"canListNetcasts": (true|false) 
+			},
+			...
+	]
+}
+
+}}}
+
+=== Get an Existing Role's details ===
+
+{{{
+
+{
+	"request": "getrole",
+	"username": <requestor's username>,
+	"password": <requestor's password>,
+	"rolename": <requested role's name> 
+}
+
+
+{
+	"response": ("roleretrieved" | "notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"role" : { #the requested role, or null
+		"rolename": <name>,
+		"canManageRoles": (true|false),  
+		"canManageUsers": (true|false),  
+		"canListUsers": (true|false),  
+		"canManageAllPlaylists": (true|false),  
+		"canRegisterFiles": (true|false), 
+		"canManageRegisteredFiles": (true|false), 
+		"canSearchRegisteredFiles": (true|false), 
+		"canManageTimetable": (true|false),  
+		"fixedSlotTime": (true|false), 
+		"fixedSlotTimesList": <array of fixed slot times, in minutes>, 
+		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+		"canCreateTestMountpoint": (true|false), 
+		"canListNetcasts": (true|false) 
+	}
+}
+
+}}}
 
 === Create a New User ===
 
@@ -128,14 +240,14 @@
 
 
 {
-	"response":("usercreated"|"notallowed" | "alreadyexists" | "servererror" | "error"),
+	"response":("usercreated" | "notallowed" | "alreadyexists" | "servererror" | "error"),
 	"responsen": (0|1|2|3|4),
 	"description": <textual description>,
 	"user" : { #the user that has been created or null
 		"name": <name>,
 		"password": <password>,
 		"displayname": <name to be displayed>,
-		"rolename": <existing role name>
+		"rolename": <role name>
 	}
 }
 
@@ -149,7 +261,6 @@
 	"request":"edituser",
 	"username": <editor's username>,
 	"password": <editor's password>,
-	"remove": (true|false), #remove an existing user
 	"user" : {
 		"name": <name>,
 		"password": <password>,
@@ -160,21 +271,67 @@
 
 
 {
-	"response":("useredited"|"notallowed" | "dontexists" | "servererror" | "error"),
+	"response":("useredited" | "notallowed" | "dontexists" | "servererror" | "error"),
 	"responsen": (0|1|2|3|4),
 	"description": <textual description>,
-	"removed": (true|false), #existing user removed
-	"user" : { #the user that has been edited or null
+	"user" : { #the user whose editing has been requested, or null
 		"name": <name>,
 		"password": <password>,
 		"displayname": <name to be displayed>,
-		"rolename": <existing role name>
+		"rolename": <role name>
 	}
 }
 
 }}}
 
-=== List/Display One or More Users ===
+=== Remove an Existing User ===
+
+{{{
+
+{
+	"request": "removeuser",
+	"username": <user editor's username>,
+	"password": <user editor's password>,
+	"name": <username of the user to be removed> 
+}
+
+
+{
+	"response": ("userremoved" | "notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"name": <username of the user whose removal was requested>,
+}
+
+}}}
+
+=== Retrieve an User's Details ==
+
+{{{
+
+{
+	"request": "getuser",
+	"username": <requestor's username>,
+	"password": <requestor's password>
+	"name": <user name of the user to be retrieved>
+}
+
+
+{
+	"response":("userretrieved" | "notallowed" | "dontexists" | "servererror" | "error"),
+	"responsen": (0|1|2|3|4),
+	"description": <textual description>,
+	"user" : { 
+			"name": <username>,
+			"displayname": <name to be displayed>,
+			"rolename": <role name>
+	}
+}
+
+}}}
+
+
+=== List All Users ===
 
 {{{
 
@@ -182,14 +339,14 @@
 	"request":"listusers",
 	"username": <username>,
 	"password": <password>,
-	"requsername": <name of the requested user or null for a list of all users>
 }
 
 
 {
-	"response":("userlistfollows"|"notallowed"| "servererror"|"error"),
-	"responsen": (0|1|2|4),
+	"response":("userlistfollows" | "notallowed"| "dontexists" | "servererror"| "error"),
+	"responsen": (0|1|2|3|4),
 	"description": <textual description>,
+	"listlength": <the length of the user's list>,
     "userlist" : [ # an array of users
 		"user" : { 
 			"name": <username>,
