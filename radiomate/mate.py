@@ -68,6 +68,8 @@ class RadioMateParentClass(object):
 		def dictexport(self):
 				d = {}
 				for k, v in self.__dict__.iteritems():
+						if k == "password":
+								continue
 						if isinstance(self.__dict__[k], bool) or \
 								isinstance(self.__dict__[k], int) or \
 								isinstance(self.__dict__[k], long) or \
@@ -126,7 +128,7 @@ class User(RadioMateParentClass):
 						raise RadioMateException("Wrong parameter type: %s (%s) in role (Role)" \
 										% (value, type(value)))
 				object.__setattr__(self, name, value)
-						
+		
 
 class MediaFile(RadioMateParentClass):
 		"This entity class represents a media file"

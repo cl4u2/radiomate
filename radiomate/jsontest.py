@@ -1,8 +1,19 @@
 
 from jsonif import *
 
+
+def processandcheck(jsonrequest):
+		print jsonrequest
+		r = jp.process(jsonrequest)
+		print r
+		rd = json.loads(r)
+		if int(rd['responsen']) != 0:
+				print rd
+				print rd['responsen']
+				raise SystemExit("Test Failed")
+
+
 def roletest():
-		jp = RadioMateJSONProcessor()
 		jsonrequest = """
 		{
 			"request": "createrole",
@@ -25,9 +36,7 @@ def roletest():
 			}
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
@@ -37,9 +46,7 @@ def roletest():
 			"rolename": "testrole"
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
@@ -48,9 +55,7 @@ def roletest():
 			"password": "secret"
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
@@ -60,12 +65,9 @@ def roletest():
 			"rolename": "testrole"
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 
 def usertest():
-		jp = RadioMateJSONProcessor()
 		jsonrequest = """
 		{
 			"request": "createrole",
@@ -88,9 +90,7 @@ def usertest():
 			}
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
@@ -105,21 +105,17 @@ def usertest():
 			}
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "getuser",
 			"username": "foobar",
 			"password": "secret",
-			"rolename": "testuser"
+			"name": "testuser"
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
@@ -128,9 +124,7 @@ def usertest():
 			"password": "secret"
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
@@ -140,9 +134,7 @@ def usertest():
 			"name": "testuser"
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
@@ -152,11 +144,11 @@ def usertest():
 			"rolename": "testrole"
 		}
 		"""
-		print jsonrequest
-		r = jp.process(jsonrequest)
-		print r
+		processandcheck(jsonrequest)
 
 
 # Perform some tests on the JSON interface
-#roletest()
+jp = RadioMateJSONProcessor()
+roletest()
 usertest()
+

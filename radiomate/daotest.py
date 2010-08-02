@@ -184,10 +184,14 @@ def userdaotest():
 		roledao.insert(r)
 		u = User()
 		u.name = "testuser"
+		u.password = "secret"
 		u.displayname = "Test User"
 		u.rolename = r.rolename
 		userdao = UserDAO(cm)
 		userdao.insert(u)
+		u0 = userdao.logincheck(u.name, u.password)
+		print u0
+		assert u0
 		u1 = userdao.getByName(u.name)
 		print u1
 		u1.displayname = "Modified Test User"

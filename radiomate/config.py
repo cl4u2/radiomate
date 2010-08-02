@@ -2,7 +2,7 @@
 import logging
 
 LOGFILENAME = "/tmp/radiomate.log"
-LOGGINGLEVEL = logging.INFO
+LOGGINGLEVEL = logging.DEBUG
 DBHOST="127.0.0.1"
 DBUSER="mate"
 DBPASSWORD="radi0"

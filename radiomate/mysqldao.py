@@ -268,22 +268,19 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						displayname,
 						role
 				) VALUES (
-				'%s', '%s', '%s', '%s')""" % (
+				'%s', SHA1('%s'), '%s', '%s')""" % (
 						userobject.name,
 						userobject.password,
 						userobject.displayname,
 						userobject.rolename
 				)
-				#TODO: store MD5SUMS of passwords instead of cleartext
 				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 
 		def __getByName(self, username, cursor):
-				#TODO: passwords should NEVER leave the database!!!
 				selectionstring = """
 				SELECT  
 						name,
-						password,
 						displayname,
 						role
 				FROM users
@@ -303,7 +300,6 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				selectionstring = """
 				SELECT  
 						name,
-						password,
 						displayname,
 						role
 				FROM users"""
@@ -315,7 +311,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				updatestring = """
 				UPDATE users 
 				SET
-						password = '%s',
+						password = SHA1('%s'),
 						displayname = '%s',
 						role = '%s'
 				WHERE name = '%s'""" % (
@@ -324,9 +320,20 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						userobject.rolename,
 						userobject.name
 				)
-				#TODO: store MD5SUMS of passwords instead of cleartext
 				self.logger.debug(updatestring)
 				cursor.execute(updatestring)
+		
+		def __logincheck(self, username, password, cursor):
+				selectionstring = """
+				SELECT  
+						name,
+						displayname,
+						role
+				FROM users
+				WHERE name = '%s' and password = SHA1('%s')""" % (username, password)
+				self.logger.debug(selectionstring)
+				cursor.execute(selectionstring)
+				return cursor.fetchall()
 
 		def insert(self, userobject):
 				"Insert a new user"
@@ -401,6 +408,25 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						self.logger.debug("Number of user rows updated: %d" % cursor.rowcount)
 						return cursor.rowcount
+				except MySQLdb.Error, e:
+						raise RadioMateDAOException(e.args)
+
+		def logincheck(self, username, password):
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						resultdicts = self.__logincheck(username, password, cursor)
+						cursor.close()
+
+						self.logger.debug("Login for user %s: %d" % (username, len(resultdicts)))
+						assert len(resultdicts) <= 1
+
+						if len(resultdicts) == 1:
+								u = User(resultdicts[0])
+								roledao = RoleMysqlDAO(self.conn)
+								u.role = roledao.getByName(u.rolename)
+								return u
+						else:
+								return None
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 		
