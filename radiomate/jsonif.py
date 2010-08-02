@@ -18,6 +18,7 @@
 #
 
 import json
+import config
 from mate import *
 from dao import *
 
@@ -37,17 +38,12 @@ class RadioMateJSONProcessor(object):
 
 		def __init__(self):
 				"set up the connection to the database"
-				#TODO: move parameters to config file
-				DBHOST="127.0.0.1"
-				DBUSER="mate"
-				DBPASSWORD="radi0"
-				DATABASE="radiomate0"
 				try:
 						self.connectionmanager = DBConnectionManager(
-										dbhost = DBHOST, 
-										dbuser = DBUSER,
-										dbpassword = DBPASSWORD,
-										database = DATABASE
+										dbhost = config.DBHOST, 
+										dbuser = config.DBUSER,
+										dbpassword = config.DBPASSWORD,
+										database = config.DATABASE
 										)
 				except Exception, e:
 						raise RadioMateJSONError(str(e))

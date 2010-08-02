@@ -19,6 +19,8 @@
 
 import MySQLdb
 import json
+import logging
+import config
 from mate import *
 from daobase import *
 
@@ -54,6 +56,8 @@ class RadioMateParentMysqlDAO(object):
 						self.conn = conn
 				else:
 						raise RadioMateDAOException("Invalid object for MySQL connection: %s", self.conn)
+				self.logger = logging.getLogger("radiomate.mysqldao")
+				logging.basicConfig(filename=config.LOGFILENAME, level=config.LOGGINGLEVEL)
 
 
 class RoleMysqlDAO(RadioMateParentMysqlDAO):
@@ -90,8 +94,8 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						int(roleobject.canListNetcasts),
 						roleobject.fixedSlotTimesList.strip("[]")
 				)
-				#debug
-				print insertionstring
+
+				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 
 		def __getByName(self, rolename, cursor):
@@ -112,8 +116,8 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						fixedSlotTimesList
 				FROM roles
 				WHERE rolename = '%s'""" % rolename
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 
@@ -121,8 +125,8 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 				deletionstring = """
 				DELETE FROM roles
 				WHERE rolename = '%s'""" % rolename
-				#debug
-				print deletionstring
+
+				self.logger.debug(deletionstring)
 				cursor.execute(deletionstring)
 		
 		def __getAll(self, cursor):
@@ -142,8 +146,8 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						canListNetcasts,
 						fixedSlotTimesList
 				FROM roles"""
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 
@@ -178,8 +182,8 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						roleobject.fixedSlotTimesList.strip("[]"),
 						roleobject.rolename
 				)
-				#debug
-				print updatestring
+
+				self.logger.debug(updatestring)
 				cursor.execute(updatestring)
 
 		def insert(self, roleobject):
@@ -189,8 +193,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						self.__insert(roleobject, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of role rows inserted: %d" % cursor.rowcount
+						self.logger.debug("Number of role rows inserted: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -202,10 +205,8 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__getByName(rolename, cursor)
 						cursor.close()
 
-						#debug
-						print "Number of role rows fetched: %d" % len(resultdicts)
+						self.logger.debug("Number of role rows fetched: %d" % len(resultdicts))
 						assert len(resultdicts) <= 1
-						#debug
 
 						if len(resultdicts) == 1:
 								return Role(resultdicts[0])
@@ -221,8 +222,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						self.__removeByName(rolename, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of role rows deleted: %d" % cursor.rowcount
+						self.logger.debug("Number of role rows deleted: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -234,8 +234,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__getAll(cursor)
 						cursor.close()
 
-						#debug
-						print "Number of role rows fetched: %d" % len(resultdicts)
+						self.logger.debug("Number of role rows fetched: %d" % len(resultdicts))
 
 						res = []
 						for rd in resultdicts:
@@ -252,8 +251,7 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						self.__update(roleobject, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of role rows updated: %d" % cursor.rowcount
+						self.logger.debug("Number of role rows updated: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -277,8 +275,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						userobject.rolename
 				)
 				#TODO: store MD5SUMS of passwords instead of cleartext
-				#debug
-				print insertionstring
+				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 
 		def __getByName(self, username, cursor):
@@ -291,8 +288,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						role
 				FROM users
 				WHERE name = '%s'""" % username
-				#debug
-				print selectionstring
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 
@@ -300,8 +296,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				deletionstring = """
 				DELETE FROM users 
 				WHERE name = '%s'""" % username
-				#debug
-				print deletionstring
+				self.logger.debug(deletionstring)
 				cursor.execute(deletionstring)
 		
 		def __getAll(self, cursor):
@@ -312,8 +307,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						displayname,
 						role
 				FROM users"""
-				#debug
-				print selectionstring
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 
@@ -331,8 +325,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						userobject.name
 				)
 				#TODO: store MD5SUMS of passwords instead of cleartext
-				#debug
-				print updatestring
+				self.logger.debug(updatestring)
 				cursor.execute(updatestring)
 
 		def insert(self, userobject):
@@ -342,8 +335,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						self.__insert(userobject, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of user rows inserted: %d" % cursor.rowcount
+						self.logger.debug("Number of user rows inserted: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -355,10 +347,8 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__getByName(username, cursor)
 						cursor.close()
 
-						#debug
-						print "Number of user rows fetched: %d" % len(resultdicts)
+						self.logger.debug("Number of user rows fetched: %d" % len(resultdicts))
 						assert len(resultdicts) <= 1
-						#debug
 
 						if len(resultdicts) == 1:
 								u = User(resultdicts[0])
@@ -377,8 +367,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						self.__removeByName(username, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of user rows deleted: %d" % cursor.rowcount
+						self.logger.debug("Number of user rows deleted: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -390,8 +379,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__getAll(cursor)
 						cursor.close()
 
-						#debug
-						print "Number of user rows fetched: %d" % len(resultdicts)
+						self.logger.debug("Number of user rows fetched: %d" % len(resultdicts))
 
 						roledao = RoleMysqlDAO(self.conn)
 						res = []
@@ -411,8 +399,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						self.__update(userobject, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of user rows updated: %d" % cursor.rowcount
+						self.logger.debug("Number of user rows updated: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -448,15 +435,14 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						mediafileobject.license,
 						mediafileobject.tags
 				)
-				#debug
-				print insertionstring
+				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 
 		def __getLastId(self, cursor):
 				selectionstring = """
 				SELECT LAST_INSERT_ID() AS lastid 
 				"""
-				print selectionstring
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()[0]['lastid']
 
@@ -477,8 +463,8 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						tags
 				FROM mediafiles
 				WHERE id = %d""" % mediafileid
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 
@@ -486,8 +472,8 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 				deletionstring = """
 				DELETE FROM mediafiles
 				WHERE id = %d""" % mediafileid
-				#debug
-				print deletionstring
+
+				self.logger.debug(deletionstring)
 				cursor.execute(deletionstring)
 
 		def __search(self, partialmediafile, cursor):
@@ -541,8 +527,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						searchstring += whereand(i) + " license LIKE '%%%s%%' " % partialmediafile.license
 						i+=1
 				#TODO: tags
-				#debug
-				print searchstring
+				self.logger.debug(searchstring)
 				cursor.execute(searchstring)
 				return cursor.fetchall()
 
@@ -577,8 +562,8 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						mediafileobject.tags,
 						mediafileobject.id
 				)
-				#debug
-				print updatestring 
+
+				self.logger.debug(updatestring) 
 				cursor.execute(updatestring)
 
 		def insert(self, mediafileobject):
@@ -589,8 +574,8 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						self.conn.commit()
 						lastid = self.__getLastId(cursor)
 						cursor.close()
-						#debug
-						print "Number of mediafile rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid)
+
+						self.logger.debug("Number of mediafile rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid))
 						return lastid
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -602,10 +587,8 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__getById(mediafileid, cursor)
 						cursor.close()
 
-						#debug
-						print "Number of mediafile rows fetched: %d" % len(resultdicts)
+						self.logger.debug("Number of mediafile rows fetched: %d" % len(resultdicts))
 						assert len(resultdicts) == 1
-						#debug
 
 						return MediaFile(resultdicts[0])
 				except MySQLdb.Error, e:
@@ -618,8 +601,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						self.__removeById(mediafileid, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of mediafile rows deleted: %d" % cursor.rowcount
+						self.logger.debug("Number of mediafile rows deleted: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -631,9 +613,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__search(partialmediafile, cursor)
 						cursor.close()
 
-						#debug
-						print "Number of mediafile rows fetched while searching: %d" % len(resultdicts)
-						#debug
+						self.logger.debug("Number of mediafile rows fetched while searching: %d" % len(resultdicts))
 
 						res = []
 						for mf in resultdicts:
@@ -650,8 +630,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						self.conn.commit()
 						lastid = mediafileobject.id
 						cursor.close()
-						#debug
-						print "Number of mediafile rows updated: %d. id = %d" % (cursor.rowcount, lastid)
+						self.logger.debug("Number of mediafile rows updated: %d. id = %d" % (cursor.rowcount, lastid))
 						return lastid
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -677,15 +656,15 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						playlistobject.comment,
 						playlistobject.tags
 				)
-				#debug
-				print insertionstring
+
+				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 		
 		def __getLastId(self, cursor):
 				selectionstring = """
 				SELECT LAST_INSERT_ID() AS lastid 
 				"""
-				print selectionstring
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()[0]['lastid']
 
@@ -701,8 +680,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						mediafileid,
 						position
 				)
-				#debug
-				print insertionstring
+
+				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 
 		def __insertowner(self, playlistid, ownername, cursor):
@@ -715,8 +694,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						playlistid,
 						ownername
 				)
-				#debug
-				print insertionstring
+
+				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 		
 		def __insertviewer(self, playlistid, viewername, cursor):
@@ -729,8 +708,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						playlistid,
 						viewername
 				)
-				#debug
-				print insertionstring
+
+				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 		
 		def __getById(self, playlistid, cursor):
@@ -745,8 +724,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						tags
 				FROM playlists
 				WHERE id = %d""" % playlistid
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
@@ -759,8 +738,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				FROM compilation
 				WHERE playlist = %d
 				ORDER BY position""" % playlistid 	#TODO: order in ascending order
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
@@ -771,8 +750,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						user
 				FROM playlistowners
 				WHERE playlist = %d""" % playlistid 
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
@@ -783,8 +762,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						user
 				FROM playlistviewers
 				WHERE playlist = %d""" % playlistid 
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
@@ -792,8 +771,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				deletionstring = """
 				DELETE FROM playlists
 				WHERE id = %d""" % playlistid #TODO: check if CASCADE is well set in the SQL
-				#debug
-				print deletionstring
+
+				self.logger.debug(deletionstring)
 				cursor.execute(deletionstring)
 
 		def __update(self, playlistobject, cursor):
@@ -815,8 +794,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						playlistobject.tags,
 						playlistobject.id
 				)
-				#debug
-				print updatestring
+
+				self.logger.debug(updatestring)
 				cursor.execute(updatestring)
 
 		def __deleteCompilationOwnersAndViewers(self, playlistid, cursor):
@@ -833,11 +812,11 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				DELETE FROM playlistviewers
 				WHERE playlist = %d """ % playlistid
 		
-				print mediafiledeletionstring
+				self.logger.debug(mediafiledeletionstring)
 				cursor.execute(mediafiledeletionstring)
-				print ownerdeletionstring
+				self.logger.debug(ownerdeletionstring)
 				cursor.execute(ownerdeletionstring)
-				print viewerdeletionstring
+				self.logger.debug(viewerdeletionstring)
 				cursor.execute(viewerdeletionstring)
 		
 		def __getByCreator(self, creatorname, cursor):
@@ -852,8 +831,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						tags
 				FROM playlists
 				WHERE creator = '%s'""" % creatorname
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
@@ -869,8 +848,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				playlistowners.user = '%s' OR
 				playlistviewers.user = '%s'
 				""" % (username, username, username)
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 
@@ -901,10 +880,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__getById(playlistid, cursor)
 
-						#debug
-						print "Number of playlist rows fetched: %d" % len(resultdicts)
+						self.logger.debug("Number of playlist rows fetched: %d" % len(resultdicts))
 						assert len(resultdicts) == 1
-						#debug
 
 						pl = PlayList(resultdicts[0])
 						mediafiledao = MediaFileMysqlDAO(self.conn)
@@ -934,8 +911,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						self.__removeById(playlistid, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of playlist rows deleted: %d" % cursor.rowcount
+						self.logger.debug("Number of playlist rows deleted: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -968,9 +944,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						plresultdicts = self.__getByCreator(creatorname, cursor)
 
-						#debug
-						print "Number of playlist rows fetched: %d" % len(plresultdicts)
-						#debug
+						self.logger.debug("Number of playlist rows fetched: %d" % len(plresultdicts))
 
 						mediafiledao = MediaFileMysqlDAO(self.conn)
 						res = []
@@ -1003,9 +977,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						plresultdicts = self.__getByUser(username, cursor)
 						cursor.close()
 
-						#debug
-						print "Number of playlist rows fetched: %d" % len(plresultdicts)
-						#debug
+						self.logger.debug("Number of playlist rows fetched: %d" % len(plresultdicts))
+
 						res = []
 						for plres in plresultdicts:
 								assert len(plres) == 1
@@ -1071,8 +1044,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				selectionstring += "('%s' <= endingtime AND endingtime <= '%s')" %\
 								(timeslotobject.getBeginningDatetime(), timeslotobject.getEndingDatetime())
 
-				#debug
-				print selectionstring
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 
@@ -1102,15 +1074,16 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						json.dumps(timeslotobject.slotparams),
 						timeslotobject.fallbackplaylist
 				)
-				#debug
-				print insertionstring
+
+				self.logger.debug(insertionstring)
 				cursor.execute(insertionstring)
 
 		def __getLastId(self, cursor):
 				selectionstring = """
 				SELECT LAST_INSERT_ID() AS lastid 
 				"""
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()[0]['lastid']
 
@@ -1130,8 +1103,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						tags
 				FROM timeslots
 				WHERE id = %d""" % timeslotid
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 
@@ -1139,8 +1112,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				deletionstring = """
 				DELETE FROM timeslots
 				WHERE id = %d""" % timeslotid
-				#debug
-				print deletionstring
+
+				self.logger.debug(deletionstring)
 				cursor.execute(deletionstring)
 		
 		def __update(self, timeslotobject, cursor):
@@ -1171,8 +1144,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						timeslotobject.fallbackplaylist,
 						timeslotobject.id
 				)
-				#debug
-				print updatestring
+
+				self.logger.debug(updatestring)
 				cursor.execute(updatestring)
 		
 		def __getFromTo(self, fromdate, todate, cursor):
@@ -1192,8 +1165,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						tags
 				FROM timeslots
 				WHERE beginningtime >= '%s' AND beginningtime <= '%s'""" % (fromdate, todate)
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
@@ -1235,8 +1208,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						i+=1
 				if timeslotobject.creator:
 						selectionstring += whereand(i) + " creator = '%s'" % timeslotobject.creator
-				#debug
-				print selectionstring
+
+				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
@@ -1247,9 +1220,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__isGoodTimeSlot(timeslotobject, cursor)
 						cursor.close()
 						
-						#debug
-						print "Number of timeslot rows fetched: %d" % len(resultdicts)
-						#debug
+						self.logger.debug("Number of timeslot rows fetched: %d" % len(resultdicts))
 
 						if len(resultdicts) == 0:
 								return True
@@ -1271,8 +1242,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						self.conn.commit()
 						lastid = self.__getLastId(cursor)
 						cursor.close()
-						#debug
-						print "Number of timeslot rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid)
+						self.logger.debug("Number of timeslot rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid))
 						return lastid
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -1284,10 +1254,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__getById(timeslotid, cursor)
 						cursor.close()
 
-						#debug
-						print "Number of timeslot rows fetched: %d" % len(resultdicts)
+						self.logger.debug("Number of timeslot rows fetched: %d" % len(resultdicts))
 						assert len(resultdicts) == 1
-						#debug
 
 						rs = resultdicts[0]
 						ts = TimeSlot()
@@ -1313,8 +1281,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						self.__removeById(timeslotid, cursor)
 						self.conn.commit()
 						cursor.close()
-						#debug
-						print "Number of timeslot rows deleted: %d" % cursor.rowcount
+						self.logger.debug("Number of timeslot rows deleted: %d" % cursor.rowcount)
 						return cursor.rowcount
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -1329,8 +1296,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						self.conn.commit()
 						lastid = timeslotobject.id
 						cursor.close()
-						#debug
-						print "Number of timeslot rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid)
+						self.logger.debug("Number of timeslot rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid))
 						return lastid
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -1342,9 +1308,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__getFromTo(fromdate, todate, cursor)
 						cursor.close()
 
-						#debug
-						print "Number of timeslot rows fetched: %d" % len(resultdicts)
-						#debug
+						self.logger.debug("Number of timeslot rows fetched: %d" % len(resultdicts))
 
 						res = []
 						for rs in resultdicts:
@@ -1372,9 +1336,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__search(timeslotobject, cursor)
 						cursor.close()
 
-						#debug
-						print "Number of timeslot rows fetched: %d" % len(resultdicts)
-						#debug
+						self.logger.debug("Number of timeslot rows fetched: %d" % len(resultdicts))
 
 						res = []
 						for rs in resultdicts:

@@ -117,8 +117,7 @@ class User(RadioMateParentClass):
 				try:
 						return RadioMateParentClass.__setattr__(self, name, value)
 				except RadioMateException, e:
-						#debug
-						print str(e)
+						pass
 				if name != "role":
 						raise RadioMateException("Wrong parameter name: %s" % name)
 				if isinstance(value, basestring):

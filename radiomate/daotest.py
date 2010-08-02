@@ -427,10 +427,10 @@ def exceptiontest():
 #execute
 print "---"
 #test0()
-#roledaotest()
-#userdaotest()
-#mediafilesdaotest()
-#playlistdaotest()
+roledaotest()
+userdaotest()
+mediafilesdaotest()
+playlistdaotest()
 timeslotdaotest()
 #exceptiontest()
 
