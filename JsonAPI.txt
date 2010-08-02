@@ -36,27 +36,6 @@
 }
 
 
-{
-	"response": ("rolecreated" | "notallowed" | "alreadyexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"role" : { #the role that has been created or null
-		"rolename": <name>,
-		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
-		"canManageUsers": (true|false),  #true if the user can create/edit/delete users
-		"canListUsers": (true|false),  #true if the user can see the details of the users
-		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
-		"canRegisterFiles": (true|false), #true if the user can register local files
-		"canManageRegisteredFiles": (true|false), #true if the user can manage registered files' data (i.e. change, delete)
-		"canSearchRegisteredFiles": (true|false), #true if the user can perform searchs among the registered files
-		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
-		"fixedSlotTime": (true|false), #true if the fixedSlotTimesList field has to be considered
-		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
-		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
-		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
-		"canListNetcasts": (true|false) #ability to list archive/podcasts/netcasts
-	}
-}
 
 }}}
 
@@ -86,28 +65,6 @@
 }
 
 
-{
-	"response": ("roleedited" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"role" : { #the role whose editing was requested, or null
-		"rolename": <name>,
-		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
-		"canManageUsers": (true|false),  #true if the user can create/edit/delete users
-		"canListUsers": (true|false),  #true if the user can see the details of the users
-		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
-		"canRegisterFiles": (true|false), #true if the user can register local files
-		"canManageRegisteredFiles": (true|false), #true if the user can manage registered files' data (i.e. change, delete)
-		"canSearchRegisteredFiles": (true|false), #true if the user can perform searchs among the registered files
-		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
-		"fixedSlotTime": (true|false), #true if the fixedSlotTimesList field has to be considered
-		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
-		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
-		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
-		"canListNetcasts": (true|false) #ability to list archive/podcasts/netcasts
-	}
-}
-
 }}}
 
 === Remove an Existing Role ===
@@ -122,13 +79,6 @@
 }
 
 
-{
-	"response": ("roleremoved" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"rolename": <name>,
-}
-
 }}}
 
 === List all Roles ===
@@ -139,49 +89,6 @@
 	"request": "listroles",
 	"username": <requestor's username>,
 	"password": <requestor's password>,
-}
-
-
-{
-	"response": ("rolelistfollows" | "notallowed" | "servererror" | "error"),
-	"responsen": (0|1|3|4),
-	"description": <textual description>,
-	"listlength": <number of items in the list>,
-	"rolelist" : [ # list of roles, or null
-			"role" : { 
-				"rolename": <name>,
-				"canManageRoles": (true|false),  
-				"canManageUsers": (true|false),  
-				"canListUsers": (true|false),  
-				"canManageAllPlaylists": (true|false),  
-				"canRegisterFiles": (true|false), 
-				"canManageRegisteredFiles": (true|false), 
-				"canSearchRegisteredFiles": (true|false), 
-				"canManageTimetable": (true|false),  
-				"fixedSlotTime": (true|false), 
-				"fixedSlotTimesList": <array of fixed slot times, in minutes>, 
-				"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
-				"canCreateTestMountpoint": (true|false), 
-				"canListNetcasts": (true|false) 
-			},
-			"role" : { 
-				"rolename": <name>,
-				"canManageRoles": (true|false),  
-				"canManageUsers": (true|false),  
-				"canListUsers": (true|false),  
-				"canManageAllPlaylists": (true|false),  
-				"canRegisterFiles": (true|false), 
-				"canManageRegisteredFiles": (true|false), 
-				"canSearchRegisteredFiles": (true|false), 
-				"canManageTimetable": (true|false),  
-				"fixedSlotTime": (true|false),
-				"fixedSlotTimesList": <array of fixed slot times, in minutes>, 
-				"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
-				"canCreateTestMountpoint": (true|false), 
-				"canListNetcasts": (true|false) 
-			},
-			...
-	]
 }
 
 }}}
@@ -195,29 +102,6 @@
 	"username": <requestor's username>,
 	"password": <requestor's password>,
 	"rolename": <requested role's name> 
-}
-
-
-{
-	"response": ("roleretrieved" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"role" : { #the requested role, or null
-		"rolename": <name>,
-		"canManageRoles": (true|false),  
-		"canManageUsers": (true|false),  
-		"canListUsers": (true|false),  
-		"canManageAllPlaylists": (true|false),  
-		"canRegisterFiles": (true|false), 
-		"canManageRegisteredFiles": (true|false), 
-		"canSearchRegisteredFiles": (true|false), 
-		"canManageTimetable": (true|false),  
-		"fixedSlotTime": (true|false), 
-		"fixedSlotTimesList": <array of fixed slot times, in minutes>, 
-		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
-		"canCreateTestMountpoint": (true|false), 
-		"canListNetcasts": (true|false) 
-	}
 }
 
 }}}
@@ -239,18 +123,6 @@
 }
 
 
-{
-	"response":("usercreated" | "notallowed" | "alreadyexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"user" : { #the user that has been created or null
-		"name": <name>,
-		"password": <password>,
-		"displayname": <name to be displayed>,
-		"rolename": <role name>
-	}
-}
-
 }}}
 
 === Edit an Existing User ===
@@ -270,18 +142,6 @@
 }
 
 
-{
-	"response":("useredited" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"user" : { #the user whose editing has been requested, or null
-		"name": <name>,
-		"password": <password>,
-		"displayname": <name to be displayed>,
-		"rolename": <role name>
-	}
-}
-
 }}}
 
 === Remove an Existing User ===
@@ -295,13 +155,6 @@
 	"name": <username of the user to be removed> 
 }
 
-
-{
-	"response": ("userremoved" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"name": <username of the user whose removal was requested>,
-}
 
 }}}
 
@@ -317,17 +170,6 @@
 }
 
 
-{
-	"response":("userretrieved" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"user" : { 
-			"name": <username>,
-			"displayname": <name to be displayed>,
-			"rolename": <role name>
-	}
-}
-
 }}}
 
 
@@ -341,26 +183,6 @@
 	"password": <password>,
 }
 
-
-{
-	"response":("userlistfollows" | "notallowed"| "dontexists" | "servererror"| "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"listlength": <the length of the user's list>,
-    "userlist" : [ # an array of users
-		"user" : { 
-			"name": <username>,
-			"displayname": <name to be displayed>,
-			"rolename": <role name>
-		}
-		"user" : { 
-			"name": <username>,
-			"displayname": <name to be displayed>,
-			"rolename": <role name>
-		}
-		...
-	]
-}
 
 }}}
 
@@ -376,24 +198,6 @@
 	"username": <username>,
 	"password": <password>,
 	"mediafile": {
-		"path": <local path of the file>,
-		"title": <title of the track>,
-		"author": <author of the track>,
-		"album": <album>,
-		"genre": <genre>,
-		"year": <year of pubblication>,
-		"comment": <comment>,
-		"license": <license of the file>,
-		"tags": <tags>
-	}
-}
-
-{
-	"response":("fileregistered" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"mediafile": { #the file that has been registered or null
-		"id": <new given id of the file>,
 		"path": <local path of the file>,
 		"title": <title of the track>,
 		"author": <author of the track>,
@@ -430,39 +234,6 @@
 	}
 }
 
-{
-	"response":("filesfound" | "notallowed" | "notfound" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"mediafilelist":[ #a list of the files that have been found or null
-		"mediafile": { 
-			"id": <id of the file>,
-			"path": <local path of the file>,
-			"title": <title of the track>,
-			"author": <author of the track>,
-			"album": <album>,
-			"genre": <genre>,
-			"year": <year of pubblication>,
-			"comment": <comment>,
-			"license": <license of the file>,
-			"tags": <tags>
-		}
-		"mediafile": { 
-			"id": <id of the file>,
-			"path": <local path of the file>,
-			"title": <title of the track>,
-			"author": <author of the track>,
-			"album": <album>,
-			"genre": <genre>,
-			"year": <year of pubblication>,
-			"comment": <comment>,
-			"license": <license of the file>,
-			"tags": <tags>
-		}
-	...
-	]
-}
-
 }}}
 
 === Edit an Audio File ===
@@ -487,24 +258,6 @@
 	}
 }
 
-{
-	"response":("fileedited" | "notallowed" | "filenotregistered" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"removed": (true|false), #if the file has been unregistered
-	"mediafile": { #the edited file or null
-		"id": <id of the file>,
-		"path": <local path of the file>,
-		"title": <title of the track>,
-		"author": <author of the track>,
-		"album": <album>,
-		"genre": <genre>,
-		"year": <year of pubblication>,
-		"comment": <comment>,
-		"license": <license of the file>,
-		"tags": <tags>
-	}
-}
 
 }}}
 
@@ -534,27 +287,6 @@
 	}
 }
 
-{
-	"response":("playlistcreated" | "notallowed" | "servererror" | "error"),
-	"responsen": (0|1|3|4),
-	"description": <textual description>,
-	"playlist": { #new playlist or null
-			"id": <a new given id for the playlist>,
-			"title": <the name of the playlist>,
-			"description": <the description of the playlist>,
-			"comment": <comment>,
-			"tags": <tags>,
-			"fallback": (true|false), #true if this will be the user's fallback playlist
-			"viewers": [ # a list of usernames of users that can watch and play this playlist
-				<username>,
-				<username>
-			]
-			"owners": [ # a list of usernames of users that can manage this playlist
-				<username>,
-				<username>
-			]
-	}
-}
 
 }}}
 
@@ -584,28 +316,6 @@
 	}
 }
 
-{
-	"response":("playlistedited" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"viewers": [ # a list of usernames of users that can watch and play this playlist
-		<username>,
-		<username>
-	]
-	"owners": [ # a list of usernames of users that can manage this playlist
-		<username>,
-		<username>
-	]
-	"playlist": { #new playlist or null
-			"id": <the id of the playlist>,
-			"title": <the name of the playlist>,
-			"description": <the description of the playlist>,
-			"comment": <comment>,
-			"tags": <tags>,
-			"fallback": (true|false) #true if this will be the user's fallback playlist
-	}
-}
-
 }}}
 
 
@@ -619,18 +329,6 @@
 	"password": <password>,
 	"playlistid": <id of an existing playlist>,
 	"tracks": [ #ordered list of file ids
-		<id of a registered file>,
-		<id of a registered file>,
-		...
-	]
-}
-
-{
-	"response":("filesadded" | "notallowed" | "filesdontexist" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"playlistid": <id of an existing playlist>,
-	"tracks": [ #ordered list of file ids or null
 		<id of a registered file>,
 		<id of a registered file>,
 		...
@@ -656,23 +354,6 @@
 	]
 }
 
-{
-	"response":("filesremoved" | "notallowed" | "somefilesdontexist" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"playlistid": <id of an existing playlist>
-	"removedtracks": [ #list of file ids or null
-		<id of a registered file>,
-		<id of a registered file>,
-		...
-	]
-	"notremovedtracks": [ #list of file ids or null
-		<file id>,
-		<file id>,
-		...
-	]
-}
-
 }}}
 
 
@@ -688,21 +369,6 @@
 	"tracks": [ #exactly two file ids
 		<id of a registered file in the playlist>,
 		<id of a registered file in the playlist>
-	]
-}
-
-{
-	"response":("filesswitched" | "notallowed" | "filesnotinplaylist" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"playlistid": <id of an existing playlist>,
-	"switchedtracks": [ #list of file ids or null
-		<id of a registered file in the playlist>,
-		<id of a registered file in the playlist>
-	]
-	"notinplaylist": [ # list of file ids that are not present in the playlist or null
-		<file id not in the playlist>,
-		<file id not in the playlist>
 	]
 }
 
@@ -724,47 +390,6 @@ List of playlists in which the user is owner or viewer
 	"password": <password>,
 }
 
-{
-	"response":("playlistlistfollows" | "notallowed" | "dontexists" | "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"playlistlist": [ #list of playlists or null
-		"playlist": { 
-				"id": <id of the playlist>,
-				"title": <name of the playlist>,
-				"description": <description of the playlist>,
-				"comment": <comment>,
-				"tags": <tags>,
-				"fallback": (true|false), #true if this is the user's fallback playlist
-				"viewers": [ # a list of usernames of users that can watch and play this playlist
-					<username>,
-					<username>
-				]
-				"owners": [ # a list of usernames of users that can manage this playlist
-					<username>,
-					<username>
-				]
-		},
-		"playlist": { 
-				"id": <the id of the playlist>,
-				"title": <the name of the playlist>,
-				"description": <the description of the playlist>,
-				"comment": <comment>,
-				"tags": <tags>,
-				"fallback": (true|false), #true if this is the user's fallback playlist
-				"viewers": [ # a list of usernames of users that can watch and play this playlist
-					<username>,
-					<username>
-				]
-				"owners": [ # a list of usernames of users that can manage this playlist
-					<username>,
-					<username>
-				]
-		},
-		...
-	]
-
-}
 
 }}}
 
@@ -799,30 +424,6 @@ List of playlists in which the user is owner or viewer
 }
 
 
-{
-	"response":("timeslotcreated" | "notallowed" | "invalidslottype"| "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"timeslot": {
-		"id": <id of the new timeslot>,
-		"title": <title of the transmission>
-		"description": <description of the transmission>
-		"tags": <tags>
-		"slottype": <type of slot>,
-		"beginningtime": {
-			"year": <year>,
-			"month": <month>,
-			"day": <day>,
-			"hour": <hour>,
-			"minute": <minute>
-		},
-		"duration": <duration in minutes>,
-		"slotparams": {
-			<slot-specific parameters>
-		}
-	}
-}
-
 }}}
 
 
@@ -856,31 +457,6 @@ List of playlists in which the user is owner or viewer
 }
 
 
-{
-	"response":("timeslotedited" | "notallowed" | "invalidslottype"| "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"removed": (true|false), #true if timeslot removed
-	"timeslot": {
-		"id": <id of the timeslot>,
-		"title": <title of the transmission>
-		"description": <description of the transmission>
-		"tags": <tags>
-		"slottype": <type of slot>,
-		"beginningtime": {
-			"year": <year>,
-			"month": <month>,
-			"day": <day>,
-			"hour": <hour>,
-			"minute": <minute>
-		},
-		"duration": <duration in minutes>,
-		"slotparams": {
-			<slot-specific parameters>
-		}
-	}
-}
-
 }}}
 
 === List Timeslots ===
@@ -913,53 +489,6 @@ List of playlists in which the user is owner or viewer
 	}
 }
 
-{
-	"response":("timeslotlistfollows" | "notallowed" | "notimeslotsfound"| "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"timeslotlist": [
-		"timeslot": {
-			"id": <id of the timeslot>,
-			"title": <title of the transmission or null>
-			"description": <description of the transmission or null>
-			"tags": <zero or moretags>
-			"reservinguser": <user who reserved the timeslot, or null>
-			"slottype": <type of slot>,
-			"beginningtime": {
-				"year": <year>,
-				"month": <month>,
-				"day": <day>,
-				"hour": <hour>,
-				"minute": <minute>
-			},
-			"duration": <duration in minutes>,
-			"slotparams": {
-				<slot-specific parameters>
-			}
-		},
-		"timeslot": {
-			"id": <id of the timeslot>,
-			"title": <title of the transmission or null>
-			"description": <description of the transmission or null>
-			"tags": <zero or moretags>
-			"reservinguser": <user who reserved the timeslot, or null>
-			"slottype": <type of slot>,
-			"beginningtime": {
-				"year": <year>,
-				"month": <month>,
-				"day": <day>,
-				"hour": <hour>,
-				"minute": <minute>
-			},
-			"duration": <duration in minutes>,
-			"slotparams": {
-				<slot-specific parameters>
-			}
-		},
-		...
-	]
-}
-		
 
 }}}
 
@@ -982,19 +511,6 @@ List of playlists in which the user is owner or viewer
 }
 
 
-{
-	"response":("testslotcreated" | "notallowed" | "invalidslottype"| "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"testslot": {
-		"mountpoint": <mountpoint of the new testslot>,
-		"slottype": <type of slot>,
-		"duration": <duration in minutes>,
-		"slotparams": {
-			<slot-specific parameters>
-		}
-	}
-}
 
 }}}
 
@@ -1031,44 +547,18 @@ List of playlists in which the user is owner or viewer
 	}
 }
 
-{
-	"response":("netcastlistfollows" | "notallowed" | "nonetcastsfound"| "servererror" | "error"),
-	"responsen": (0|1|2|3|4),
-	"description": <textual description>,
-	"netcastlist": [
-		"netcast": {
-			"id": <id of the timeslot/netcast>,
-			"user": <owner of the transmission, or null>
-			"title": <complete or partial title of the transmission, or null>
-			"description": <complete or partial description of the transmission>
-			"tags": <zero or more tags>
-			"slottype": <type of slot>,
-			"beginningtime": {
-				"year": <year>,
-				"month": <month>,
-				"day": <day>,
-				"hour": <hour>,
-				"minute": <minute>
-			},
-			"duration": <duration in minutes>,
-		},
-		"netcast": {
-			"id": <id of the timeslot/netcast>,
-			"user": <owner of the transmission, or null>
-			"title": <complete or partial title of the transmission, or null>
-			"description": <complete or partial description of the transmission>
-			"tags": <zero or more tags>
-			"slottype": <type of slot>,
-			"beginningtime": {
-				"year": <year>,
-				"month": <month>,
-				"day": <day>,
-				"hour": <hour>,
-				"minute": <minute>
-			},
-			"duration": <duration in minutes>,
-		},
-		...
-	]
-}
 		
+== Responses ==
+
+{{{
+
+{
+	"response": ("ok" | "notallowed" | "dontexists" | "alreadyexists" | "servererror" | "error" | "requesterror"),
+	"responsen": (0 | 101 | 201 | 202 | 301 | 401 | 501),
+	"requested": <the requested action>,
+	"description": <textual description>,
+	<the response follows>
+}
+
+}}}
+
