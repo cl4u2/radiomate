@@ -30,20 +30,58 @@ class RadioMateJSONError(Exception):
 
 
 class RadioMateJSONSyntaxError(Exception):
-		"JSON syntax related error"
+		"JSON syntax error"
 		pass
 
-#TODO: change error numeration from 1,2,3,4,5 to 10,20,30,40,50
+
 RESPONSE_OK = 0
-RESPONSE_NOTALLOWED = 1
-RESPONSE_EXISTANCE = 2
-RESPONSE_SERVERERROR = 3
-RESPONSE_ERROR = 4
-RESPONSE_REQERROR = 4
+RESPONSE_NOTALLOWED = 101
+RESPONSE_DONTEXISTS = 201
+RESPONSE_ALREADYEXISTS = 202
+RESPONSE_SERVERERROR = 301
+RESPONSE_REQERROR = 401
+RESPONSE_ERROR = 501
+
+ERRORDICT = {
+				RESPONSE_OK: "ok",
+				RESPONSE_NOTALLOWED: "notallowed",
+				RESPONSE_ALREADYEXISTS: "alreadyexists",
+				RESPONSE_DONTEXISTS: "dontexists",
+				RESPONSE_SERVERERROR: "servererror",
+				RESPONSE_REQERROR: "requesterror",
+				RESPONSE_ERROR: "error"
+}
+
+
+class RadioMateJSONRequest(dict):
+		def __init__(self, jsonstring):
+				dict.__init__(self)
+				try:
+						reqdict = json.loads(jsonstring)
+						#TODO: validate the request
+						self.update(reqdict)
+				except Exception, e:
+						raise RadioMateJSONSyntaxError(str(e))
+
+
+
+class RadioMateJSONResponse(dict):
+		def __init__(self, responsen, description, responsedict = {}):
+				dict.__init__(self)
+				try:
+						dict.__setitem__(self, 'responsen', responsen)
+						dict.__setitem__(self, 'response', ERRORDICT[responsen])
+						dict.__setitem__(self, 'description', description)
+						self.update(responsedict)
+				except Exception, e:
+						raise RadioMateJSONError(str(e))
+
+		def dumps(self):
+				return json.dumps(self, skipkeys=True)
+		
 
 class RadioMateJSONProcessor(object):
 		"Process JSON requests and return JSON responses, through the process() function"
-
 		def __init__(self):
 				"set up the connection to the database"
 				try:
@@ -59,702 +97,355 @@ class RadioMateJSONProcessor(object):
 		def process(self, request):
 				"select the appropriate handler for the request"
 				try:
-						req = json.loads(request)
-				except ValueError, e:
-						raise RadioMateJSONSyntaxError(e.args)
+						req = RadioMateJSONRequest(request)
+				except Exception, e:
+						response = RadioMateJSONResponse(RESPONSE_REQERROR, "Incorrect JSON Request [%s]" % str(e))
+						return response.dumps()
 
 				# validate username and password
 				try:
 						userdao = UserDAO(self.connectionmanager)
-						username = str(req['username'])
-						password = str(req['password'])
+						username = req['username']
+						password = req['password']
 						requser = userdao.logincheck(username, password)
 						if not requser: raise RadioMateJSONError("Login Error")
 				except Exception, e:
-						dictresponse = {
-										'response': "notallowed", 
-										'responsen': RESPONSE_NOTALLOWED, 
-										'description': "Incorrect Login [%s]" % str(e)
-										}
-						response = json.dumps(dictresponse, skipkeys=True)
-						return response
+						response = RadioMateJSONResponse(RESPONSE_NOTALLOWED, "Incorrect Login [%s]" % str(e))
+						return response.dumps()
 
 				# TODO: implement password changing
 				
-				# small python magic
+				# small python magic to call the method that has the same name of the request
 				if req.has_key('request') and (req['request'] in self.__class__.__dict__):
-						dictresponse = self.__class__.__dict__[req['request']](self, requser, req)
+						response = self.__class__.__dict__[req['request']](self, requser, req)
 				else:
-						dictresponse = {
-										'response': "error", 
-										'responsen': RESPONSE_REQERROR, 
-										'description': "Incorrect JSON request",
-										'request': req
-										}
+						response = RadioMateJSONResponse(RESPONSE_REQERROR, "Incorrect JSON Request")
 
-				response = json.dumps(dictresponse, skipkeys=True)
-				return response
+				return response.dumps()
 				
 		def createrole(self, requser, req):
+				rd = {'requested': "createrole", 'role': None}
 				if not requser.role.canManageRoles:
-						responsed = {
-										'response': "notallowed", 
-										'responsen':  RESPONSE_NOTALLOWED,
-										'description': "User role does not allow this action",
-										'role': None
-										}
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 
-				responsed = {
-								'response': "error", 
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'role': None
-								}
 				try:
 						r = Role(req['role'])
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 				try:
 						roledao = RoleDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						rcheck = roledao.getByName(r.rolename)
 				except RadioMateDAOException, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 				if rcheck:
-						responsed['response'] = "alreadyexists"
-						responsed['responsen'] =  RESPONSE_EXISTANCE
-						responsed['description'] = "Role already exists"
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ALREADYEXISTS, "Role already exists", rd)
 
 				try:
 						res = roledao.insert(r)
 						rcheck = roledao.getByName(r.rolename)
 						if res and rcheck:
-								responsed['response'] = "rolecreated"
-								responsed['responsen'] =  RESPONSE_OK
-								responsed['description'] = "O.K."
-								responsed['role'] = rcheck.dictexport()
-								return responsed
+								rd['role'] = rcheck.dictexport()
+								return RadioMateJSONResponse(RESPONSE_OK, "Role created", rd)
 				except RadioMateDAOException, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 				except Exception, e:
 						pass
-				responsed['response'] = "error"
-				responsed['responsen'] =  RESPONSE_ERROR
-				responsed['description'] = "Unknown Error"
-				responsed['role'] = None
-				return responsed
+				return RadioMateJSONResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def editrole(self, requser, req):
+				rd = {'requested': "editrole", 'role': None}
 				if not requser.role.canManageRoles:
-						responsed = {
-										'response': "notallowed", 
-										'responsen':  RESPONSE_NOTALLOWED,
-										'description': "User role does not allow this action",
-										'role': None
-										}
-						return responsed
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'role': None
-								}
+						return RadioMateJSONResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
 				try:
 						roledao = RoleDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						assert req['role']
 						rolename = req['role']['rolename']
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Check JSON Syntax [%s]" % str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Check JSON Syntax [%s]" % str(e), rd)
 
 				try:
 						r = roledao.getByName(rolename)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
-				if r == None:
-						responsed['response'] = "dontexists"
-						responsed['responsen'] =  RESPONSE_EXISTANCE
-						responsed['description'] = "Role %s not found" % rolename
-						responsed['role'] = None
-						return responsed
+				if not r:
+						return RadioMateJSONResponse(RESPONSE_DONTEXISTS, "Role %s not found" % rolename, rd)
 
 				# edit the role
 				try:
 						r.__dict__.update(req['role'])
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 				try:
 						res = roledao.update(r)
 						rcheck = roledao.getByName(r.rolename)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				if res and rcheck:
-						responsed['response'] = "roleedited"
-						responsed['responsen'] =  RESPONSE_OK
-						responsed['description'] = "Role successfully edited"
-						responsed['role'] = rcheck.dictexport()
-						return responsed
+						rd['role'] = rcheck.dictexport()
+						return RadioMateJSONResponse(RESPONSE_OK, "Role successfully edited", rd)
 				else:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Unknown Error"
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def removerole(self, requser, req):
+				rd = {'requested': "removerole", 'rolename': None}
 				if not requser.role.canManageRoles:
-						responsed = {
-										'response': "notallowed", 
-										'responsen':  RESPONSE_NOTALLOWED,
-										'description': "User role does not allow this action",
-										'rolename': None
-										}
-						return responsed
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'rolename': None
-								}
+						return RadioMateJSONResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 				try:
 						roledao = RoleDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['rolename'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						rolename = req['rolename']
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Check JSON Syntax [%s]" % str(e)
-						responsed['rolename'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Check JSON Syntax [%s]" % str(e), rd)
 
 				try:
 						r = roledao.getByName(rolename)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['rolename'] = rolename
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
-				if r == None:
-						responsed['response'] = "dontexists"
-						responsed['responsen'] =  RESPONSE_EXISTANCE
-						responsed['description'] = "Role not found" 
-						responsed['rolename'] = rolename
-						return responsed
+				if not r:
+						return RadioMateJSONResponse(RESPONSE_DONTEXISTS, "Role %s not found" % rolename, rd)
 
 				# remove the role
 				try:
 						res = roledao.removeByName(rolename)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['rolename'] = rolename
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				if res:
-						responsed['response'] = "roleremoved"
-						responsed['responsen'] =  RESPONSE_OK
-						responsed['description'] = "Role has been removed" 
-						responsed['rolename'] = rolename
-						return responsed
-
+						rd['rolename'] = rolename
+						return RadioMateJSONResponse(RESPONSE_OK, "Role has been removed", rd)
 				else:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Unknown Error" 
-						responsed['rolename'] = rolename
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def getrole(self, requser, req):
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'role': None
-								}
+				rd = {'requested': "getrole", 'role': None}
 				try:
 						roledao = RoleDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						rolename = req['rolename']
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Check JSON Syntax [%s]" % str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Check JSON Syntax [%s]" % str(e), rd)
 
 				try:
 						r = roledao.getByName(rolename)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				if not isinstance(r, Role):
-						responsed['response'] = "dontexists"
-						responsed['responsen'] =  RESPONSE_EXISTANCE
-						responsed['description'] = "Role not found" 
-						responsed['role'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_DONTEXISTS, "Role %s not found" % rolename, rd)
 				
-				responsed['response'] = "roleretrieved"
-				responsed['responsen'] =  RESPONSE_OK
-				responsed['description'] = "Role found" 
-				responsed['role'] = r.dictexport()
-				return responsed
+				rd['role'] = r.dictexport()
+				return RadioMateJSONResponse(RESPONSE_OK, "Role found", rd)
 		
 		def listroles(self, requser, req):
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'listlength': 0,
-								'rolelist': None
-								}
+				rd = {'requested': "listroles", 'listlength':0, 'rolelist': []}
 				try:
 						roledao = RoleDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['listlength'] = 0
-						responsed['rolelist'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 				try:
 						rlist = roledao.getAll()
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['listlength'] = 0
-						responsed['rolelist'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				rolelist = []
 				for r in rlist:
 						try:
 								rolelist.append(r.dictexport())
 						except Exception, e:
-								responsed['response'] = "error"
-								responsed['responsen'] =  RESPONSE_ERROR
-								responsed['description'] = str(e) 
-								responsed['listlength'] = 0
-								responsed['rolelist'] = None
-								return responsed
+								return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
-				responsed['response'] = "rolelistfollows"
-				responsed['responsen'] =  RESPONSE_OK
-				responsed['description'] = "Role list retrieved" 
-				responsed['listlength'] = len(rlist)
-				responsed['rolelist'] = rolelist
-				return responsed
+				rd['listlength'] = len(rlist)
+				rd['rolelist'] = rolelist
+				return RadioMateJSONResponse(RESPONSE_OK, "Role list retrieved", rd)
 
 		def createuser(self, requser, req):
+				rd = {'requested': "createuser", 'user': None}
 				if not requser.role.canManageUsers:
-						responsed = {
-										'response': "notallowed", 
-										'responsen':  RESPONSE_NOTALLOWED,
-										'description': "User role does not allow this action",
-										'user': None
-										}
-						return responsed
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'user': None
-								}
+						return RadioMateJSONResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 				try:
 						u = User(req['user'])
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 				try:
 						userdao = UserDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						ucheck = userdao.getByName(u.name)
 				except RadioMateDAOException, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 				if ucheck:
-						responsed['response'] = "alreadyexists"
-						responsed['responsen'] =  RESPONSE_EXISTANCE
-						responsed['description'] = "User already exists"
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ALREADYEXISTS, "User already exists", rd)
 
 				try:
 						roledao = RoleDAO(self.connectionmanager)
 						rcheck = roledao.getByName(u.rolename)
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 				if not rcheck:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Role %s does not exist" % u.rolename
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Role %s does not exist" % u.rolename, rd)
 
 				try:
 						res = userdao.insert(u)
 						ucheck = userdao.getByName(u.name)
 						if res and ucheck:
-								responsed['response'] = "usercreated"
-								responsed['responsen'] =  RESPONSE_OK
-								responsed['description'] = "O.K."
-								responsed['user'] = ucheck.dictexport()
-								return responsed
+								rd['user'] = ucheck.dictexport()
+								return RadioMateJSONResponse(RESPONSE_OK, "User successfully created", rd)
 				except RadioMateDAOException, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 				except Exception, e:
 						pass
-				responsed['response'] = "error"
-				responsed['responsen'] =  RESPONSE_ERROR
-				responsed['description'] = str(e)
-				responsed['user'] = None
-				return responsed
+				return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 		def edituser(self, requser, req):
+				rd = {'requested': "edituser", 'user': None}
 				if not requser.role.canManageUsers:
-						responsed = {
-										'response': "notallowed", 
-										'responsen':  RESPONSE_NOTALLOWED,
-										'description': "User role does not allow this action",
-										'user': None
-										}
-						return responsed
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'user': None
-								}
+						return RadioMateJSONResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
 				try:
 						userdao = UserDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						assert req['user']
 						username = req['user']['name']
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Check JSON Syntax [%s]" % str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Check JSON Syntax [%s]" % str(e), rd)
 
 				try:
 						u = userdao.getByName(username)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
-				if u == None:
-						responsed['response'] = "dontexists"
-						responsed['responsen'] =  RESPONSE_EXISTANCE
-						responsed['description'] = "User %s not found" % username
-						responsed['user'] = None
-						return responsed
+				if not u:
+						return RadioMateJSONResponse(RESPONSE_DONTEXISTS, "User %s not found" % username, rd)
 
 				# edit the user
 				try:
 						u.__dict__.update(req['user'])
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
 				try:
 						res = userdao.update(u)
 						ucheck = userdao.getByName(u.name)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				if res and ucheck:
-						responsed['response'] = "useredited"
-						responsed['responsen'] =  RESPONSE_OK
-						responsed['description'] = "User successfully edited"
-						responsed['user'] = ucheck.dictexport()
-						return responsed
+						rd['user'] = ucheck.dictexport()
+						return RadioMateJSONResponse(RESPONSE_OK, "User successfully edited", rd)
 				else:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Unknown Error"
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Unknown Error", rd)
 		
 		def removeuser(self, requser, req):
+				rd = {'requested': "removeuser", 'name': None}
 				if not requser.role.canManageUsers:
-						responsed = {
-										'response': "notallowed", 
-										'responsen':  RESPONSE_NOTALLOWED,
-										'description': "User role does not allow this action",
-										'user': None
-										}
-						return responsed
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'name': None
-								}
+						return RadioMateJSONResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
 				try:
 						userdao = UserDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['name'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						username = req['name']
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Check JSON Syntax [%s]" % str(e)
-						responsed['name'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Check JSON Syntax [%s]" % str(e), rd)
 
 				try:
-						r = userdao.getByName(username)
+						u = userdao.getByName(username)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['name'] = username
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
-				if r == None:
-						responsed['response'] = "dontexists"
-						responsed['responsen'] =  RESPONSE_EXISTANCE
-						responsed['description'] = "User not found" 
-						responsed['name'] = username
-						return responsed
+				if not u:
+						return RadioMateJSONResponse(RESPONSE_DONTEXISTS, "User %s not found" % username, rd)
 
 				# remove the user
 				try:
 						res = userdao.removeByName(username)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['name'] = username
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				if res:
-						responsed['response'] = "userremoved"
-						responsed['responsen'] =  RESPONSE_OK
-						responsed['description'] = "User has been removed" 
-						responsed['name'] = username
-						return responsed
+						rd['name'] = username
+						return RadioMateJSONResponse(RESPONSE_OK, "User has been removed", rd)
 
 				else:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Unknown Error" 
-						responsed['name'] = username
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def getuser(self, requser, req):
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'user': None
-								}
+				rd = {'requested': "getuser", 'user': None}
 				try:
 						userdao = UserDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						username = req['name']
 				except Exception, e:
-						responsed['response'] = "error"
-						responsed['responsen'] =  RESPONSE_ERROR
-						responsed['description'] = "Check JSON Syntax [%s]" % str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_ERROR, "Check JSON Syntax [%s]" % str(e), rd)
 
 				try:
 						u = userdao.getByName(username)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				if not isinstance(u, User):
-						responsed['response'] = "dontexists"
-						responsed['responsen'] =  RESPONSE_EXISTANCE
-						responsed['description'] = "User not found" 
-						responsed['user'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_DONTEXISTS, "User %s not found" % username, rd)
 				
-				responsed['response'] = "userretrieved"
-				responsed['responsen'] =  RESPONSE_OK
-				responsed['description'] = "User found" 
-				responsed['user'] = u.dictexport()
-				return responsed
+				rd['user'] = u.dictexport()
+				return RadioMateJSONResponse(RESPONSE_OK, "User found", rd)
 
 		def listusers(self, requser, req):
-				responsed = {
-								'response': "error",
-								'responsen':  RESPONSE_ERROR,
-								'description': "Unknown Error",
-								'listlength': 0,
-								'userlist': None
-								}
+				rd = {'requested': "listusers", 'listlength': 0, 'userlist': []}
 				try:
 						userdao = UserDAO(self.connectionmanager)
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['listlength'] = 0
-						responsed['userlist'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
 						ulist = userdao.getAll()
 				except Exception, e:
-						responsed['response'] = "servererror"
-						responsed['responsen'] =  RESPONSE_SERVERERROR
-						responsed['description'] = str(e)
-						responsed['listlength'] = 0
-						responsed['userlist'] = None
-						return responsed
+						return RadioMateJSONResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				userlist = []
 				for u in ulist:
 						try:
 								userlist.append(u.dictexport())
 						except Exception, e:
-								responsed['response'] = "error"
-								responsed['responsen'] =  RESPONSE_ERROR
-								responsed['description'] = str(e) 
-								responsed['listlength'] = 0
-								responsed['userlist'] = None
-								return responsed
+								return RadioMateJSONResponse(RESPONSE_ERROR, str(e), rd)
 
-				responsed['response'] = "userlistfollows"
-				responsed['responsen'] =  RESPONSE_OK
-				responsed['description'] = "User list retrieved" 
-				responsed['listlength'] = len(ulist)
-				responsed['userlist'] = userlist
-				return responsed
+				rd['listlength'] = len(ulist)
+				rd['userlist'] = userlist
+				return RadioMateJSONResponse(RESPONSE_OK, "User list retrieved", rd)
 
 		def registerfile(self, requser, req):
 				pass

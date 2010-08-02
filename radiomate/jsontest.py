@@ -2,16 +2,14 @@
 from jsonif import *
 
 
-def processandcheck(jsonrequest):
+def processandcheck(jsonrequest, check = True):
 		print jsonrequest
 		r = jp.process(jsonrequest)
 		print r
 		rd = json.loads(r)
-		if int(rd['responsen']) != 0:
-				print rd
+		if check and int(rd['responsen']) != 0:
 				print rd['responsen']
 				raise SystemExit("Test Failed")
-
 
 def roletest():
 		jsonrequest = """
@@ -56,6 +54,16 @@ def roletest():
 		}
 		"""
 		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "removerole",
+			"username": "foobar",
+			"password": "secret",
+			"rolename": "testroule"
+		}
+		"""
+		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
@@ -120,11 +128,21 @@ def usertest():
 		jsonrequest = """
 		{
 			"request": "listusers",
-			"username": "foobar",
-			"password": "secret"
+			"username": "testuser",
+			"password": "secrettest"
 		}
 		"""
 		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "removeuser",
+			"username": "foobar",
+			"password": "secret",
+			"name": "testusser"
+		}
+		"""
+		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
