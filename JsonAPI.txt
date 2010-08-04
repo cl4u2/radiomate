@@ -212,6 +212,18 @@
 
 }}}
 
+=== Get an Audio File ===
+
+{{{
+
+{
+	"request": "getfile",
+	"username": <username>,
+	"password": <password>,
+	"mediafileid": <id of the media file>
+}
+
+}}}
 
 === Search for an Audio File ===
 
@@ -243,7 +255,6 @@
 	"request": "editfile",
 	"username": <username>,
 	"password": <password>,
-	"remove": (true|false), #unregister a file
 	"mediafile": {
 		"id": <id of the file>,
 		"path": <new local path of the file or null to leave unchanged>,
@@ -258,6 +269,19 @@
 	}
 }
 
+
+}}}
+
+=== Unregister an Audio File ===
+
+{{{
+
+{
+	"request": "unregisterfile",
+	"username": <username>,
+	"password": <password>,
+	"mediafileid": <id of the media file to be deregistered>
+}
 
 }}}
 
@@ -556,6 +580,7 @@ List of playlists in which the user is owner or viewer
 	"response": ("ok" | "notallowed" | "dontexists" | "alreadyexists" | "servererror" | "error" | "requesterror"),
 	"responsen": (0 | 101 | 201 | 202 | 301 | 401 | 501),
 	"requested": <the requested action>,
+	"warning": <warning message(s) or an empty string>,
 	"description": <textual description>,
 	<the response follows>
 }

@@ -526,7 +526,7 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 								return " AND "
 				i = 0
 				if partialmediafile.user:
-						searchstring += whereand(i) + " user LIKE '%%%s%%' " % partialmediafile.user
+						searchstring += whereand(i) + " user = '%s' " % partialmediafile.user
 						i+=1
 				if partialmediafile.path:
 						searchstring += whereand(i) + " path LIKE '%%%s%%' " % partialmediafile.path
@@ -591,6 +591,28 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 
 				self.logger.debug(updatestring) 
 				cursor.execute(updatestring)
+		
+		def __getByPath(self, mediafilepath, cursor):
+				selectionstring = """
+				SELECT  
+						id,
+						user, 
+						path, 
+						type,
+						title,
+						author,
+						album,
+						genre,
+						year,
+						comment,
+						license,
+						tags
+				FROM mediafiles
+				WHERE path = '%s'""" % mediafilepath
+
+				self.logger.debug(selectionstring)
+				cursor.execute(selectionstring)
+				return cursor.fetchall()
 
 		def insert(self, mediafileobject):
 				"Insert a new media file"
@@ -658,6 +680,22 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 						cursor.close()
 						self.logger.debug("Number of mediafile rows updated: %d. id = %d" % (cursor.rowcount, lastid))
 						return lastid
+				except MySQLdb.Error, e:
+						raise RadioMateDAOException(e.args)
+
+		def getByPath(self, mediafilepath):
+				"Get a media file from its path"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						resultdicts = self.__getByPath(mediafilepath, cursor)
+						cursor.close()
+
+						self.logger.debug("Number of mediafile rows fetched by path: %d" % len(resultdicts))
+
+						res = []
+						for mf in resultdicts:
+								res.append(MediaFile(mf))
+						return res
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
