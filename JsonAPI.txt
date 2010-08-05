@@ -342,6 +342,19 @@
 
 }}}
 
+=== Remove an Existing Playlist ===
+
+{{{
+
+{
+	"request": "removeplaylist",
+	"username": <username>,
+	"password": <password>,
+	"playlistid": <id of the playlist to be removed>
+}
+
+}}}
+
 
 === Add Files to an Existing Playlist ===
 
@@ -352,7 +365,7 @@
 	"username": <username>,
 	"password": <password>,
 	"playlistid": <id of an existing playlist>,
-	"tracks": [ #ordered list of file ids
+	"mediafileidlist": [ #ordered list of file ids
 		<id of a registered file>,
 		<id of a registered file>,
 		...
@@ -371,9 +384,9 @@
 	"username": <username>,
 	"password": <password>,
 	"playlistid": <id of an existing playlist>,
-	"tracks": [ #ordered list of file ids
-		<id of a registered file in the playlist>,
-		<id of a registered file in the playlist>,
+	"mediafilepositionlist": [ # list of mediafile positions
+		<position of a file in the playlist>,
+		<position of a file in the playlist>,
 		...
 	]
 }
@@ -381,20 +394,18 @@
 }}}
 
 
-=== Switch Positions in an Existing Playlist ===
+=== Change Position of file in an Existing Playlist ===
 
 {{{
 
 {	
-	"request": "switchfilesinplaylist",
+	"request": "movefilesinplaylist",
 	"username": <username>,
 	"password": <password>,
 	"playlistid": <id of an existing playlist>,
-	"tracks": [ #exactly two file ids
-		<id of a registered file in the playlist>,
-		<id of a registered file in the playlist>
-	]
-}
+	"oldmediafileposition": <old position of a file in the playlist>,
+	"newmediafileposition": <new position of a file in the playlist> 
+		#if there is already a file present, then the old one is moved one position further
 
 }}}
 
@@ -580,7 +591,7 @@ List of playlists in which the user is owner or viewer
 	"response": ("ok" | "notallowed" | "dontexists" | "alreadyexists" | "servererror" | "error" | "requesterror"),
 	"responsen": (0 | 101 | 201 | 202 | 301 | 401 | 501),
 	"requested": <the requested action>,
-	"warning": <warning message(s) or an empty string>,
+	"warning": <warning message(s) or null>,
 	"description": <textual description>,
 	<the response follows>
 }

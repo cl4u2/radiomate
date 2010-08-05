@@ -72,7 +72,7 @@ class JsonResponse(dict):
 						dict.__setitem__(self, 'responsen', responsen)
 						dict.__setitem__(self, 'response', ERRORDICT[responsen])
 						dict.__setitem__(self, 'description', description)
-						dict.__setitem__(self, 'warning', "")
+						dict.__setitem__(self, 'warning', None)
 						self.update(responsedict)
 				except Exception, e:
 						raise RadioMateJSONError(str(e))
@@ -81,7 +81,7 @@ class JsonResponse(dict):
 				return json.dumps(self, skipkeys=True)
 		
 
-class RadioMateJSONProcessor(object):
+class JSONProcessor(object):
 		"Process JSON requests and return JSON responses, through the process() function"
 		def __init__(self):
 				"set up the connection to the database"
@@ -232,8 +232,8 @@ class RadioMateJSONProcessor(object):
 				if res:
 						rd['rolename'] = rolename
 						return JsonResponse(RESPONSE_OK, "Role has been removed", rd)
-				else:
-						return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
+
+				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def getrole(self, requser, req):
 				rd = {'requested': "getrole", 'role': None}
@@ -466,8 +466,7 @@ class RadioMateJSONProcessor(object):
 				except Exception, e:
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
 
-				# check if file exists
-				# TODO
+				# TODO: check if file exists
 				# config.MEDIAFILESHOMEDIR
 
 				# check if file has already been registered
@@ -512,7 +511,6 @@ class RadioMateJSONProcessor(object):
 						return JsonResponse(RESPONSE_OK, "MediaFile Found", rd)
 				else:
 						return JsonResponse(RESPONSE_DONTEXISTS, "MediaFile not Found", rd)
-
 
 		def searchfiles(self, requser, req):
 				rd = {'requested': "searchfiles", 'listlength': 0, 'mediafilelist': []}
@@ -572,26 +570,24 @@ class RadioMateJSONProcessor(object):
 				# edit the mediafile
 				try:
 						m.__dict__.update(req['mediafile'])
-				except Exception, e:
-						return JsonResponse(RESPONSE_ERROR, str(e), rd)
-
-				try:
 						id = mediafiledao.update(m)
 						mcheck = mediafiledao.getById(id)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 				except Exception, e:
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				if id and mcheck:
 						rd['mediafile'] = mcheck.dictexport()
 						return JsonResponse(RESPONSE_OK, "Media File successfully edited", rd)
-				else:
-						return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
+
+				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 		
 		def unregisterfile(self, requser, req):
 				"""An user can unregister her own files or, if she has the 
 				canManageRegisteredFiles permission, can unregister every media file"""
 
-				rd = {'requested': "unregisterfile", 'mediafile': None}
+				rd = {'requested': "unregisterfile", 'mediafileid': None}
 				if not requser.role.canRegisterFiles:
 						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 				
@@ -620,46 +616,169 @@ class RadioMateJSONProcessor(object):
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				if res:
+						rd['mediafileid'] = mediafileid
 						return JsonResponse(RESPONSE_OK, "Media File successfully unregistered", rd)
-				else:
-						return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
+
+				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def createplaylist(self, requser, req):
 				rd = {'requested': "createplaylist", 'playlist': None}
-				if not requser.role.canRegisterFiles:
-						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-
 				try:
 						p = PlayList(req['playlist'])
 						p.creator = requser.name
+						p.addOwner(requser.name)
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
 				try:
 						playlistdao = PlayListDAO(self.connectionmanager)
-				except Exception, e:
-						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
-
-				try:
 						id = playlistdao.insert(p)
-						pcheck = mediafiledao.getById(id)
+						pcheck = playlistdao.getById(id)
 						if id and pcheck:
 								rd['playlist'] = pcheck.dictexport()
 								return JsonResponse(RESPONSE_OK, "Playlist successfully created", rd)
 				except RadioMateDAOException, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 				except Exception, e:
-						pass
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
 				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def editplaylist(self, requser, req):
-				pass
+				rd = {'requested': "editplaylist", 'playlist': None}
+				try:
+						playlistdao = PlayListDAO(self.connectionmanager)
+						p = playlistdao.getById(req['playlist']['id'])
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except NameError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
+				if requser.name != p.creator and (not requser.name in p.owners) and not requser.role.canManageAllPlaylists:
+						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
+				if not p:
+						return JsonResponse(RESPONSE_DONTEXISTS, "Playlist %d not found" % p.id, rd)
+
+				# edit the playlist
+				try:
+						p.__dict__.update(req['playlist'])
+						p.addOwner(requser.name)
+						id = playlistdao.update(p)
+						pcheck = playlistdao.getById(id)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
+				if id and pcheck:
+						rd['playlist'] = pcheck.dictexport()
+						return JsonResponse(RESPONSE_OK, "Playlist successfully edited", rd)
+
+				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
+		
+		def removeplaylist(self, requser, req):
+				rd = {'requested': "removeplaylist", 'playlistid': None}
+				try:
+						playlistdao = PlayListDAO(self.connectionmanager)
+						playlistid = req['playlistid']
+						p = playlistdao.getById(playlistid)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except NameError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
+				if requser.name != p.creator and (not requser.name in p.owners) and not requser.role.canManageAllPlaylists:
+						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
+				if not p:
+						return JsonResponse(RESPONSE_DONTEXISTS, "Playlist %d not found" % p.id, rd)
+
+				# remove the playlist
+				try:
+						res = playlistdao.removeById(playlistid)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
+				if res:
+						rd['playlist'] = playlistid
+						return JsonResponse(RESPONSE_OK, "Playlist successfully removed", rd)
+
+				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def addfilestoplaylist(self, requser, req):
-				pass
+				rd = {'requested': "addfilestoplaylist", 'numberoffilesadded': 0}
+				try:
+						playlistdao = PlayListDAO(self.connectionmanager)
+						mediafiledao = MediaFileDAO(self.connectionmanager)
+						playlistid = req['playlistid']
+						if len(req['mediafileidlist']) == 0:
+								JsonResponse(RESPONSE_OK, "Ok, but no files added to the playlist", rd)
+						else:
+								mediafileidlist = []
+								for ids in req['mediafileidlist']:
+										mediafileidlist.append(int(ids))
+						p = playlistdao.getById(playlistid)
+						n = 0
+						for id in mediafileidlist:
+								mf = mediafiledao.getById(id)
+								p.addMediaFile(mf)
+								n+=1
+						id = playlistdao.update(p)
+						pcheck = playlistdao.getById(id)
+						if id and pcheck:
+								rd['numberoffilesadded'] = n
+								rd['playlist'] = pcheck.dictexport()
+								return JsonResponse(RESPONSE_OK, "Playlist successfully edited", rd)
+						return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except NameError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except KeyError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
 		def removefilesfromplaylist(self, requser, req):
-				pass
+				rd = {'requested': "removefilesfromplaylist", 'numberoffilesremoved': 0}
+				try:
+						playlistdao = PlayListDAO(self.connectionmanager)
+						playlistid = req['playlistid']
+						if len(req['mediafilepositionlist']) == 0:
+								JsonResponse(RESPONSE_OK, "Ok, but no files removed from the playlist", rd)
+						else:
+								mediafileposlist = []
+								for pos in req['mediafilepositionlist']:
+										mediafileposlist.append(int(pos))
+						p = playlistdao.getById(playlistid)
+						n = 0
+						mediafileposlist.sort()
+						mediafileposlist.reverse()
+						for pos in mediafileposlist:
+								p.removeMediaFile(pos)
+								n+=1
+						id = playlistdao.update(p)
+						pcheck = playlistdao.getById(id)
+						if id and pcheck:
+								rd['numberoffilesremoved'] = n
+								rd['playlist'] = pcheck.dictexport()
+								return JsonResponse(RESPONSE_OK, "Playlist successfully edited", rd)
+						return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except NameError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except KeyError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
 		def switchfilesinplaylist(self, requser, req):
 				pass

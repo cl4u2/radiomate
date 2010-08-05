@@ -67,14 +67,46 @@ class RadioMateParentClass(object):
 
 		def dictexport(self):
 				d = {}
+
+				def isBaseType(value):
+						if isinstance(value, bool) or \
+								isinstance(value, int) or \
+								isinstance(value, long) or \
+								isinstance(value, basestring):
+								return True
+						else:
+								return False
+
+				def xport(k, v):
+						if isBaseType(v):
+								if k:
+										return {k: v}
+								else:
+										return v
+						elif isinstance(v, list):
+								l = []
+								for e in v:
+										l.append(xport(None, e))
+								if k:
+										return {k: l}
+								else:
+										return l
+						else:
+								if k:
+										return {k: xport(None, v)}
+								else:
+										try:
+												return v.dictexport()
+										except:
+												return {}
+
 				for k, v in self.__dict__.iteritems():
 						if k == "password":
 								continue
-						if isinstance(self.__dict__[k], bool) or \
-								isinstance(self.__dict__[k], int) or \
-								isinstance(self.__dict__[k], long) or \
-								isinstance(self.__dict__[k], basestring):
-										d.update({k:v})
+						if k == "position" and k < 0:
+								continue
+						d.update(xport(k, v))
+
 				return d
 
 
@@ -146,7 +178,8 @@ class MediaFile(RadioMateParentClass):
 								'year' : 0, \
 								'comment' : '', \
 								'license' : '', \
-								'tags' : ''})
+								'tags' : '', \
+								'position' : -1})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
 						self.__setattr__(k, v)
@@ -172,28 +205,67 @@ class PlayList(RadioMateParentClass):
 						self.__setattr__(k, v)
 
 		def __setattr__(self, name, value):
-				if name == "mediafilelist" or name == "owners" or name == "viewers":
-						raise RadioMateException("please use the appropriate accessor method")
+				if name == "mediafilelist":
+						raise RadioMateException("please use the appropriate accessor method to add a mediafile")
+				if name == "owners":
+						if isinstance(value, list):
+								for u in value:
+										self.addOwner(u)
+								return
+				if name == "viewers":
+						if isinstance(value, list):
+								for u in value:
+										self.addViewer(u)
+								return
 				return RadioMateParentClass.__setattr__(self, name, value)
+
+		def __posUpdate(self):
+				for i, mf in enumerate(self.mediafilelist):
+						mf.position = i
 
 		def addMediaFile(self, mediafile):
 				if isinstance(mediafile, MediaFile):
 						self.mediafilelist.append(mediafile)
+						self.__posUpdate()
 				else:
 						raise RadioMateException("MediaFile object expected")
+
+		def removeMediaFile(self, playlistposition):
+				try:
+						del self.mediafilelist[playlistposition]
+						self.__posUpdate()
+				except:
+						raise RadioMateException("position out of range")
 
 		def addOwner(self, username):
 				if isinstance(username, basestring):
 						self.owners.append(username)
+						RadioMateParentClass.__setattr__(self, "owners", list(set(self.owners)))
 				else:
-						raise RadioMateException("string expected")
-		
+						raise RadioMateException("string expected [%s]" % username)
+
+		def removeOwner(self, username):
+				if isinstance(username, basestring):
+						ownset = set(self.owners)
+						ownset.remove(username)
+						RadioMateParentClass.__setattr__(self, "owners", list(ownset))
+				else:
+						raise RadioMateException("string expected [%s]" % username)
+
 		def addViewer(self, username):
 				if isinstance(username, basestring):
 						self.viewers.append(username)
+						RadioMateParentClass.__setattr__(self, "viewers", list(set(self.viewers)))
 				else:
-						raise RadioMateException("string expected")
-						
+						raise RadioMateException("string expected [%s] % username")
+		
+		def removeViewer(self, username):
+				if isinstance(username, basestring):
+						viewset = set(self.viewers)
+						viewset.remove(username)
+						RadioMateParentClass.__setattr__(self, "viewers", list(viewset))
+				else:
+						raise RadioMateException("string expected [%s]" % username)
 
 class TimeSlot(RadioMateParentClass):
 		"This entity class represents the timeslot reserved for a show"

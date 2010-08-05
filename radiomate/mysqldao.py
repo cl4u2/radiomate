@@ -924,10 +924,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						self.__insert(playlistobject, cursor)
 						self.conn.commit()
 						lastid = self.__getLastId(cursor)
-						i = 0
-						for mf in playlistobject.mediafilelist:
+						for i, mf in enumerate(playlistobject.mediafilelist):
 								self.__insertmediafile(lastid, mf.id, i, cursor)
-								i+=1
 						for uname in playlistobject.owners:
 								self.__insertowner(lastid, uname, cursor)
 						for uname in playlistobject.viewers:
@@ -988,10 +986,8 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						self.conn.commit() #needed?
 						self.__update(playlistobject, cursor)
 						lastid = playlistobject.id
-						i = 0
-						for mf in playlistobject.mediafilelist:
+						for i, mf in enumerate(playlistobject.mediafilelist):
 								self.__insertmediafile(lastid, mf.id, i, cursor)
-								i+=1
 						for uname in playlistobject.owners:
 								self.__insertowner(lastid, uname, cursor)
 						for uname in playlistobject.viewers:
