@@ -1256,7 +1256,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						if n == 0:
 								return " WHERE "
 						else:
-								return "OR"
+								return " AND "
 				i = 0
 				if timeslotobject.title:
 						selectionstring += whereand(i) + " title LIKE '%%%s%%' " % timeslotobject.title
@@ -1320,11 +1320,13 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 
 						self.logger.debug("Number of timeslot rows fetched: %d" % len(resultdicts))
 						assert len(resultdicts) == 1
-						self.logger.debug(resultdicts[0])
+						self.logger.debug("getById: %s" % resultdicts[0])
 
 						rs = resultdicts[0]
 						ts = TimeSlot()
 						ts.id = rs['id']
+						#debug
+						assert ts.id == rs['id']
 						ts.creator = rs['creator']
 						ts.slottype = rs['slottype']
 						ts.title = rs['title']
@@ -1335,7 +1337,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						ts.setEndingDateTime(rs['endingtime'])
 						ts.slotparams = json.loads(rs['slotparameters'])
 						ts.fallbackplaylist = rs['fallbackplaylist']
-						self.logger.debug(str(ts))
+						self.logger.debug("getById: %s" % str(ts))
 						return ts
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)

@@ -345,35 +345,31 @@ def timeslotdaotest():
 						dbpassword = DBPASSWORD,
 						database = DATABASE
 						)
+		rdao = RoleDAO(cm)
+		udao = UserDAO(cm)
+		tsdao = TimeSlotDAO(cm)
+		playlistdao = PlayListDAO(cm)
+
+
 		r = Role()
 		r.rolename = "testrole"
-		rdao = RoleDAO(cm)
-		rdao.insert(r)
-		udao = UserDAO(cm)
+
 		u1 = User()
 		u1.name = "foobar"
 		u1.rolename = "testrole"
-		udao.insert(u1)
+		
 		u2 = User()
 		u2.name = "foobar2"
 		u2.rolename = "testrole"
-		udao.insert(u2)
 
-		ts = TimeSlot()
-		ts.creator = 'foobar'
-		ts.slottype = 'dummy'
-		ts.slotparams = {'par1': 0, 'par2': 'ciao'}
-		ts.beginningyear = 2010
-		ts.beginningmonth = 07
-		ts.beginningday = 1
-		ts.beginninghour = 10
-		ts.beginningminute = 0
-		ts.duration = 60
-		ts.title = "The Test Show"
-		ts.description = "the best test show ever"
-		ts.comment = "just a test"
-		ts.tags = "test, show, radio"
+		try:
+				rdao.insert(r)
+				udao.insert(u1)
+				udao.insert(u2)
+		except:
+				pass
 		
+		print "-- Playlist --"
 		pl = PlayList()
 		pl.title = "just a test"
 		pl.creator = "foobar2"
@@ -381,15 +377,31 @@ def timeslotdaotest():
 		pl.description = "testing dao"
 		pl.comment = ":)"
 		pl.tags = "test,prova,foo,bar"
-		playlistdao = PlayListDAO(cm)
 		plid = playlistdao.insert(pl)
+		print "--"
 
+		print "-- TimeSlot --"
+		ts = TimeSlot()
+		ts.creator = 'foobar'
+		ts.slottype = 'dummy'
+		ts.slotparams = {'par1': 0, 'par2': 'ciao'}
+		ts.beginningtime = {'year': 2010, 'month': 07, 'day': 1, 'hour': 10, 'minute': 0}
+		ts.duration = 60
+		ts.title = "The Test Show"
+		ts.description = "the best test show ever"
+		ts.comment = "just a test"
+		ts.tags = "test, show, radio"
+		print ts.beginningtime
+		print ts
+		
+		print "-- TimeSlot --"
 		ts.fallbackplaylist = plid
-
-		tsdao = TimeSlotDAO(cm)
+		print ts
+		print "insertion"
 		tsid = tsdao.insert(ts)
-
+		print "getById --"
 		ts1 = tsdao.getById(tsid)
+		print ts1
 		ts1.description = "testing dao"
 		tsdao.update(ts1)
 
@@ -403,12 +415,13 @@ def timeslotdaotest():
 		tss.title = "show"
 		res = tsdao.search(tss)
 		print res
-		
+
 		tsdao.removeById(tsid)
 		playlistdao.removeById(plid)
 		udao.removeByName(u1.name)
 		udao.removeByName(u2.name)
 		rdao.removeByName(r.rolename)
+		
 
 def exceptiontest():
 		conn = MySQLdb.connect( 
@@ -431,10 +444,10 @@ def exceptiontest():
 #execute
 print "---"
 #test0()
-roledaotest()
-userdaotest()
-mediafilesdaotest()
-playlistdaotest()
+#roledaotest()
+#userdaotest()
+#mediafilesdaotest()
+#playlistdaotest()
 timeslotdaotest()
 #exceptiontest()
 

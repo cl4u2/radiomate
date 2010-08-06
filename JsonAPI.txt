@@ -520,10 +520,12 @@ List of playlists in which the user is owner or viewer
 	"username": <username>,
 	"password": <password>,
 	"timeslot": {
-		"title": <title of the transmission or null>
-		"description": <description of the transmission or null>
-		"tags": <zero or moretags>
-		"reservinguser": <user who reserved the timeslot, or null>
+		"id": <id of the timeslot or null>,
+		"title": <title of the transmission or null>,
+		"description": <description of the transmission or null>,
+		"tags": <null or tags>,
+		"comment": <null or partial comment>,
+		"creator": <user who reserved the timeslot, or null>,
 		"from": { #or null
 			"year": <year>,
 			"month": <month>,
@@ -531,7 +533,7 @@ List of playlists in which the user is owner or viewer
 			"hour": <hour>,
 			"minute": <minute>
 		},
-		"to": {
+		"to": { # or null
 			"year": <year>,
 			"month": <month>,
 			"day": <day>,

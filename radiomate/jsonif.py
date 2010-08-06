@@ -185,7 +185,7 @@ class JSONProcessor(object):
 
 				# edit the role
 				try:
-						r.__dict__.update(req['role'])
+						r.dictupdate(req['role'])
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
@@ -350,7 +350,7 @@ class JSONProcessor(object):
 
 				# edit the user
 				try:
-						u.__dict__.update(req['user'])
+						u.dictupdate(req['user'])
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
@@ -569,7 +569,7 @@ class JSONProcessor(object):
 
 				# edit the mediafile
 				try:
-						m.__dict__.update(req['mediafile'])
+						m.dictupdate(req['mediafile'])
 						id = mediafiledao.update(m)
 						mcheck = mediafiledao.getById(id)
 				except RadioMateDAOException, e:
@@ -664,7 +664,7 @@ class JSONProcessor(object):
 
 				# edit the playlist
 				try:
-						p.__dict__.update(req['playlist'])
+						p.dictupdate(req['playlist'])
 						p.addOwner(requser.name)
 						id = playlistdao.update(p)
 						pcheck = playlistdao.getById(id)
@@ -845,10 +845,7 @@ class JSONProcessor(object):
 						playlistdao = PlayListDAO(self.connectionmanager)
 						plist = playlistdao.getByUser(userreq)
 
-						playlistlist = []
-						for p in plist:
-								playlistlist.append(p.dictexport())
-						
+						playlistlist = [p.dictexport() for p in plist]
 						rd['listlength'] = len(playlistlist)
 						rd['playlistlist'] = playlistlist
 						return JsonResponse(RESPONSE_OK, "List Follows", rd)
@@ -914,10 +911,77 @@ class JSONProcessor(object):
 						return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def edittimeslot(self, requser, req):
-				pass
+				rd = {'requested': "edittimeslot", 'timeslot': None}
+				try:
+						id = req['timeslot']['id']
+
+						timeslotdao = TimeSlotDAO(self.connectionmanager)
+						t = timeslotdao.getById(id)
+						t.dictupdate(req['timeslot'])
+						newid = timeslotdao.update(t)
+						if newid != id:
+								return JsonResponse(RESPONSE_SERVERERROR, "Something wrong: %d -> %d" % (id, newid), rd)
+						tcheck = timeslotdao.getById(id)
+						if tcheck:
+								rd['timeslot'] = tcheck.dictexport()
+								return JsonResponse(RESPONSE_OK, "Timeslot successfully edited", rd)
+				except KeyError, e:
+						return JsonResponse(RESPONSE_REQERROR, str(e), rd)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except RadioMateBadTimeSlotException, e:
+						return JsonResponse(RESPONSE_ERROR, "Timeslot conflict. Cannot reserve.", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+				except:
+						pass
+
+				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def listtimeslots(self, requser, req):
-				pass
+				rd = {'requested': "listtimeslots", 'listlength': 0, 'timeslotlist': []}
+				try:
+						timeslotdao = TimeSlotDAO(self.connectionmanager)
+						if req['timeslot'].has_key('id'):
+								t = timeslotdao.getById(req['timeslot']['id'])
+								rd['listlength'] = 1
+								rd['timeslotlist'] = [t.dictexport()]
+								return JsonResponse(RESPONSE_OK, "One timeslot retrieved, by id", rd)
+						elif req['timeslot'].has_key('from') and req['timeslot'].has_key('to'):
+								dummyts = TimeSlot() #used for format conversion
+
+								dummyts.beginningtime = req['timeslot']['from']
+								fromdate = dummyts.getBeginningDatetime()
+
+								dummyts.beginningtime = req['timeslot']['to']
+								todate = dummyts.getBeginningDatetime()
+
+								tlist = timeslotdao.getFromTo(fromdate, todate)
+								timeslotlist = [t.dictexport() for t in tlist]
+								rd['listlength'] = len(timeslotlist)
+								rd['timeslotlist'] = timeslotlist
+								return JsonResponse(RESPONSE_OK, "List Follows, retrieved by time", rd)
+						else:
+								t = TimeSlot()
+								t.dictupdate(req['timeslot'])
+								tlist = timeslotdao.search(t)
+								timeslotlist = [t.dictexport() for t in tlist]
+								rd['listlength'] = len(timeslotlist)
+								rd['timeslotlist'] = timeslotlist
+								return JsonResponse(RESPONSE_OK, "List Follows, by searching", rd)
+
+				except KeyError, e:
+						return JsonResponse(RESPONSE_REQERROR, str(e), rd)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except RadioMateBadTimeSlotException, e:
+						return JsonResponse(RESPONSE_ERROR, "Timeslot conflict. Cannot reserve.", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+				except:
+						pass
+
+				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def createtestslot(self, requser, req):
 				pass

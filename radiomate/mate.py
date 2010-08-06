@@ -36,41 +36,52 @@ class RadioMateParentClass(object):
 				self.__dict__[name.encode('ascii')] = realvalue
 
 		def __setattr__(self, name, value):
+				# check value and set it
+				def recursetattr(dictionary, name, newvalue):
 						# check correctness of name
-						if not name in self.__dict__.keys():
+						if not name in dictionary.keys():
 								raise RadioMateException("wrong parameter name: %s" % name)
-						# check value and insert it
-						try:
-								if type(self.__dict__[name]) == type(value):
-										self.__setattr(name, value)
-								elif isinstance(self.__dict__[name], bool) and isinstance(value, int):
-										self.__setattr(name, value != 0)
-								elif isinstance(self.__dict__[name], int) and isinstance(value, long):
-										self.__setattr(name, int(value))
-								elif isinstance(self.__dict__[name], long) and isinstance(value, int):
-										self.__setattr(name, value)
-								elif isinstance(self.__dict__[name], str) and isinstance(value, unicode):
-										self.__setattr(name, str(value))
-								elif isinstance(self.__dict__[name], unicode) and isinstance(value, str):
-										self.__setattr(name, str(value))
-								elif isinstance(self.__dict__[name], int) and isinstance(value, basestring):
-										self.__setattr(name, int(value))
-								else:
-										raise RadioMateException("wrong parameter type: %s (%s) in %s (%s)" \
-														% (value, type(value), name, type(self.__dict__[name])))
-						except ValueError:
-										raise RadioMateException("Cannot convert %s (%s) to %s" % \
-														 (value, type(value), type(self.__dict__[name])))
+
+						dictvalue = dictionary[name]
+
+						if isinstance(dictvalue, dict) and isinstance(newvalue, dict):
+								d = {}
+								for k, v in newvalue.iteritems():
+										ke, va = recursetattr(dictvalue, k, v)
+										d.update({ke: va})
+								return (name, d)
+						elif type(dictvalue) == type(newvalue):
+								return (name, newvalue)
+						elif isinstance(dictvalue, bool) and isinstance(newvalue, int):
+								return (name, newvalue != 0)
+						elif isinstance(dictvalue, int) and isinstance(newvalue, long):
+								return (name, int(newvalue))
+						elif isinstance(dictvalue, long) and isinstance(newvalue, int):
+								return (name, newvalue)
+						elif isinstance(dictvalue, str) and isinstance(newvalue, unicode):
+								return (name, str(newvalue))
+						elif isinstance(dictvalue, unicode) and isinstance(newvalue, str):
+								return (name, str(newvalue))
+						elif isinstance(dictvalue, int) and isinstance(newvalue, basestring):
+								return (name, int(newvalue))
+						else:
+								raise RadioMateException("wrong parameter type: %s (%s) in %s (%s)" \
+												% (newvalue, type(newvalue), name, type(dictvalue)))
+				
+				try:
+						na, va = recursetattr(self.__dict__, name, value)
+						self.__setattr(na, va)
+				except ValueError:
+						raise RadioMateException("Cannot convert %s (%s) to %s" % \
+										 (value, type(value), type(self.__dict__[name])))
 		
 		def __str__(self):
 				return str(self.__dict__)
 		
 		def __repr__(self):
 				return str(self)
-
+		
 		def dictexport(self):
-				d = {}
-
 				def isBaseType(value):
 						if isinstance(value, bool) or \
 								isinstance(value, int) or \
@@ -111,6 +122,7 @@ class RadioMateParentClass(object):
 										except:
 												return {}
 
+				d = {}
 				for k, v in self.__dict__.iteritems():
 						if k == "password":
 								continue
@@ -119,6 +131,52 @@ class RadioMateParentClass(object):
 						d.update(xport(k, v))
 
 				return d
+
+		def dictupdate(self, newdict):
+				"merge self.__dict__ with items in newdict"
+				assert isinstance(newdict, dict)
+
+				def isBaseType(value):
+						if isinstance(value, bool) or \
+								isinstance(value, int) or \
+								isinstance(value, long) or \
+								isinstance(value, basestring):
+								return True
+						else:
+								return False
+
+				def port(k, v):
+						if isBaseType(v):
+								if k:
+										return (k, v)
+								else:
+										return v
+						elif isinstance(v, list):
+								l = []
+								for e in v:
+										l.append(port(None, e))
+								if k:
+										return (k, l)
+								else:
+										return l
+						elif isinstance(v, dict):
+								di = {}
+								for ke, va in v.iteritems():
+										di.update({ke: port(None, va)})
+								if k:
+										return (k, di)
+								else:
+										return di
+						else:
+								if k:
+										return (k, port(None, v))
+								else:
+										return port(None, v)
+
+				for k, v in newdict.iteritems():
+						if k in self.__dict__:
+								ke, va = port(k,v)
+								setattr(self, ke ,va)
 
 
 class Role(RadioMateParentClass):
@@ -289,11 +347,13 @@ class TimeSlot(RadioMateParentClass):
 								'creator' : '',\
 								'slottype' : '',\
 								'slotparams' : {},\
-								'beginningyear' : 0,\
-								'beginningmonth' : 0,\
-								'beginningday' : 0,\
-								'beginninghour' : 0,\
-								'beginningminute' : 0,\
+								'beginningtime': {
+										'year' : 0,\
+										'month' : 0,\
+										'day' : 0,\
+										'hour' : 0,\
+										'minute' : 0\
+								 }, \
 								'duration': 0,\
 								'title' : '',\
 								'description' : '',\
@@ -305,58 +365,45 @@ class TimeSlot(RadioMateParentClass):
 						self.__setattr__(k, v)
 
 		def __setattr__(self, name, value):
+				ymdhm = ['year', 'month', 'day', 'hour', 'minute']
+
 				if name == "slotparams" and isinstance(value, dict):
 						for k,v in value.iteritems():
 								self.__dict__['slotparams'].update({k.encode('ascii'): v})
 						return
 
-				try:
-						return RadioMateParentClass.__setattr__(self, name, value)
-				except RadioMateException:
-						pass
-
-				if name != "beginningtime":
-						raise RadioMateException("Wrong parameter name: %s" % name)
-
-				if isinstance(value, dict):
-						for key in ['year', 'month', 'day', 'hour', 'minute']:
-								try:
-										RadioMateParentClass.__setattr__(self, "beginning" + key, value[key])
-								except KeyError:
-										pass
-						return
-				elif isinstance(value, int) or isinstance(value, long):
+				if name == "beginningtime" and (isinstance(value, int) or isinstance(value, long)):
 						# convert unix timestamp to internal representation
 						ttuple = time.localtime(value)
-						RadioMateParentClass.__setattr__(self, "beginningyear", ttuple[0])
-						RadioMateParentClass.__setattr__(self, "beginningmonth", ttuple[1])
-						RadioMateParentClass.__setattr__(self, "beginningday", ttuple[2])
-						RadioMateParentClass.__setattr__(self, "beginninghour", ttuple[3])
-						RadioMateParentClass.__setattr__(self, "beginningminute", ttuple[4])
-						return
-				else:
-						pass
+						d = {}
+						for k, v in zip(ymdhm, ttuple[:5]):
+								d.update({k: v})
+						return RadioMateParentClass.__setattr__(self, "beginningtime", d)
 
-				raise RadioMateException("Wrong parameter type: %s (%s) in %s" \
-								% (value, type(value), name))
+				if name == "beginningtime":
+						for k in ymdhm:
+								if not value.has_key(k):
+										value[k] = 0
+
+				return RadioMateParentClass.__setattr__(self, name, value)
 
 		def getBeginningTimestamp(self):
 				"convert to unix timestamp"
-				timetuple = (self.beginningyear,\
-								self.beginningmonth,\
-								self.beginningday,\
-								self.beginninghour,\
-								self.beginningminute,\
+				timetuple = (self.beginningtime['year'],\
+								self.beginningtime['month'],\
+								self.beginningtime['day'],\
+								self.beginningtime['hour'],\
+								self.beginningtime['minute'],\
 								0, -1, -1, -1)
 				return time.mktime(timetuple)
 
 		def getEndingTimestamp(self):
 				"convert to unix timestamp"
-				timetuple = (self.beginningyear,\
-								self.beginningmonth,\
-								self.beginningday,\
-								self.beginninghour,\
-								self.beginningminute,\
+				timetuple = (self.beginningtime['year'],\
+								self.beginningtime['month'],\
+								self.beginningtime['day'],\
+								self.beginningtime['hour'],\
+								self.beginningtime['minute'],\
 								0, -1, -1, -1)
 				t = time.mktime(timetuple)
 				t += self.duration * 60 	#seconds in one minute
@@ -365,7 +412,11 @@ class TimeSlot(RadioMateParentClass):
 		def getBeginningDatetime(self):
 				"return a string with the beginning date and time"
 				return "%04d-%02d-%02d %02d:%02d" % \
-								(self.beginningyear, self.beginningmonth, self.beginningday, self.beginninghour, self.beginningminute)
+								(self.beginningtime['year'],\
+								self.beginningtime['month'],\
+								self.beginningtime['day'],\
+								self.beginningtime['hour'],\
+								self.beginningtime['minute'])
 
 		def getEndingDatetime(self):
 				"return a string with the ending date and time"
@@ -375,25 +426,27 @@ class TimeSlot(RadioMateParentClass):
 
 		def setBeginningDateTime(self, thetime):
 				"given a string in YYYY-MM-DD HH:MM:SS format or a time.struct_time object set the beginning time"
-				if isinstance(thetime, basestring) or isinstance(thetime, datetime.datetime):
-						tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
-				elif isinstance(thetime, time.struct_time):
+				if isinstance(thetime, time.struct_time):
 						tm = thetime
+				elif isinstance(thetime, datetime.datetime):
+						tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
 				else:
-						raise RadioMateException("Wrong time format in setBeginningDateTime: %s (%s)" % (str(thetime), type(thetime)))
-				self.beginningyear = tm.tm_year
-				self.beginningmonth = tm.tm_mon
-				self.beginningday = tm.tm_mday
-				self.beginninghour = tm.tm_hour
-				self.beginningminute = tm.tm_min
+						tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
+
+				self.beginningtime = {'year': tm.tm_year, 'month': tm.tm_mon,\
+								'day': tm.tm_mday, 'hour': tm.tm_hour, 'minute': tm.tm_min}
 		
 		def setEndingDateTime(self, thetime):
-				"given a string in YYYY-MM-DD HH:MM:SS format set the duration from the beginning time"
-				tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
+				"given a string in YYYY-MM-DD HH:MM:SS format or a time.struct_time object set the duration from the beginning time"
+				if isinstance(thetime, time.struct_time):
+						tm = thetime
+				elif isinstance(thetime, datetime.datetime):
+						tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
+				else:
+						tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
 				endts = time.mktime(tm)
 				startts = self.getBeginningTimestamp()
 				self.duration = int((endts - startts)/60)
-
 
 
 if __name__ == '__main__':
@@ -409,4 +462,8 @@ if __name__ == '__main__':
 		parms = {"par1": 1, "par2": 2}
 		ts.slotparams = parms
 		print ts
+		xp = ts.dictexport()
+		t1 = TimeSlot()
+		t1.dictupdate(xp)
+		print t1
 

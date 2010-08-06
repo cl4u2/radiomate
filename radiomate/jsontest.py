@@ -675,8 +675,94 @@ def timeslottest():
 		}
 		""" % pid
 		timeslot = processandcheck(jsonrequest, ret = "timeslot")
-		print timeslot
 		tid = timeslot['id']
+		
+		jsonrequest = """
+		{
+			"request": "edittimeslot",
+			"username": "foobar",
+			"password": "secret",
+			"timeslot" : {
+					"id": %d,
+					"title": "Modified Test Timeslot"
+			}
+		}
+		""" % tid
+		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "listtimeslots",
+			"username": "foobar",
+			"password": "secret",
+			"timeslot" : {
+					"title": "Test"
+			}
+		}
+		""" 
+		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "listtimeslots",
+			"username": "foobar",
+			"password": "secret",
+			"timeslot" : {
+					"comment": "booo"
+			}
+		}
+		""" 
+		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "listtimeslots",
+			"username": "foobar",
+			"password": "secret",
+			"timeslot" : {
+					"from": {
+						"year": 1970
+					},
+					"to":{
+						"year": 2010,
+						"month": 12
+					}
+			}
+		}
+		""" 
+		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "listtimeslots",
+			"username": "foobar",
+			"password": "secret",
+			"timeslot": {
+				"id": %d
+			}
+		}
+		""" % tid
+		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "edittimeslot",
+			"username": "foobar",
+			"password": "secret",
+			"timeslot" : {
+					"id": %d,
+					"beginningtime": {
+						"year": 2010,
+						"month": 7,
+						"day": 1,
+						"hour": 10,
+						"minute": 30
+					},
+					"duration": 60
+			}
+		}
+		""" % tid
+		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
