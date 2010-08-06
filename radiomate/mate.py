@@ -19,6 +19,7 @@
 
 import sys
 import time
+import datetime
 
 class RadioMateException(Exception):
 		"Just a generic Exception class"
@@ -46,6 +47,8 @@ class RadioMateParentClass(object):
 										self.__setattr(name, value != 0)
 								elif isinstance(self.__dict__[name], int) and isinstance(value, long):
 										self.__setattr(name, int(value))
+								elif isinstance(self.__dict__[name], long) and isinstance(value, int):
+										self.__setattr(name, value)
 								elif isinstance(self.__dict__[name], str) and isinstance(value, unicode):
 										self.__setattr(name, str(value))
 								elif isinstance(self.__dict__[name], unicode) and isinstance(value, str):
@@ -91,6 +94,14 @@ class RadioMateParentClass(object):
 										return {k: l}
 								else:
 										return l
+						elif isinstance(v, dict):
+								di = {}
+								for ke, va in v.iteritems():
+										di.update({ke: xport(None, va)})
+								if k:
+										return {k: di}
+								else:
+										return di
 						else:
 								if k:
 										return {k: xport(None, v)}
@@ -205,18 +216,10 @@ class PlayList(RadioMateParentClass):
 						self.__setattr__(k, v)
 
 		def __setattr__(self, name, value):
-				if name == "mediafilelist":
-						raise RadioMateException("please use the appropriate accessor method to add a mediafile")
-				if name == "owners":
-						if isinstance(value, list):
-								for u in value:
-										self.addOwner(u)
-								return
-				if name == "viewers":
-						if isinstance(value, list):
-								for u in value:
-										self.addViewer(u)
-								return
+				if isinstance(value, list) and name == "mediafilelist" or name == "owners" or name == "viewers":
+						r = RadioMateParentClass.__setattr__(self, name, value)
+						self.__posUpdate()
+						return r
 				return RadioMateParentClass.__setattr__(self, name, value)
 
 		def __posUpdate(self):
@@ -237,6 +240,9 @@ class PlayList(RadioMateParentClass):
 				except:
 						raise RadioMateException("position out of range")
 
+		def clearMediaFileList(self):
+				RadioMateParentClass.__setattr__(self, "mediafilelist", [])
+
 		def addOwner(self, username):
 				if isinstance(username, basestring):
 						self.owners.append(username)
@@ -252,6 +258,9 @@ class PlayList(RadioMateParentClass):
 				else:
 						raise RadioMateException("string expected [%s]" % username)
 
+		def clearOwners(self):
+				RadioMateParentClass.__setattr__(self, "owners", [])
+
 		def addViewer(self, username):
 				if isinstance(username, basestring):
 						self.viewers.append(username)
@@ -266,6 +275,10 @@ class PlayList(RadioMateParentClass):
 						RadioMateParentClass.__setattr__(self, "viewers", list(viewset))
 				else:
 						raise RadioMateException("string expected [%s]" % username)
+		
+		def clearViewers(self):
+				RadioMateParentClass.__setattr__(self, "viewers", [])
+
 
 class TimeSlot(RadioMateParentClass):
 		"This entity class represents the timeslot reserved for a show"
@@ -298,7 +311,7 @@ class TimeSlot(RadioMateParentClass):
 						return
 
 				try:
-					return RadioMateParentClass.__setattr__(self, name, value)
+						return RadioMateParentClass.__setattr__(self, name, value)
 				except RadioMateException:
 						pass
 
@@ -306,15 +319,12 @@ class TimeSlot(RadioMateParentClass):
 						raise RadioMateException("Wrong parameter name: %s" % name)
 
 				if isinstance(value, dict):
-						try:
-								RadioMateParentClass.__setattr__(self, "beginningyear", value['year'])
-								RadioMateParentClass.__setattr__(self, "beginningmonth", value['month'])
-								RadioMateParentClass.__setattr__(self, "beginningday", value['day'])
-								RadioMateParentClass.__setattr__(self, "beginninghour", value['hour'])
-								RadioMateParentClass.__setattr__(self, "beginningminute", value['minute'])
-						except KeyError:
-								raise RadioMateException("something wrong in date/time format")
-
+						for key in ['year', 'month', 'day', 'hour', 'minute']:
+								try:
+										RadioMateParentClass.__setattr__(self, "beginning" + key, value[key])
+								except KeyError:
+										pass
+						return
 				elif isinstance(value, int) or isinstance(value, long):
 						# convert unix timestamp to internal representation
 						ttuple = time.localtime(value)
@@ -323,9 +333,12 @@ class TimeSlot(RadioMateParentClass):
 						RadioMateParentClass.__setattr__(self, "beginningday", ttuple[2])
 						RadioMateParentClass.__setattr__(self, "beginninghour", ttuple[3])
 						RadioMateParentClass.__setattr__(self, "beginningminute", ttuple[4])
+						return
+				else:
+						pass
 
-				raise RadioMateException("Wrong parameter type: %s (%s) in %s (%s)" \
-								% (value, type(value), name, type(self.__dict__[name])))
+				raise RadioMateException("Wrong parameter type: %s (%s) in %s" \
+								% (value, type(value), name))
 
 		def getBeginningTimestamp(self):
 				"convert to unix timestamp"
@@ -361,8 +374,13 @@ class TimeSlot(RadioMateParentClass):
 				return "%04d-%02d-%02d %02d:%02d" % tt[:5]
 
 		def setBeginningDateTime(self, thetime):
-				"given a string in YYYY-MM-DD HH:MM:SS format set the beginning time"
-				tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
+				"given a string in YYYY-MM-DD HH:MM:SS format or a time.struct_time object set the beginning time"
+				if isinstance(thetime, basestring) or isinstance(thetime, datetime.datetime):
+						tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
+				elif isinstance(thetime, time.struct_time):
+						tm = thetime
+				else:
+						raise RadioMateException("Wrong time format in setBeginningDateTime: %s (%s)" % (str(thetime), type(thetime)))
 				self.beginningyear = tm.tm_year
 				self.beginningmonth = tm.tm_mon
 				self.beginningday = tm.tm_mday
@@ -384,4 +402,11 @@ if __name__ == '__main__':
 		pl.addOwner("foobar")
 		print pl.owners
 		ts = TimeSlot()
+		ts.fallbackplaylist = 3
+		b = {"year": 2010, "month": 10, "day": 6, "hour":13, "minute": 30}
+		ts.beginningtime = b
+		print ts.getBeginningDatetime()
+		parms = {"par1": 1, "par2": 2}
+		ts.slotparams = parms
+		print ts
 

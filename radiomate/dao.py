@@ -20,6 +20,7 @@
 # Just hide the DAO specific implementation to the upper modules
 
 from daobase import RadioMateDAOException 
+from daobase import RadioMateBadTimeSlotException
 from mysqldao import MysqlConnectionManager as DBConnectionManager
 from mysqldao import RoleMysqlDAO as RoleDAO 
 from mysqldao import UserMysqlDAO as UserDAO

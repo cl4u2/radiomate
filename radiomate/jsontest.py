@@ -440,6 +440,18 @@ def playlisttest():
 		
 		jsonrequest = """
 		{
+			"request": "movefilesinplaylist",
+			"username": "testuser",
+			"password": "secrettest",
+			"playlistid": %d,
+			"oldmediafileposition": %d, 
+			"newmediafileposition": %d 
+		}
+		""" % (pid, 1, 0)
+		playlist = processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
 			"request": "removefilesfromplaylist",
 			"username": "testuser",
 			"password": "secrettest",
@@ -462,6 +474,15 @@ def playlisttest():
 		""" % pid
 		playlist = processandcheck(jsonrequest)
 		
+		jsonrequest = """
+		{
+			"request": "listuserplaylists",
+			"username": "testuser",
+			"password": "secrettest",
+			"user": "admin"
+		}
+		""" 
+		playlist = processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
@@ -513,12 +534,215 @@ def playlisttest():
 		"""
 		processandcheck(jsonrequest)
 
+def timeslottest():
+		jsonrequest = """
+		{
+			"request": "createrole",
+			"username": "foobar",
+			"password": "secret",
+			"role" : {
+				"rolename": "testrole",
+				"canManageRoles": false,
+				"canManageUsers": false,
+				"canManageAllPlaylists": true,
+				"canRegisterFiles": true,
+				"canManageRegisteredFiles": true,
+				"canSearchRegisteredFiles": true,
+				"canManageTimetable": false,
+				"fixedSlotTime": false,
+				"fixedSlotTimesList": "45,90",
+				"changeTimeBeforeTransmission": 60,
+				"canCreateTestMountpoint": false,
+				"canListNetcasts": false
+			}
+		}
+		"""
+		processandcheck(jsonrequest, check=False)
+		
+		jsonrequest = """
+		{
+			"request": "createuser",
+			"username": "foobar",
+			"password": "secret",
+			"user" : {
+				"name": "testuser",
+				"password": "secrettest",
+				"displayname": "Test user",
+				"rolename": "testrole"
+			}
+		}
+		"""
+		processandcheck(jsonrequest, check=False)
+		
+		jsonrequest = """
+		{
+			"request": "registerfile",
+			"username": "testuser",
+			"password": "secrettest",
+			"mediafile": {
+				"path": "ugly/test.mp3",
+				"title": "Just A Test Track",
+				"author": "Me",
+				"album": "My Album",
+				"genre": "tests",
+				"year": 2010,
+				"comment": "Awful track",
+				"license": "public domain",
+				"tags": "me, justatest"
+			}
+		}
+		"""
+		mediafile = processandcheck(jsonrequest, ret='mediafile')
+		id1 = mediafile['id']
+		
+		jsonrequest = """
+		{
+			"request": "registerfile",
+			"username": "testuser",
+			"password": "secrettest",
+			"mediafile": {
+				"path": "bad/test.mp3",
+				"title": "Just Another Test Track",
+				"author": "Myself",
+				"album": "My Own Album",
+				"genre": "tests",
+				"year": 2010,
+				"comment": "Just a track",
+				"license": "public domain",
+				"tags": "me, justatest"
+			}
+		}
+		"""
+		mediafile = processandcheck(jsonrequest, ret='mediafile')
+		id2 = mediafile['id']
+		
+		jsonrequest = """
+		{
+			"request": "createplaylist",
+			"username": "testuser",
+			"password": "secrettest",
+			"playlist": {
+					"title": "Test Playlist",
+					"description": "Some Test Tracks",
+					"comment": "Bad Music",
+					"tags": "me, justatest",
+					"fallback": true,
+					"viewers": [ "foobar" ],
+					"owners": [ "testuser", "foobar" ]
+			}
+		}
+		"""
+		playlist = processandcheck(jsonrequest, ret='playlist')
+		pid = playlist['id']
+		
+		jsonrequest = """
+		{
+			"request": "addfilestoplaylist",
+			"username": "testuser",
+			"password": "secrettest",
+			"playlistid": %d,
+			"mediafileidlist": [ %d, %d ]
+		}
+		""" % (pid, id1, id2)
+		playlist = processandcheck(jsonrequest)
+
+
+		jsonrequest = """
+		{
+			"request": "reservetimeslot",
+			"username": "foobar",
+			"password": "secret",
+			"timeslot" : {
+					"title": "Test Timeslot",
+					"description": "Some Test Tracks Transmission",
+					"fallbackplaylist": %d,
+					"slottype": "dummy",
+					"beginningtime": {
+						"year": 2010,
+						"month": 7,
+						"day": 1,
+						"hour": 10,
+						"minute": 0
+					},
+					"duration": 60,
+					"slotparams": {
+						"par1": 1,
+						"par2": 2
+					},
+					"comment": "Bad Music Show",
+					"tags": "me, justatest"
+			}
+		}
+		""" % pid
+		timeslot = processandcheck(jsonrequest, ret = "timeslot")
+		print timeslot
+		tid = timeslot['id']
+		
+		jsonrequest = """
+		{
+			"request": "unreservetimeslot",
+			"username": "foobar",
+			"password": "secret",
+			"timeslotid" : %d
+		}""" % tid
+		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "removeplaylist",
+			"username": "testuser",
+			"password": "secrettest",
+			"playlistid": %d
+		}
+		""" % pid
+		playlist = processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "unregisterfile",
+			"username": "testuser",
+			"password": "secrettest",
+			"mediafileid": %d
+		}
+		""" % id1
+		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "unregisterfile",
+			"username": "testuser",
+			"password": "secrettest",
+			"mediafileid": %d
+		}
+		""" % id2
+		processandcheck(jsonrequest)
+		
+		jsonrequest = """
+		{
+			"request": "removeuser",
+			"username": "foobar",
+			"password": "secret",
+			"name": "testuser"
+		}
+		"""
+		processandcheck(jsonrequest)
+
+		jsonrequest = """
+		{
+			"request": "removerole",
+			"username": "foobar",
+			"password": "secret",
+			"rolename": "testrole"
+		}
+		"""
+		processandcheck(jsonrequest)
 
 # Perform some tests on the JSON interface
 jp = jsonif.JSONProcessor()
 #roletest()
 #usertest()
 #mediafiletest()
-playlisttest()
+#playlisttest()
+timeslottest()
 
 

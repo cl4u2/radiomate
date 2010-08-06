@@ -1033,6 +1033,10 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 		def getByUser(self, username):
 				"Returns playlists in which the user is creator, owner or viewer"
 				try:
+						#TODO: type checking in all methods, not only in this one
+						if not isinstance(username, basestring):
+								raise RadioMateDAOException("String needed")
+
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						plresultdicts = self.__getByUser(username, cursor)
 						cursor.close()
@@ -1316,6 +1320,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 
 						self.logger.debug("Number of timeslot rows fetched: %d" % len(resultdicts))
 						assert len(resultdicts) == 1
+						self.logger.debug(resultdicts[0])
 
 						rs = resultdicts[0]
 						ts = TimeSlot()
@@ -1330,6 +1335,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						ts.setEndingDateTime(rs['endingtime'])
 						ts.slotparams = json.loads(rs['slotparameters'])
 						ts.fallbackplaylist = rs['fallbackplaylist']
+						self.logger.debug(str(ts))
 						return ts
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)

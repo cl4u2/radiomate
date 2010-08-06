@@ -423,6 +423,7 @@ List of playlists in which the user is owner or viewer
 	"request": "listuserplaylists",
 	"username": <username>,
 	"password": <password>,
+	"user": <username or null>
 }
 
 
@@ -436,13 +437,13 @@ List of playlists in which the user is owner or viewer
 {{{
 
 {
-	"request": "createtimeslot",
+	"request": "reservetimeslot",
 	"username": <username>,
 	"password": <password>,
 	"timeslot": {
-		"title": <title of the transmission>
-		"description": <description of the transmission>
-		"tags": <tags>
+		"title": <title of the transmission>,
+		"description": <description of the transmission>,
+		"fallbackplaylist": <an existing playlist, to be used as fallback>,
 		"slottype": <type of slot to be created>,
 		"beginningtime": {
 			"year": <year>,
@@ -454,29 +455,43 @@ List of playlists in which the user is owner or viewer
 		"duration": <duration of the timeslot in minutes>,
 		"slotparams": {
 			<slot-specific parameters>
-		}
+		},
+		"comment": <a comment>,
+		"tags": <tags>
 	}
 }
 
 
 }}}
 
+=== Unreserve a Timeslot ===
+
+{{{
+
+{
+	"request": "unreservetimeslot",
+	"username": <username>,
+	"password": <password>,
+	"timeslotid": <id of the timeslot to be removed>
+}
+
+
+}}}
 
 === Edit a Timeslot ===
 
 {{{
 
 {
-	"request": "createtimeslot",
+	"request": "edittimeslot",
 	"username": <username>,
 	"password": <password>,
-	"remove": (true|false), #remove the timeslot?
 	"timeslot": {
 		"id": <id of the timeslot to be edited>,
-		"title": <title of the transmission>
-		"description": <description of the transmission>
-		"tags": <tags>
-		"slottype": <type of slot>,
+		"title": <title of the transmission>,
+		"description": <description of the transmission>,
+		"fallbackplaylist": <an existing playlist, to be used as fallback>,
+		"slottype": <type of slot to be created>,
 		"beginningtime": {
 			"year": <year>,
 			"month": <month>,
@@ -484,10 +499,12 @@ List of playlists in which the user is owner or viewer
 			"hour": <hour>,
 			"minute": <minute>
 		},
-		"duration": <duration in minutes>,
+		"duration": <duration of the timeslot in minutes>,
 		"slotparams": {
 			<slot-specific parameters>
-		}
+		},
+		"comment": <a comment>,
+		"tags": <tags>
 	}
 }
 

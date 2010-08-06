@@ -713,7 +713,7 @@ class JSONProcessor(object):
 				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def addfilestoplaylist(self, requser, req):
-				rd = {'requested': "addfilestoplaylist", 'numberoffilesadded': 0}
+				rd = {'requested': "addfilestoplaylist", 'numberoffilesadded': 0, 'playlist': None}
 				try:
 						playlistdao = PlayListDAO(self.connectionmanager)
 						mediafiledao = MediaFileDAO(self.connectionmanager)
@@ -747,7 +747,7 @@ class JSONProcessor(object):
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
 		def removefilesfromplaylist(self, requser, req):
-				rd = {'requested': "removefilesfromplaylist", 'numberoffilesremoved': 0}
+				rd = {'requested': "removefilesfromplaylist", 'numberoffilesremoved': 0, 'playlist': None}
 				try:
 						playlistdao = PlayListDAO(self.connectionmanager)
 						playlistid = req['playlistid']
@@ -780,14 +780,138 @@ class JSONProcessor(object):
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
-		def switchfilesinplaylist(self, requser, req):
-				pass
+		def movefilesinplaylist(self, requser, req):
+				rd = {'requested': "movefilesinplaylist", 'playlist': None}
+				try:
+						playlistdao = PlayListDAO(self.connectionmanager)
+
+						playlistid = req['playlistid']
+						oldmediafileposition = req['oldmediafileposition']
+						newmediafileposition = req['newmediafileposition']
+
+						p = playlistdao.getById(playlistid)
+
+						mflist = p.mediafilelist[:]
+						oldmf = mflist[oldmediafileposition]
+						listlen = len(mflist)
+
+						if newmediafileposition > len(mflist):
+								newmediafileposition = len(mflist)
+
+						if newmediafileposition < 0:
+								newmediafileposition = 0
+
+						if oldmediafileposition == newmediafileposition:
+								rd['warning'] = "No change made"
+						else:
+								if newmediafileposition >= len(mflist):
+										mflist.append(oldmf)
+								elif newmediafileposition <= 0:
+										mflist.insert(0, oldmf)
+								else:
+										mflist.insert(newmediafileposition, oldmf)
+
+								if newmediafileposition > oldmediafileposition:
+										del mflist[oldmediafileposition]
+								else:
+										del mflist[oldmediafileposition + 1]
+								assert len(mflist) == listlen
+
+								p.mediafilelist = mflist
+
+						rd['playlist'] = p.dictexport()
+						return JsonResponse(RESPONSE_OK, "Playlist successfully edited", rd)
+
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except NameError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except KeyError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
 		def listuserplaylists(self, requser, req):
-				pass
+				rd = {'requested': "listuserplaylists", 'listlength': 0, 'playlistlist': []}
+				try:
+						if req.has_key('user'):
+								userreq = req['user']
+						else:
+								userreq = req['username']
 
-		def createtimeslot(self, requser, req):
-				pass
+						if userreq != req['username'] and not requser.role.canManageAllPlaylists:
+								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
+						playlistdao = PlayListDAO(self.connectionmanager)
+						plist = playlistdao.getByUser(userreq)
+
+						playlistlist = []
+						for p in plist:
+								playlistlist.append(p.dictexport())
+						
+						rd['listlength'] = len(playlistlist)
+						rd['playlistlist'] = playlistlist
+						return JsonResponse(RESPONSE_OK, "List Follows", rd)
+				
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except NameError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except KeyError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
+		def reservetimeslot(self, requser, req):
+				rd = {'requested': "reservetimeslot", 'timeslot': None}
+				try:
+						t = TimeSlot(req['timeslot'])
+						t.creator = requser.name
+				except Exception, e:
+						return JsonResponse(RESPONSE_REQERROR, str(e), rd)
+
+				try:
+						timeslotdao = TimeSlotDAO(self.connectionmanager)
+						id = timeslotdao.insert(t)
+						tcheck = timeslotdao.getById(id)
+						if id and tcheck:
+								rd['timeslot'] = tcheck.dictexport()
+								return JsonResponse(RESPONSE_OK, "Timeslot successfully reserved", rd)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except RadioMateBadTimeSlotException, e:
+						return JsonResponse(RESPONSE_ERROR, "Timeslot conflict. Cannot reserve.", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+				except:
+						pass
+
+				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
+		
+		def unreservetimeslot(self, requser, req):
+				rd = {'requested': "unreservetimeslot", 'timeslotid': None}
+				try:
+						id = req['timeslotid']
+						timeslotdao = TimeSlotDAO(self.connectionmanager)
+						t = timeslotdao.getById(id)
+						if t.creator != requser.name or not requser.role.canManageTimetable:
+								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+						res = timeslotdao.removeById(id)
+						if res:
+								rd['timeslotid'] = id
+								return JsonResponse(RESPONSE_OK, "Timeslot successfully unreserved", rd)
+						else:
+								return JsonResponse(RESPONSE_SERVERERROR, "Something went wrong. Timeslot NOT unreserved", rd)
+				except KeyError:
+						return JsonResponse(RESPONSE_REQERROR, str(e), rd)
+				except RadioMateDAOException, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				except RadioMateBadTimeSlotException, e:
+						return JsonResponse(RESPONSE_ERROR, "Timeslot conflict. Cannot reserve.", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+				except: 
+						return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def edittimeslot(self, requser, req):
 				pass
