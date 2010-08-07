@@ -1277,6 +1277,30 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
+		def __getNext(self, fromdate, n, cursor):
+				"fromdate is a date+time string"
+				selectionstring = """
+				SELECT  
+						id,
+						creator, 
+						slottype,
+						beginningtime,
+						endingtime,
+						title,
+						description,
+						comment,
+						slotparameters,
+						fallbackplaylist,
+						tags
+				FROM timeslots
+				WHERE beginningtime >= '%s' 
+				LIMIT %d
+				""" % (fromdate, n)
+
+				self.logger.debug(selectionstring)
+				cursor.execute(selectionstring)
+				return cursor.fetchall()
+		
 		def isGoodTimeSlot(self, timeslotobject):
 				"Returns true iff the timeslot does not conflict with existing timeslots"
 				try:
@@ -1425,5 +1449,38 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
+		def getNext(self, fromdate, n=1):
+				"Get the next scheduled n timeslots since fromdate"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						resultdicts = self.__getNext(fromdate, n, cursor)
+						cursor.close()
+
+						self.logger.debug("Number of timeslot rows fetched: %d" % len(resultdicts))
+
+						if len(resultdicts) == 0:
+								return None 
+
+						res = []
+						for rs in resultdicts:
+								ts = TimeSlot()
+								ts.id = rs['id']
+								ts.creator = rs['creator']
+								ts.slottype = rs['slottype']
+								ts.title = rs['title']
+								ts.description = rs['description']
+								ts.comment = rs['comment']
+								ts.tags = rs['tags']
+								ts.setBeginningDateTime(rs['beginningtime'])
+								ts.setEndingDateTime(rs['endingtime'])
+								ts.slotparams = json.loads(rs['slotparameters'])
+								ts.fallbackplaylist = rs['fallbackplaylist']
+								res.append(ts)
+
+						if len(res) == 1:
+								return res[0]
+						return res
+				except MySQLdb.Error, e:
+						raise RadioMateDAOException(e.args)
 
 

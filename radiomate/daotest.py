@@ -62,7 +62,7 @@ def test0():
 		jsonrequest = """
 		{
 			"request": "createrole",
-			"username": "foobar",
+			"username": "foobar1",
 			"password": "secret",
 			"role" : {
 				"rolename": "testrole",
@@ -207,7 +207,7 @@ def mediafilesdaotest():
 		r = Role()
 		r.rolename = "testrole"
 		u = User()
-		u.name = "foobar"
+		u.name = "foobar1"
 		u.rolename = r.rolename
 
 		mf = MediaFile()
@@ -257,7 +257,7 @@ def playlistdaotest():
 		rdao = RoleDAO(cm)
 		rdao.insert(r)
 		u1 = User()
-		u1.name = "foobar"
+		u1.name = "foobar1"
 		u1.rolename = r.rolename
 		udao = UserDAO(cm)
 		udao.insert(u1)
@@ -309,7 +309,7 @@ def playlistdaotest():
 		pl.addMediaFile(mf)
 		pl.addMediaFile(mf2)
 		
-		pl.addOwner("foobar")
+		pl.addOwner("foobar1")
 		pl.addViewer("foobar2")
 
 		print pl
@@ -325,7 +325,7 @@ def playlistdaotest():
 		pl3 = playlistdao.getById(pl2.id)
 		print pl3
 
-		res = playlistdao.getByUser("foobar")
+		res = playlistdao.getByUser("foobar1")
 		print res
 
 		res = playlistdao.getByCreator("foobar2")
@@ -355,7 +355,7 @@ def timeslotdaotest():
 		r.rolename = "testrole"
 
 		u1 = User()
-		u1.name = "foobar"
+		u1.name = "foobar1"
 		u1.rolename = "testrole"
 		
 		u2 = User()
@@ -382,7 +382,7 @@ def timeslotdaotest():
 
 		print "-- TimeSlot --"
 		ts = TimeSlot()
-		ts.creator = 'foobar'
+		ts.creator = 'foobar1'
 		ts.slottype = 'dummy'
 		ts.slotparams = {'par1': 0, 'par2': 'ciao'}
 		ts.beginningtime = {'year': 2010, 'month': 07, 'day': 1, 'hour': 10, 'minute': 0}
@@ -414,6 +414,10 @@ def timeslotdaotest():
 		tss = TimeSlot()
 		tss.title = "show"
 		res = tsdao.search(tss)
+		print res
+		
+		print "getNext"
+		res = tsdao.getNext("2010-07-01 8:00")
 		print res
 
 		tsdao.removeById(tsid)
