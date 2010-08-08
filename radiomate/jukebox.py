@@ -18,90 +18,17 @@
 #
 
 import time
-from subprocess import Popen, PIPE, STDOUT
-import shlex
 import signal
-import logging
 import sys
 
 import config
 import dao 
-import mate
 from mate import TimeSlot
+from jukeslots import *
+
 
 class JukeBoxException(Exception):
 		pass
-
-class JukeSlot(Popen, TimeSlot):
-		"A TimeSlot, but with its own life."
-		deathtime = 0
-		def __init__(self, timeslot):
-				# spawn the process 
-				cmd = config.LIQUIDSOAP
-				Popen.__init__(self, shlex.split(cmd), bufsize=-1, universal_newlines=True, 
-								stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-
-				time.sleep(1)
-				self.logger = logging.getLogger("radiomate.jukebox")
-				logging.basicConfig(filename=config.LOGFILENAME, level=config.LOGGINGLEVEL)
-				
-				TimeSlot.__init__(self, timeslot.dictexport())
-		
-		def __setattr__(self, name, value):
-				Popen.__setattr__(self, name, value)
-				
-		def run(self):
-				"inject the liquidsoap code into the spawned liquidsoap instance"
-				liq = self.liquidsoapcode()
-				self.logger.debug("run liquidsoap code: \n %s", liq)
-				out, err = self.communicate(liq)
-				self.logger.debug("output: \n %s", out)
-
-		def getFallBackPlaylistCode(self):
-				"return the liquidsoap code for the fallback playlist"
-				return """
-				"""
-
-		def gracefulKill(self):
-				"try to terminate, but if it does not work then kill"
-				self.logger.debug("gracefulKill")
-				if self.poll() == None:
-						self.terminate()
-						time.sleep(2)
-				if self.poll() == None:
-						self.kill()
-						time.sleep(1)
-
-class MainJukeSlot(JukeSlot):
-		def __init__(self):
-				JukeSlot.__init__(self, timeslot=TimeSlot())
-
-		def liquidsoapcode(self):
-				# main liquidsoap code, which should always be alive
-				liq = """
-				set("log.file.path",'/tmp/liq.log')
-				set("server.telnet",false)
-				set("harbor.bind_addr","127.0.0.1")
-				set("harbor.port", %d)
-
-				myq1 = request.create(audio=true)
-				myq2 = request.create(audio=true)
-
-				fbacked = fallback(track_sensitive=false, [input.harbor(password="%s", "takeover.mp3"), request.equeue(id="myq1"), request.equeue(id="myq2"), blank()])
-
-				#output.alsa(fbacked)
-				output.icecast.mp3(host='%s', port = %d, password = "%s", mount = "%s", fbacked)
-
-				""" % (config.TAKEOVERPORT, config.TAKEOVERPASSWORD, config.ICECASTSERVER,\
-								config.ICECASTPORT, config.ICECASTPASSWORD, config.ICECASTMAINMOUNT)
-				#debug
-				liq = """
-import time
-print time.time()
-time.sleep(60)
-print "ciao"
-				"""
-				return liq
 
 class JukeBox(MainJukeSlot):
 		"Play the scheduled timeslots"
@@ -113,34 +40,53 @@ class JukeBox(MainJukeSlot):
 										database = config.DATABASE))
 				except Exception, e:
 						raise JukeBoxException(str(e))
-				self.nexttimeslot = TimeSlot()
+				self.nexttimeslot = None
 				self.currenttimeslot = TimeSlot()
 				self.currentjukeslot = None
-				self.update()
+				self.updatenext()
 
-		def update(self):
-				"Update the next timeslot in the queue"
-				self.logger.debug("update")
+		def updatenext(self):
+				"Update the next timeslot in the queue. Return True if something has changed."
+				self.logger.debug("updatenext")
+				
+				if self.nexttimeslot: # we already have a next slot to play
+						return False
+
 				curtime = time.strftime("%Y-%m-%d %H:%M:%S")
 				next = self.tsdao.getNext(curtime)
-				if not next or next.id != self.nexttimeslot.id:
+				
+				assert self.nexttimeslot == None
+
+				if not next:
+						return False
+				else:
 						self.nexttimeslot = next
 						return True
-				else:
-						return False
+
+		def clearnext(self):
+				"Drop the next slot to be played"
+				self.logger.debug("clearnext")
+				self.nexttimeslot = None
 
 		def playcurrent(self):
 				"Play the current TimeSlot"
 				self.logger.debug("playcurrent")
+				self.logger.debug("%s" % JUKESLOTTYPEDICT)
+				# check timeslot type to instanciate the correct class
+				try:
+						jukeslotclass = JUKESLOTTYPEDICT[timeslot.type]
+				except KeyError:
+						jukeslotclass = JukeSlot
+				
 				# spawn a new process
-				# TODO: check timeslot type to instanciate the correct class
-				self.currentjukeslot = JukeSlot(self.currenttimeslot)
+				self.currentjukeslot = jukeslotclass(self.currenttimeslot)
+
 				self.currentjukeslot.deathtime = time.time()/60 + js.duration
 				self.currentjukeslot.run()
 				return self.currentjukeslot.deathtime
 		
 		def pollcurrent(self):
-				"Return True if the current JukeSlot is alive"
+				"Return False if the current JukeSlot is not alive"
 				self.logger.debug("%s pollcurrent" % time.time())
 				if not self.currentjukeslot or self.currentjukeslot.poll() != None:
 						return False
@@ -149,6 +95,8 @@ class JukeBox(MainJukeSlot):
 		def stopcurrent(self, force=False):
 				"Stop the current TimeSlot. If force is True, stop in any case, otherwise check the jukeslot death time"
 				self.logger.debug("%s stopcurrent" % time.time())
+				if not self.currentjukeslot:
+						return True
 				if force or self.currentjukeslot.deathtime >= time.time()/60:
 						self.currentjukeslot.gracefulKill()
 						self.currentjukeslot.wait()
@@ -157,16 +105,26 @@ class JukeBox(MainJukeSlot):
 				return False
 
 		def selecta(self):
-				"Select the next timeslot to play"
+				"Select the next timeslot to play, and play it if is time to do it"
 				self.logger.debug("%s selecta" % time.time())
-				if self.update() and self.currenttimeslot == None:
-						#TODO: check if currenttimeslot is playing
-						self.currenttimeslot = self.nexttimeslot
-				# play currenttimeslot?
-				if self.currenttimeslot.getBeginningTimestamp() >= time.time() and \
-								self.currenttimeslot.id != self.currentjukeslot.id and\
-								self.currentjukeslot.deathtime <= time.time()/60:
-						self.playcurrent()
+				
+				if not self.pollcurrent(): # check if the current jukeslot is dead 
+						self.stopcurrent(force=True) # the process is dead! Be sure to kill it.
+				else: 
+						self.stopcurrent() # check if its time to stop the current jukeslot
+
+				self.updatenext() # update the next slot to be played 
+						
+				if not self.nexttimeslot: # no next slot
+						return # nothing to play
+
+				# time to play the next timeslot?
+				if self.nexttimeslot.getBeginningTimestamp() <= time.time():
+						# time to start
+						self.stopcurrent(force=True) # next slot's turn. kill the current jukeslot
+						self.currenttimeslot = self.nexttimeslot # put the next slot in place
+						self.clearnext()
+						self.playcurrent() # play
 
 
 if __name__ == "__main__":
@@ -177,8 +135,7 @@ if __name__ == "__main__":
 
 		def alarmhndlr(signum, frame):
 				"catch an ALARM signal. Read the database and act consistently."
-				if not jb.pollcurrent() or jb.stopcurrent():
-						jb.selecta()
+				jb.selecta()
 				signal.alarm(CHECKINTERVAL)
 
 		def huphndlr(signum, frame):
@@ -201,7 +158,13 @@ if __name__ == "__main__":
 
 		huphndlr(signal.SIGHUP, None)
 
+		#debug
 		jb.run()
+		#try:
+		#		jb.run()
+		#except Exception, e:
+		#		raise SystemExit(str(e))
+
 		jb.wait()
 
 		print >> sys.stderr, "Program Terminated ?!"

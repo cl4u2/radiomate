@@ -1,8 +1,6 @@
 - when adding audio file take info from ID3 tags
 - search 
 - search by tag (new tables?)
-- log
-- raise exception instead of printing in dao
-- fallback playlist on timeslot instead of on user
+- add "limit" attributes to JSON requests
 
 

@@ -943,7 +943,10 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						resultdicts = self.__getById(playlistid, cursor)
 
 						self.logger.debug("Number of playlist rows fetched: %d" % len(resultdicts))
-						assert len(resultdicts) == 1
+						assert len(resultdicts) <= 1
+
+						if len(resultdicts) == 0:
+								return None
 
 						pl = PlayList(resultdicts[0])
 						mediafiledao = MediaFileMysqlDAO(self.conn)
