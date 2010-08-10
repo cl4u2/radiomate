@@ -79,7 +79,7 @@ class JukeBox(MainJukeSlot):
 						jukeslotclass = JukeSlot
 				
 				# spawn a new process
-				self.currentjukeslot = jukeslotclass(self.currenttimeslot)
+				self.currentjukeslot = jukeslotclass(self.currenttimeslot, mainpassword=self.getPassword())
 
 				self.currentjukeslot.deathtime = time.time()/60 + js.duration
 				self.currentjukeslot.run()
@@ -136,6 +136,8 @@ if __name__ == "__main__":
 		def alarmhndlr(signum, frame):
 				"catch an ALARM signal. Read the database and act consistently."
 				jb.selecta()
+				if jb.poll(): # the main jukeslot is dead !?
+						jb.run()
 				signal.alarm(CHECKINTERVAL)
 
 		def huphndlr(signum, frame):
@@ -147,6 +149,7 @@ if __name__ == "__main__":
 		def termhndlr(signum, frame):
 				"catch a TERM signal. Quit."
 				print >> sys.stderr, "SIGTERM received."
+				jb.stopcurrent()
 				jb.gracefulKill()
 				jb.wait()
 				raise SystemExit("Quit.")
@@ -158,12 +161,12 @@ if __name__ == "__main__":
 
 		huphndlr(signal.SIGHUP, None)
 
-		#debug
-		jb.run()
-		#try:
-		#		jb.run()
-		#except Exception, e:
-		#		raise SystemExit(str(e))
+		try:
+				jb.run()
+		except Exception, e:
+				#debug
+				raise e
+				#raise SystemExit(str(e))
 
 		jb.wait()
 

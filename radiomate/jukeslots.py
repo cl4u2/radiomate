@@ -17,6 +17,11 @@
 #  along with RadioMate.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# JukeSlots are played by the JukeBox. Each JukeSlot is associated to a TimeSlot
+# in which a different kind of show is transmitted. For example a PlayListJukeSlot
+# will transmit a playlist, while a LiveJukeSlot will accept a remote stream
+# and retransmit it.
+
 import time
 import shlex
 import logging
@@ -38,9 +43,9 @@ class JukeSlotException(Exception):
 class JukeSlot(Popen, TimeSlot):
 		"A TimeSlot, but with its own life."
 		deathtime = 0
-		def __init__(self, timeslot):
+		def __init__(self, timeslot, mainpassword=""):
+				cmd = config.LIQUIDSOAP + " -v - " # take commands from standard input 
 				# spawn the process 
-				cmd = config.LIQUIDSOAP
 				Popen.__init__(self, shlex.split(cmd), bufsize=-1, universal_newlines=True, 
 								stdin=PIPE, stdout=PIPE, stderr=STDOUT)
 
@@ -48,6 +53,7 @@ class JukeSlot(Popen, TimeSlot):
 				self.logger = logging.getLogger("radiomate.jukebox")
 				logging.basicConfig(filename=config.LOGFILENAME, level=config.LOGGINGLEVEL)
 				
+				# initialize the connection to the database
 				try:
 						self.cm = dao.DBConnectionManager(dbhost = config.DBHOST,\
 										dbuser = config.DBUSER, dbpassword = config.DBPASSWORD,\
@@ -56,7 +62,11 @@ class JukeSlot(Popen, TimeSlot):
 				except Exception, e:
 						raise JukeSlotException(str(e))
 				
+				# the list of the temporary playlist files built on the fly. 
+				# Used to delete the files on JukeSlot.__del__
 				self.plistnames = []
+				# the password used to connect to the main JukeSlot
+				self.mainpassword = mainpassword 
 				
 				TimeSlot.__init__(self, timeslot.dictexport())
 		
@@ -64,14 +74,23 @@ class JukeSlot(Popen, TimeSlot):
 				Popen.__setattr__(self, name, value)
 				
 		def run(self):
-				"inject the liquidsoap code into the spawned liquidsoap instance"
+				"Inject the liquidsoap code into the spawned liquidsoap instance"
 				liq = self.liquidsoapcode()
 				self.logger.debug("run liquidsoap code: \n %s", liq)
+				r = self.poll()
+				if r:
+						raise JukeSlotException("liquidsoap instance not running (exitcode %d)" % r)
+
 				out, err = self.communicate(liq)
 				self.logger.debug("output: \n %s", out)
 
+				r = self.poll()
+				if r:
+						raise JukeSlotException("liquidsoap istance not running (exitcode %d)" % r)
+
 		def getPlayListName(self, playlistid):
-				"return a filename for a given playlist"
+				"Build a playlist file on the fly and return its filename"
+
 				# put the uris of the media files in a temporary file
 				plistfileno, plistname = tempfile.mkstemp(prefix="radiomateplaylist", suffix=".txt", text=True)
 				plistfile = os.fdopen(plistfileno, 'w')
@@ -119,9 +138,11 @@ class JukeSlot(Popen, TimeSlot):
 				except:
 						pass
 
+
 class MainJukeSlot(JukeSlot):
+		"The main jukeslot, to which others connect"
 		def __init__(self):
-				JukeSlot.__init__(self, timeslot=TimeSlot())
+				JukeSlot.__init__(self, timeslot=TimeSlot(), mainpassword="")
 				# set the global fallback playlist
 				self.fallbackplaylist = config.GLOBALFALLBACKPLAYLIST
 				self.password = None
@@ -149,56 +170,121 @@ class MainJukeSlot(JukeSlot):
 		def liquidsoapcode(self):
 				# main liquidsoap istance, which should always be alive
 				liq = """
+				# main liquidsoap istance
 				set("log.file.path",'/tmp/liq.log')
 				set("server.telnet", false)
 				set("harbor.bind_addr", "127.0.0.1")
-				set("harbor.port", %d)
+				set("harbor.port", %d)  
 
-				#myq1 = request.create(audio=true)
+				transfunction = fun(a,b) -> sequence([fade.final(a, type="sin"), blank(duration=2.), fade.initial(b, type="sin")])
+
 				fallbackplaylist = playlist(mode="normal", '%s')
 
-				fbacked = fallback(track_sensitive=false, [input.harbor(username = "%s", password="%s", "takeover.mp3"), input.harbor(username="mate", password="%s", "radiomate.mp3"), fallbackplaylist, blank()])
+				radiomate = input.harbor(password="%s", "radiomate.mp3")
 
-				#output.alsa(fbacked)
-				output.icecast.mp3(host='%s', port = %d, password = "%s", mount = "%s", fbacked)
+				takeover = input.http("%s")
 
-				""" % (config.TAKEOVERPORT, self.getFallBackPlayListName(), \
-								config.TAKEOVERUSERNAME, config.TAKEOVERPASSWORD, self.getPassword(),\
-								config.ICECASTSERVER, config.ICECASTPORT, config.ICECASTPASSWORD, config.ICECASTMAINMOUNT)
-				#debug
-				print liq
-				liq = """
-import time
-print time.time()
-print "%s"
-time.sleep(60)
-print "ciao"
-				""" % self.getFallBackPlayListName()
+				radio = fallback(track_sensitive=false,
+					[takeover, radiomate, fallbackplaylist, blank()],
+					transitions = [transfunction, transfunction, transfunction, transfunction]
+					)
+
+				output.icecast.mp3(
+					host='%s', 
+					port = %d, 
+					password = "%s", 
+					mount = "%s", 
+					restart=true, 
+					description="%s", 
+					url="%s", 
+					radio)
+
+				""" % (config.INTERNALJUKEPORT, self.getFallBackPlayListName(), self.getPassword(), 
+								config.TAKEOVERMOUNTURL, config.ICECASTSERVER, config.ICECASTPORT, 
+								config.ICECASTPASSWORD, config.ICECASTMAINMOUNT, config.RADIONAME, 
+								config.RADIOURL)
+				self.logger.info("Starting main liquidsoap istance")
 				return liq
 
 
 class PlayListJukeSlot(JukeSlot):
 		"A simple jukeslot, with only a playlist"
-		def __init__(self, timeslot, playlistid, mainpassword):
-				JukeSlot.__init__(self, timeslot=timeslot)
+		def __init__(self, timeslot, mainpassword):
+				JukeSlot.__init__(self, mainpassword, timeslot=timeslot)
+				playlistid = self.slotparams['playlistid']
 				self.playlist = self.pldao.getById(playlistid)
-				self.mainpassword = mainpassword
 		
 		def liquidsoapcode(self):
 				liq = """
+				# playlist
 				set("log.file.path",'/tmp/pliq.log')
 				set("server.telnet", false)
+				
+				transfunction = fun(a,b) -> sequence([fade.final(a, type="sin"), blank(duration=2.), fade.initial(b, type="sin")])
 
 				plist = playlist(mode="normal", '%s')
+
 				fallbackplist = playlist(mode="normal", '%s')
 
-				fbacked = fallback(track_sensitive=false, [plist, fallbackplist])
+				radio = fallback(track_sensitive=false, 
+						[plist, fallbackplist, blank()],
+						transitions=[transfunction, transfunction, transfunction]
+						)
 
-				output.icecast.mp3(host='127.0.0.1', port = %d, user="mate", password = "%s", mount = "radiomate.mp3", fbacked)
+				output.icecast.mp3(
+						host='127.0.0.1', 
+						port = %d, 
+						password = "%s", 
+						mount = "radiomate.mp3", 
+						radio)
 
-				""" % (self.getPlayListName(self.playlist), self.getFallBackPlayListName(), config.TAKEOVERPORT,\
-								self.mainpassword)
+				""" % (self.getPlayListName(self.playlist), self.getFallBackPlayListName(),\
+								config.INTERNALJUKEPORT, self.mainpassword)
+				self.logger.info("Starting playlist jukeslot")
 				return liq
 
 JUKESLOTTYPEDICT['simpleplaylist'] = PlayListJukeSlot
+
+
+class LiveJukeSlot(JukeSlot):
+		def __init__(self, timeslot, mainpassword):
+				JukeSlot.__init__(self, mainpassword, timeslot=timeslot)
+		
+		def liquidsoapcode(self):
+				liq = """
+				#live
+
+				set("log.file.path",'/tmp/lliq.log')
+				set("server.telnet", false)
+				set("harbor.bind_addr", "0.0.0.0")
+				set("harbor.port", %d)  
+
+				transfunction = fun(a,b) -> sequence([fade.final(a, type="sin"), blank(duration=1.), fade.initial(b, type="sin")])
+
+				livestream = input.harbor(password="%s", "live.mp3")
+				
+				fallbackplist = playlist(mode="normal", '%s')
+
+				radio = fallback(track_sensitive=false, 
+						[livestream, fallbackplaylist, blank()], 
+						transitions=[transfunction, transfunction, transfunction])
+				
+				def rewritemeta(m) = 
+					[("song", "%s")]
+				end
+				radio = map_metadata(rewritemeta, radio)
+				
+				output.icecast.mp3(
+					host='127.0.0.1', 
+					port = %d, 
+					password = "%s", 
+					mount = "radiomate.mp3", 
+					restart=true, 
+					description="%s",
+					radio)
+				""" % (self.LIVESTREAMPORT, self.slotparams['livepassword'], self.getFallBackPlayListName(), \
+								self.title, self.INTERNALJUKEPORT, self.mainpassword, self.title)
+				return liq
+
+JUKESLOTTYPEDICT['simplelive'] = LiveJukeSlot
 
