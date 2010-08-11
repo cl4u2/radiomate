@@ -40,6 +40,7 @@ TAKEOVERMOUNTURL = "http://%s:%d/takeover.mp3" % (ICECASTSERVER, ICECASTPORT)
 LIVESTREAMPORT = 8005
 
 
+# INTERNALS
 # The port used internally on the loopback address to communicate between jukeslot istances. 
 INTERNALJUKEPORT = 8888
 

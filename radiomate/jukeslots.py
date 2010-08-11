@@ -47,7 +47,7 @@ class JukeSlot(Popen, TimeSlot):
 				cmd = config.LIQUIDSOAP + " -v - " # take commands from standard input 
 				# spawn the process 
 				Popen.__init__(self, shlex.split(cmd), bufsize=-1, universal_newlines=True, 
-								stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+								stdin=PIPE, stdout=None, stderr=STDOUT)
 
 				time.sleep(1)
 				self.logger = logging.getLogger("radiomate.jukebox")
@@ -73,20 +73,27 @@ class JukeSlot(Popen, TimeSlot):
 		def __setattr__(self, name, value):
 				Popen.__setattr__(self, name, value)
 				
-		def run(self):
+		def run(self, main=False):
 				"Inject the liquidsoap code into the spawned liquidsoap instance"
 				liq = self.liquidsoapcode()
 				self.logger.debug("run liquidsoap code: \n %s", liq)
+
+				if not liq:
+						return
 				r = self.poll()
 				if r:
 						raise JukeSlotException("liquidsoap instance not running (exitcode %d)" % r)
 
-				out, err = self.communicate(liq)
-				self.logger.debug("output: \n %s", out)
+				#out, err = self.communicate(liq)
+				#self.logger.debug("output: \n %s", out)
+				self.stdin.write(liq)
+				self.stdin.close()
+				time.sleep(10)
 
-				r = self.poll()
-				if r:
-						raise JukeSlotException("liquidsoap istance not running (exitcode %d)" % r)
+				if main:
+						r = self.poll()
+						if r:
+								raise JukeSlotException("liquidsoap istance not running (exitcode %d)" % r)
 
 		def getPlayListName(self, playlistid):
 				"Build a playlist file on the fly and return its filename"
@@ -118,7 +125,10 @@ class JukeSlot(Popen, TimeSlot):
 
 		def getFallBackPlayListName(self):
 				"return a filename for the fallback playlist"
-				return self.getPlayListName(self.fallbackplaylist)
+				if self.fallbackplaylist:
+						return self.getPlayListName(self.fallbackplaylist)
+				else:
+						return self.getPlayListName(config.GLOBALFALLBACKPLAYLIST)
 
 		def gracefulKill(self):
 				"try to terminate, but if it does not work then kill"
@@ -137,6 +147,10 @@ class JukeSlot(Popen, TimeSlot):
 								os.remove(pln)
 				except:
 						pass
+
+		def liquidsoapcode(self):
+				"to be overridden by derived classes"
+				return None
 
 
 class MainJukeSlot(JukeSlot):
@@ -210,7 +224,7 @@ class MainJukeSlot(JukeSlot):
 class PlayListJukeSlot(JukeSlot):
 		"A simple jukeslot, with only a playlist"
 		def __init__(self, timeslot, mainpassword):
-				JukeSlot.__init__(self, mainpassword, timeslot=timeslot)
+				JukeSlot.__init__(self, mainpassword=mainpassword, timeslot=timeslot)
 				playlistid = self.slotparams['playlistid']
 				self.playlist = self.pldao.getById(playlistid)
 		
@@ -230,7 +244,7 @@ class PlayListJukeSlot(JukeSlot):
 						[plist, fallbackplist, blank()],
 						transitions=[transfunction, transfunction, transfunction]
 						)
-
+				
 				output.icecast.mp3(
 						host='127.0.0.1', 
 						port = %d, 
@@ -238,7 +252,7 @@ class PlayListJukeSlot(JukeSlot):
 						mount = "radiomate.mp3", 
 						radio)
 
-				""" % (self.getPlayListName(self.playlist), self.getFallBackPlayListName(),\
+				""" % (self.getPlayListName(self.playlist.id), self.getFallBackPlayListName(),\
 								config.INTERNALJUKEPORT, self.mainpassword)
 				self.logger.info("Starting playlist jukeslot")
 				return liq
@@ -248,7 +262,7 @@ JUKESLOTTYPEDICT['simpleplaylist'] = PlayListJukeSlot
 
 class LiveJukeSlot(JukeSlot):
 		def __init__(self, timeslot, mainpassword):
-				JukeSlot.__init__(self, mainpassword, timeslot=timeslot)
+				JukeSlot.__init__(self, mainpassword=mainpassword, timeslot=timeslot)
 		
 		def liquidsoapcode(self):
 				liq = """
@@ -263,7 +277,7 @@ class LiveJukeSlot(JukeSlot):
 
 				livestream = input.harbor(password="%s", "live.mp3")
 				
-				fallbackplist = playlist(mode="normal", '%s')
+				fallbackplaylist = playlist(mode="normal", '%s')
 
 				radio = fallback(track_sensitive=false, 
 						[livestream, fallbackplaylist, blank()], 
@@ -282,9 +296,24 @@ class LiveJukeSlot(JukeSlot):
 					restart=true, 
 					description="%s",
 					radio)
-				""" % (self.LIVESTREAMPORT, self.slotparams['livepassword'], self.getFallBackPlayListName(), \
-								self.title, self.INTERNALJUKEPORT, self.mainpassword, self.title)
+				""" % (config.LIVESTREAMPORT, self.slotparams['livepassword'], self.getFallBackPlayListName(), \
+								self.title, config.INTERNALJUKEPORT, self.mainpassword, self.title)
 				return liq
 
 JUKESLOTTYPEDICT['simplelive'] = LiveJukeSlot
+
+
+if __name__ == "__main__":
+		mjs = MainJukeSlot()
+		mjs.run()
+
+		time.sleep(2)
+
+		ts = TimeSlot()
+		ts.slotparams['playlistid'] = 8
+		pjs = PlayListJukeSlot(timeslot=ts, mainpassword = mjs.getPassword())
+		pjs.run()
+
+		pjs.wait()
+		mjs.wait()
 
