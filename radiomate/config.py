@@ -22,7 +22,7 @@ DATABASE="radiomate0"
 MEDIAFILESHOMEDIR = "/opt/radiomate/media/"
 
 # The path of the liquidsoap binary
-LIQUIDSOAP = os.path.join(os.getcwd(), "../../../liquidsoap-full-0.9.2/liquidsoap-0.9.2/src/liquidsoap")
+LIQUIDSOAP = os.path.join(os.getcwd(), "../../liquidsoap-full-0.9.2/liquidsoap-0.9.2/src/liquidsoap")
 
 # Play this if there are no transmissions
 GLOBALFALLBACKPLAYLIST = 7
@@ -39,8 +39,6 @@ TAKEOVERMOUNTURL = "http://%s:%d/takeover.mp3" % (ICECASTSERVER, ICECASTPORT)
 # The port used for incoming live streams
 LIVESTREAMPORT = 8005
 
-
-# INTERNALS
 # The port used internally on the loopback address to communicate between jukeslot istances. 
 INTERNALJUKEPORT = 8888
 

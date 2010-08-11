@@ -18,14 +18,13 @@
 #
 
 import time
-import signal
-import sys
 
 import config
 import dao 
 from mate import TimeSlot
-from jukeslots import *
+from jukeslots.all import *
 
+__all__ = ["JukeBoxException", "JukeBox"]
 
 class JukeBoxException(Exception):
 		pass
@@ -81,6 +80,8 @@ class JukeBox(MainJukeSlot):
 				try:
 						jukeslotclass = JUKESLOTTYPEDICT[self.currenttimeslot.slottype]
 				except KeyError:
+						self.logger.error("Slot type %s not found. '%s' will be canceled." \
+										% (self.currenttimeslot.slottype, self.currenttimeslot.title))
 						jukeslotclass = JukeSlot
 
 				self.logger.debug("chosen %s -> %s" % (self.currenttimeslot.slottype, jukeslotclass))
@@ -92,11 +93,16 @@ class JukeBox(MainJukeSlot):
 
 				self.currentjukeslot.run()
 				
-				self.logger.info("jukebox: playing jukeslot %d %s for %d minutes until %s" % (self.currentjukeslot.id,\
-								self.currentjukeslot.title, self.currentjukeslot.duration,\
-								time.ctime(self.currentjukeslot.deathtime)))
-
-				return self.currentjukeslot.deathtime
+				if self.pollcurrent():
+						self.logger.info("jukebox: playing jukeslot %d %s for %d minutes until %s" % (self.currentjukeslot.id,\
+										self.currentjukeslot.title, self.currentjukeslot.duration,\
+										time.ctime(self.currentjukeslot.deathtime)))
+						return self.currentjukeslot.deathtime
+				else:
+						# TODO: if there is an error, update the timeslot info in the database
+						self.logger.error("jukebox: jukeslot %d %s failed to start." %(self.currentjukeslot.id,\
+										self.currentjukeslot.title))
+						return 0
 		
 		def pollcurrent(self):
 				"Return False if the current JukeSlot is not alive"
@@ -142,71 +148,4 @@ class JukeBox(MainJukeSlot):
 						self.clearnext()
 						self.playcurrent() # play
 
-
-if __name__ == "__main__":
-		CHECKINTERVAL = 10 
-		
-		jb = JukeBox()
-		
-		def termhndlr(signum, frame):
-				"catch a TERM signal. Quit."
-				print >> sys.stderr, "SIGTERM received."
-				jb.stopcurrent()
-				jb.gracefulKill()
-				jb.wait()
-				raise SystemExit("Quit.")
-		
-		signal.signal(signal.SIGTERM, termhndlr)
-		signal.signal(signal.SIGINT, termhndlr)
-
-		jb.run(main=True)
-
-		while True:
-				jb.selecta()
-				if jb.poll(): # the main jukeslot is dead !?
-						jb.run()
-				time.sleep(CHECKINTERVAL)
-
-		sys.exit(1)
-		
-		# --------------------------------------
-
-		def alarmhndlr(signum, frame):
-				"catch an ALARM signal. Read the database and act consistently."
-				jb.selecta()
-				if jb.poll(): # the main jukeslot is dead !?
-						jb.run()
-				signal.alarm(CHECKINTERVAL)
-
-		def huphndlr(signum, frame):
-				"catch an HUP signal. Force reread of the database."
-				assert signum == signal.SIGHUP
-				alarmhndlr(signum, frame)
-
-		def termhndlr(signum, frame):
-				"catch a TERM signal. Quit."
-				print >> sys.stderr, "SIGTERM received."
-				jb.stopcurrent()
-				jb.gracefulKill()
-				jb.wait()
-				raise SystemExit("Quit.")
-
-		signal.signal(signal.SIGALRM, alarmhndlr)
-		signal.signal(signal.SIGHUP, huphndlr)
-		signal.signal(signal.SIGTERM, termhndlr)
-		signal.signal(signal.SIGINT, termhndlr)
-
-		huphndlr(signal.SIGHUP, None)
-
-		try:
-				jb.run(main=True)
-		except Exception, e:
-				#debug
-				raise e
-				#raise SystemExit(str(e))
-
-		jb.wait()
-
-		print >> sys.stderr, "Program Terminated ?!"
-		sys.exit(1)
 

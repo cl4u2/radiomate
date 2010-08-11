@@ -1,9 +1,8 @@
 # Test of the dao module
 
 import json
-from daobase import RadioMateDAOException
-from dao import *
-from mate import *
+from radiomate.dao import *
+from radiomate.mate import *
 import sys
 import MySQLdb
 

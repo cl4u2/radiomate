@@ -1,5 +1,5 @@
 
-import jsonif
+from radiomate import jsonif
 import json
 
 

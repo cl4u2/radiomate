@@ -1,5 +1,5 @@
-import dao
-from mate import *
+from radiomate import dao
+from radiomate.mate import *
 
 DBHOST="127.0.0.1"
 DBUSER="mate"
