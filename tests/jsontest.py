@@ -656,7 +656,7 @@ def timeslottest():
 					"title": "Test Timeslot",
 					"description": "Some Test Tracks Transmission",
 					"fallbackplaylist": %d,
-					"slottype": "dummy",
+					"slottype": "simplelive",
 					"beginningtime": {
 						"year": 2010,
 						"month": 7,
@@ -666,8 +666,7 @@ def timeslottest():
 					},
 					"duration": 60,
 					"slotparams": {
-						"par1": 1,
-						"par2": 2
+						"livepassword": "buuuu"
 					},
 					"comment": "Bad Music Show",
 					"tags": "me, justatest"

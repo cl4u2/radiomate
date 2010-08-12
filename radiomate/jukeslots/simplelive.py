@@ -38,7 +38,7 @@ class LiveJukeSlot(JukeSlot):
 
 				transfunction = fun(a,b) -> sequence([fade.final(a, type="sin"), blank(duration=1.), fade.initial(b, type="sin")])
 
-				livestream = input.harbor(password="%s", "live.mp3")
+				livestream = input.harbor(password="%s", "%s")
 				
 				fallbackplaylist = playlist(mode="normal", '%s')
 
@@ -59,8 +59,9 @@ class LiveJukeSlot(JukeSlot):
 					restart=true, 
 					description="%s",
 					radio)
-				""" % (config.LIVESTREAMPORT, self.slotparams['livepassword'], self.getFallBackPlayListName(), \
-								self.title, config.INTERNALJUKEPORT, self.mainpassword, self.title)
+				""" % (config.LIVESTREAMPORT, self.slotparams['livepassword'], config.LIVESTREAMMOUNT,\
+								self.getFallBackPlayListName(), self.title, config.INTERNALJUKEPORT,\
+								self.mainpassword, self.title)
 				return liq
 
 JUKESLOTTYPEDICT['simplelive'] = LiveJukeSlot

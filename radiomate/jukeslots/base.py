@@ -50,7 +50,6 @@ class JukeSlot(Popen, mate.TimeSlot):
 				Popen.__init__(self, shlex.split(cmd), bufsize=-1, universal_newlines=True, 
 								stdin=PIPE, stdout=None, stderr=STDOUT)
 
-				time.sleep(1)
 				self.logger = logging.getLogger("radiomate.jukebox")
 				logging.basicConfig(filename=config.LOGFILENAME, level=config.LOGGINGLEVEL)
 				
@@ -85,6 +84,7 @@ class JukeSlot(Popen, mate.TimeSlot):
 				if r:
 						raise JukeSlotException("liquidsoap instance not running (exitcode %d)" % r)
 
+				time.sleep(1)
 				self.stdin.write(liq)
 				self.stdin.close()
 				time.sleep(2)

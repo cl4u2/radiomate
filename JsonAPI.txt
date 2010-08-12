@@ -607,8 +607,8 @@ List of playlists in which the user is owner or viewer
 {{{
 
 {
-	"response": ("ok" | "notallowed" | "dontexists" | "alreadyexists" | "servererror" | "error" | "requesterror"),
-	"responsen": (0 | 101 | 201 | 202 | 301 | 401 | 501),
+	"response": ("ok" | "notallowed" | "dontexists" | "alreadyexists" | "servererror" | "error" | "requesterror", "notimplemented"),
+	"responsen": (0 | 101 | 201 | 202 | 301 | 401 | 501 | 601),
 	"requested": <the requested action>,
 	"warning": <warning message(s) or null>,
 	"description": <textual description>,

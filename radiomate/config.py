@@ -36,8 +36,9 @@ ICECASTMAINMOUNT = "radio.mp3"
 # When the takeover mount is active, the radio will override current transmissions and forward its stream
 TAKEOVERMOUNTURL = "http://%s:%d/takeover.mp3" % (ICECASTSERVER, ICECASTPORT)
 
-# The port used for incoming live streams
+# The mount and port used for incoming live streams
 LIVESTREAMPORT = 8005
+LIVESTREAMMOUNT = "live.mp3"
 
 # The port used internally on the loopback address to communicate between jukeslot istances. 
 INTERNALJUKEPORT = 8888

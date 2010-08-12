@@ -23,6 +23,7 @@ import json
 import config
 from mate import *
 from dao import *
+from jukeslots.all import *
 
 
 RESPONSE_OK = 0
@@ -32,6 +33,7 @@ RESPONSE_ALREADYEXISTS = 202
 RESPONSE_SERVERERROR = 301
 RESPONSE_REQERROR = 401
 RESPONSE_ERROR = 501
+RESPONSE_NOTIMPLEMENTED = 601
 
 ERRORDICT = {
 				RESPONSE_OK: "ok",
@@ -40,7 +42,8 @@ ERRORDICT = {
 				RESPONSE_DONTEXISTS: "dontexists",
 				RESPONSE_SERVERERROR: "servererror",
 				RESPONSE_REQERROR: "requesterror",
-				RESPONSE_ERROR: "error"
+				RESPONSE_ERROR: "error",
+				RESPONSE_NOTIMPLEMENTED: "notimplemented"
 }
 
 
@@ -866,6 +869,14 @@ class JSONProcessor(object):
 						t.creator = requser.name
 				except Exception, e:
 						return JsonResponse(RESPONSE_REQERROR, str(e), rd)
+						
+				try:
+						# check the slot type
+						jukeslotclass = JUKESLOTTYPEDICT[t.slottype]
+						tj = jukeslotclass(timeslot=t, mainpassword="")
+						tj.liquidsoapcode()
+				except:
+						return JsonResponse(RESPONSE_REQERROR, "Slot type not supported or wrong slot parameters")
 
 				try:
 						timeslotdao = TimeSlotDAO(self.connectionmanager)
@@ -918,6 +929,15 @@ class JSONProcessor(object):
 						timeslotdao = TimeSlotDAO(self.connectionmanager)
 						t = timeslotdao.getById(id)
 						t.dictupdate(req['timeslot'])
+
+						try:
+								# check the slot type
+								jukeslotclass = JUKESLOTTYPEDICT[t.slottype]
+								tj = jukeslotclass(timeslot=t, mainpassword="")
+								tj.liquidsoapcode()
+						except:
+								return JsonResponse(RESPONSE_REQERROR, "Slot type not supported or wrong slot parameters")
+
 						newid = timeslotdao.update(t)
 						if newid != id:
 								return JsonResponse(RESPONSE_SERVERERROR, "Something wrong: %d -> %d" % (id, newid), rd)
@@ -984,10 +1004,10 @@ class JSONProcessor(object):
 				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def createtestslot(self, requser, req):
-				pass
+				return JsonResponse(RESPONSE_NOTIMPLEMENTED, "Not yet implemented")
 
 		def listnetcasts(self, requser, req):
-				pass
+				return JsonResponse(RESPONSE_NOTIMPLEMENTED, "Not yet implemented")
 
 
 						

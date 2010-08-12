@@ -87,7 +87,7 @@ class JukeBox(MainJukeSlot):
 				self.logger.debug("chosen %s -> %s" % (self.currenttimeslot.slottype, jukeslotclass))
 				
 				# spawn a new process
-				self.currentjukeslot = jukeslotclass(self.currenttimeslot, mainpassword=self.getPassword())
+				self.currentjukeslot = jukeslotclass(timeslot=self.currenttimeslot, mainpassword=self.getPassword())
 
 				self.currentjukeslot.deathtime = time.time() + self.currentjukeslot.duration*60
 
