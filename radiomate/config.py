@@ -1,4 +1,5 @@
 # vim:fileencoding=utf-8:nomodified
+# $Id$
 
 # RadioMate configuration file
 

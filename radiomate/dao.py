@@ -1,4 +1,5 @@
 # vim:fileencoding=utf-8:nomodified
+# $Id$
 #
 #  Copyright 2010 Claudio Pisa (clauz at ninux dot org)
 #
