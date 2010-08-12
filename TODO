@@ -4,4 +4,8 @@ $Id$
 - search by tag (new tables?)
 - add "limit" attributes to JSON requests
 
+- couchdb DAO
+- WSGI
+
+- grep -r TODO *
 

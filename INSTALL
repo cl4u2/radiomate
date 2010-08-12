@@ -1,0 +1,30 @@
+===============================================================================
+                     RadioMate - Radio Automation Made Easy
+===============================================================================
+
+
+Requirements
+============
+
+RadioMate has been developed and tested in the following environment:
+
+- GNU/Linux (ArchLinux) w/ kernel 2.6.34 http://www.archlinux.org/
+- Savonet Liquidsoap 0.9.2-2 http://savonet.sourceforge.net
+- Python 2.6.5 http://www.python.org/
+- MySQL 5.1.47 http://www.mysql.com/
+- mysql-python 1.2.3c1-2 http://sourceforge.net/projects/mysql-python
+- apache 2.2.15 http://www.apache.org/dist/httpd
+
+
+Structure
+=========
+
+At the moment, RadioMate has two main components: the radiomate.cgi CGI script
+and the radiomated.py daemon.
+
+For more details please see the README file.
+
+
+Installation
+============
+
