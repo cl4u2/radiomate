@@ -1,3 +1,4 @@
+# vim:fileencoding=utf-8:nomodified
 # Test of the dao module
 
 import json

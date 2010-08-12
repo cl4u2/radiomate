@@ -1,3 +1,5 @@
+# vim:fileencoding=utf-8:nomodified
+
 from radiomate import dao
 from radiomate.mate import *
 

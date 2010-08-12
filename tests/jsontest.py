@@ -1,3 +1,4 @@
+# vim:fileencoding=utf-8:nomodified
 
 from radiomate import jsonif
 import json
