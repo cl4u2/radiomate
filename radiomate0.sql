@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 28, 2010 at 04:11 PM
+-- Generation Time: Aug 13, 2010 at 06:46 PM
 -- Server version: 5.1.47
 -- PHP Version: 5.3.2
 
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `compilation` (
 CREATE TABLE IF NOT EXISTS `mediafiles` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `user` varchar(60) NOT NULL,
+  `user` varchar(60) DEFAULT NULL,
   `path` mediumtext NOT NULL,
   `type` enum('audio','video','other') NOT NULL DEFAULT 'audio',
   `title` varchar(1000) DEFAULT NULL,
@@ -50,12 +50,13 @@ CREATE TABLE IF NOT EXISTS `mediafiles` (
   `album` varchar(1000) DEFAULT NULL,
   `genre` varchar(1000) DEFAULT NULL,
   `year` varchar(250) DEFAULT NULL,
+  `length` int(11) DEFAULT NULL,
   `comment` mediumtext,
   `license` varchar(1000) DEFAULT NULL,
   `tags` mediumtext,
   PRIMARY KEY (`id`),
   KEY `user` (`user`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -78,16 +79,17 @@ CREATE TABLE IF NOT EXISTS `playlistowners` (
 
 CREATE TABLE IF NOT EXISTS `playlists` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `creator` varchar(60) NOT NULL,
-  `fallback` tinyint(1) NOT NULL DEFAULT '0',
+  `creator` varchar(60) DEFAULT NULL,
   `title` varchar(1000) DEFAULT NULL,
   `description` mediumtext,
   `comment` mediumtext,
   `tags` mediumtext,
+  `private` tinyint(1) NOT NULL DEFAULT '0',
+  `random` tinyint(1) NOT NULL DEFAULT '0',
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `id` (`id`),
   KEY `creator` (`creator`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -115,12 +117,10 @@ CREATE TABLE IF NOT EXISTS `roles` (
   `canManageAllPlaylists` tinyint(1) NOT NULL,
   `canRegisterFiles` tinyint(1) NOT NULL,
   `canManageRegisteredFiles` tinyint(1) NOT NULL,
-  `canSearchRegisteredFiles` tinyint(1) NOT NULL,
   `canManageTimetable` tinyint(1) NOT NULL,
-  `fixedSlotTime` tinyint(1) NOT NULL,
+  `fixedSlotTimes` tinyint(1) NOT NULL,
   `changeTimeBeforeTransmission` int(11) NOT NULL,
-  `canCreateTestMountpoint` tinyint(1) NOT NULL,
-  `canListNetcasts` tinyint(1) NOT NULL,
+  `canCreateTestSlot` tinyint(1) NOT NULL,
   `fixedSlotTimesList` mediumtext,
   PRIMARY KEY (`rolename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -143,11 +143,12 @@ CREATE TABLE IF NOT EXISTS `timeslots` (
   `tags` mediumtext,
   `slotparameters` mediumtext,
   `fallbackplaylist` bigint(20) unsigned DEFAULT NULL,
+  `canceled` tinyint(1) NOT NULL DEFAULT '0',
+  `archived` bigint(20) DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `creator` (`creator`),
-  KEY `fallbackplaylist` (`fallbackplaylist`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  KEY `creator` (`creator`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -205,8 +206,7 @@ ALTER TABLE `playlistviewers`
 -- Constraints for table `timeslots`
 --
 ALTER TABLE `timeslots`
-  ADD CONSTRAINT `timeslots_ibfk_1` FOREIGN KEY (`creator`) REFERENCES `users` (`name`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `timeslots_ibfk_2` FOREIGN KEY (`fallbackplaylist`) REFERENCES `playlists` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `timeslots_ibfk_1` FOREIGN KEY (`creator`) REFERENCES `users` (`name`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users`
