@@ -1097,7 +1097,9 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						endingtime,
 						title
 				FROM timeslots
-				WHERE """
+				WHERE 
+				canceled = 0 AND ("""
+
 				# b+ < b* < e+
 				selectionstring += "(beginningtime <= '%s' AND '%s' <= endingtime) OR \n" %\
 								(timeslotobject.getBeginningDatetime(), timeslotobject.getBeginningDatetime())
@@ -1110,6 +1112,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				# b* < e+ < e*
 				selectionstring += "('%s' <= endingtime AND endingtime <= '%s')" %\
 								(timeslotobject.getBeginningDatetime(), timeslotobject.getEndingDatetime())
+
+				selectionstring += ")"
 
 				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
@@ -1131,7 +1135,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				) VALUES (
 				'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)""" % (
 						timeslotobject.creator,
-						timeslotobject.slottype,
+						timeslotobject.slottype, # the canceled property is intentionally omitted
 						timeslotobject.getBeginningDatetime(),
 						timeslotobject.getEndingDatetime(),
 						timeslotobject.title,
@@ -1160,6 +1164,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						id,
 						creator, 
 						slottype,
+						canceled,
 						beginningtime,
 						endingtime,
 						title,
@@ -1189,6 +1194,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				SET 
 						creator = '%s', 
 						slottype = '%s',
+						canceled = %d,
 						beginningtime = '%s',
 						endingtime = '%s',
 						title = '%s',
@@ -1201,6 +1207,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 				""" % (
 						timeslotobject.creator,
 						timeslotobject.slottype,
+						int(timeslotobject.canceled),
 						timeslotobject.getBeginningDatetime(),
 						timeslotobject.getEndingDatetime(),
 						timeslotobject.title,
@@ -1222,6 +1229,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						id,
 						creator, 
 						slottype,
+						canceled,
 						beginningtime,
 						endingtime,
 						title,
@@ -1244,6 +1252,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						id,
 						creator, 
 						slottype,
+						canceled,
 						beginningtime,
 						endingtime,
 						title,
@@ -1287,6 +1296,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						id,
 						creator, 
 						slottype,
+						canceled,
 						beginningtime,
 						endingtime,
 						title,
@@ -1296,7 +1306,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						fallbackplaylist,
 						tags
 				FROM timeslots
-				WHERE beginningtime >= '%s' 
+				WHERE canceled = 0 AND beginningtime >= '%s' 
 				LIMIT %d
 				""" % (fromdate, n)
 
@@ -1356,6 +1366,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						assert ts.id == rs['id']
 						ts.creator = rs['creator']
 						ts.slottype = rs['slottype']
+						ts.canceled = rs['canceled']
 						ts.title = rs['title']
 						ts.description = rs['description']
 						ts.comment = rs['comment']
@@ -1391,7 +1402,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						self.conn.commit()
 						lastid = timeslotobject.id
 						cursor.close()
-						self.logger.debug("Number of timeslot rows inserted: %d. Last id = %d" % (cursor.rowcount, lastid))
+						self.logger.debug("Number of timeslot rows updated: %d. Last id = %d" % (cursor.rowcount, lastid))
 						return lastid
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
@@ -1411,6 +1422,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 								ts.id = rs['id']
 								ts.creator = rs['creator']
 								ts.slottype = rs['slottype']
+								ts.canceled = rs['canceled']
 								ts.title = rs['title']
 								ts.description = rs['description']
 								ts.comment = rs['comment']
@@ -1439,6 +1451,7 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 								ts.id = rs['id']
 								ts.creator = rs['creator']
 								ts.slottype = rs['slottype']
+								ts.canceled = rs['canceled']
 								ts.title = rs['title']
 								ts.description = rs['description']
 								ts.comment = rs['comment']
@@ -1470,6 +1483,8 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 								ts.id = rs['id']
 								ts.creator = rs['creator']
 								ts.slottype = rs['slottype']
+								ts.canceled = rs['canceled']
+								assert not ts.canceled
 								ts.title = rs['title']
 								ts.description = rs['description']
 								ts.comment = rs['comment']
@@ -1485,5 +1500,4 @@ class TimeSlotMysqlDAO(RadioMateParentMysqlDAO):
 						return res
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
-
 

@@ -948,7 +948,10 @@ class JSONProcessor(object):
 								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 
 						t.dictupdate(req['timeslot'])
-						
+
+						if t.canceled and not requser.role.canManageTimetable:
+								return JsonResponse(RESPONSE_NOTALLOWED, "User cannot cancel a show", rd)
+
 						if requser.role.changeTimeBeforeTransmission > 0:
 								seconds2transmission = t.getBeginningTimestamp() - time.time()
 								if seconds2transmission <= requser.role.changeTimeBeforeTransmission*60:

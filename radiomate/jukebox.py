@@ -105,9 +105,23 @@ class JukeBox(MainJukeSlot):
 						else:
 								raise JukeBoxException("Process is dead.")
 				except Exception, e:
-						self.logger.error("jukebox: jukeslot %d %s failed. %s" %(self.currentjukeslot.id,
+						self.logger.error("jukebox: jukeslot %d %s failed. %s" % (self.currentjukeslot.id,
 												self.currentjukeslot.title, str(e)))
-						# TODO: update the timeslot info in the database
+						# update the timeslot info in the database
+						try:
+								cm = dao.DBConnectionManager(dbhost = config.DBHOST,
+												dbuser = config.DBUSER, dbpassword = config.DBPASSWORD,
+												database = config.DATABASE)
+								tsdao = dao.TimeSlotDAO(cm)
+								t = tsdao.getById(self.currentjukeslot.id)
+								t.canceled = True
+								tsdao.update(t)
+								self.logger.info("jukebox: canceled show %d %s" % (self.currentjukeslot.id,
+														self.currentjukeslot.title))
+						except Exception, e:
+								self.logger.error("jukebox: could not cancel jukeslot %d %s %s" % \
+												(self.currentjukeslot.id, self.currentjukeslot.title, str(e)))
+
 						self.currentjukeslot = None
 
 		

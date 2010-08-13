@@ -348,6 +348,7 @@ class TimeSlot(RadioMateParentClass):
 								'creator' : '',
 								'slottype' : '',
 								'slotparams' : {},
+								'canceled': False,
 								'beginningtime': {
 										'year' : 0,
 										'month' : 0,
