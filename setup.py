@@ -17,25 +17,6 @@ setup(
 						],
 				requires=[
 						'MySQLdb'
-						],
-				data_files=[
-						('', [
-								'README', 
-								'INSTALL', 
-								'TODO', 
-								'COPYING', 
-								'JsonAPI.txt', 
-								'radiomate0.sql', 
-								'radiomated.py', 
-								'radiomatejson.cgi'
-								]),
-						('tests', [
-								'cgitest.html',
-								'daotest.py',
-								'json.js',
-								'jsontest.py',
-								'tmp.py'
-								])
 						]
 				)
 
