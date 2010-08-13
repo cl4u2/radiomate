@@ -849,7 +849,7 @@ class JSONProcessor(object):
 						else:
 								userreq = req['username']
 
-						if requser.name == userreq or requser.canManageAllPlaylists:
+						if requser.name == userreq or requser.role.canManageAllPlaylists:
 								getprivate = True
 						else:
 								getprivate = False
@@ -949,11 +949,12 @@ class JSONProcessor(object):
 
 						t.dictupdate(req['timeslot'])
 						
-						seconds2transmission = t.getBeginningTimestamp() - time.time()
-						if seconds2transmission <= requser.role.changeTimeBeforeTransmission*60:
-								return JsonResponse(RESPONSE_NOTALLOWED, 
-												"Changing time %d seconds before transmission is not allowed" % \
-																seconds2transmission, rd)
+						if requser.role.changeTimeBeforeTransmission > 0:
+								seconds2transmission = t.getBeginningTimestamp() - time.time()
+								if seconds2transmission <= requser.role.changeTimeBeforeTransmission*60:
+										return JsonResponse(RESPONSE_NOTALLOWED, 
+														"Changing time %d seconds before transmission is not allowed" % \
+																		seconds2transmission, rd)
 
 						try:
 								# check the slot type
@@ -1029,10 +1030,22 @@ class JSONProcessor(object):
 				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def createtestslot(self, requser, req):
-				return JsonResponse(RESPONSE_NOTIMPLEMENTED, "Not yet implemented")
+				#TODO
+				rd = {'requested': "createtestslot"}
+				return JsonResponse(RESPONSE_NOTIMPLEMENTED, "Not yet implemented", rd)
 
 		def listnetcasts(self, requser, req):
-				return JsonResponse(RESPONSE_NOTIMPLEMENTED, "Not yet implemented")
+				#TODO
+				rd = {'requested': "listnetcasts"}
+				return JsonResponse(RESPONSE_NOTIMPLEMENTED, "Not yet implemented", rd)
 
+		def listslottypes(self, requser, req):
+				"return the available timeslot/JukeSlot types"
+				rd = {'requested': "listslottypes", 'listlength': 0, 'slottypeslist': []}
+				try:
+						rd['slottypeslist'] = JUKESLOTTYPEDICT.keys()
+						rd['listlength'] = len(rd['slottypeslist'])
+						return JsonResponse(RESPONSE_OK, "Available slot type list follows", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
-						

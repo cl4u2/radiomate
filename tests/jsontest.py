@@ -29,13 +29,11 @@ def roletest():
 				"canManageAllPlaylists": false,
 				"canRegisterFiles": false,
 				"canManageRegisteredFiles": false,
-				"canSearchRegisteredFiles": false,
 				"canManageTimetable": false,
-				"fixedSlotTime": false,
+				"fixedSlotTimes": false,
 				"fixedSlotTimesList": "45,90",
-				"changeTimeBeforeTransmission": 60,
-				"canCreateTestMountpoint": false,
-				"canListNetcasts": false
+				"changeTimeBeforeTransmission": -1,
+				"canCreateTestSlot": false
 			}
 		}
 		"""
@@ -93,13 +91,11 @@ def usertest():
 				"canManageAllPlaylists": false,
 				"canRegisterFiles": false,
 				"canManageRegisteredFiles": false,
-				"canSearchRegisteredFiles": false,
 				"canManageTimetable": false,
-				"fixedSlotTime": false,
+				"fixedSlotTimes": false,
 				"fixedSlotTimesList": "45,90",
-				"changeTimeBeforeTransmission": 60,
-				"canCreateTestMountpoint": false,
-				"canListNetcasts": false
+				"changeTimeBeforeTransmission": -1,
+				"canCreateTestSlot": false
 			}
 		}
 		"""
@@ -182,13 +178,11 @@ def mediafiletest():
 				"canManageAllPlaylists": false,
 				"canRegisterFiles": true,
 				"canManageRegisteredFiles": true,
-				"canSearchRegisteredFiles": true,
 				"canManageTimetable": false,
-				"fixedSlotTime": false,
+				"fixedSlotTimes": false,
 				"fixedSlotTimesList": "45,90",
-				"changeTimeBeforeTransmission": 60,
-				"canCreateTestMountpoint": false,
-				"canListNetcasts": false
+				"changeTimeBeforeTransmission": -1,
+				"canCreateTestSlot": false
 			}
 		}
 		"""
@@ -341,13 +335,11 @@ def playlisttest():
 				"canManageAllPlaylists": true,
 				"canRegisterFiles": true,
 				"canManageRegisteredFiles": true,
-				"canSearchRegisteredFiles": true,
 				"canManageTimetable": false,
-				"fixedSlotTime": false,
+				"fixedSlotTimes": false,
 				"fixedSlotTimesList": "45,90",
-				"changeTimeBeforeTransmission": 60,
-				"canCreateTestMountpoint": false,
-				"canListNetcasts": false
+				"changeTimeBeforeTransmission": -1,
+				"canCreateTestSlot": false
 			}
 		}
 		"""
@@ -420,7 +412,7 @@ def playlisttest():
 					"description": "Some Test Tracks",
 					"comment": "Bad Music",
 					"tags": "me, justatest",
-					"fallback": true,
+					"private": true,
 					"viewers": [ "foobar" ],
 					"owners": [ "testuser", "foobar" ]
 			}
@@ -549,13 +541,11 @@ def timeslottest():
 				"canManageAllPlaylists": true,
 				"canRegisterFiles": true,
 				"canManageRegisteredFiles": true,
-				"canSearchRegisteredFiles": true,
 				"canManageTimetable": false,
-				"fixedSlotTime": false,
+				"fixedSlotTimes": false,
 				"fixedSlotTimesList": "45,90",
-				"changeTimeBeforeTransmission": 60,
-				"canCreateTestMountpoint": false,
-				"canListNetcasts": false
+				"changeTimeBeforeTransmission": -1,
+				"canCreateTestSlot": false
 			}
 		}
 		"""
@@ -628,7 +618,7 @@ def timeslottest():
 					"description": "Some Test Tracks",
 					"comment": "Bad Music",
 					"tags": "me, justatest",
-					"fallback": true,
+					"private": true,
 					"viewers": [ "foobar" ],
 					"owners": [ "testuser", "foobar" ]
 			}
@@ -648,6 +638,15 @@ def timeslottest():
 		""" % (pid, id1, id2)
 		playlist = processandcheck(jsonrequest)
 
+		jsonrequest = """
+		{
+			"request": "listslottypes",
+			"username": "foobar",
+			"password": "secret"
+		}
+		"""
+		slottypelist = processandcheck(jsonrequest, ret='slottypeslist')
+		print "slottypelist = " , slottypelist
 
 		jsonrequest = """
 		{
@@ -824,12 +823,13 @@ def timeslottest():
 		"""
 		processandcheck(jsonrequest)
 
+
 # Perform some tests on the JSON interface
 jp = jsonif.JSONProcessor()
-#roletest()
-#usertest()
-#mediafiletest()
-#playlisttest()
+roletest()
+usertest()
+mediafiletest()
+playlisttest()
 timeslottest()
 
 

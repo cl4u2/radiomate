@@ -28,7 +28,7 @@
 		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
 		"fixedSlotTimes": (true|false), #true if the fixedSlotTimesList field has to be considered
 		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
-		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>, # -1 for unlimited
 		"canCreateTestSlot": (true|false) #true if the user is permitted to create a testing mountpoint
 	}
 }
@@ -55,7 +55,7 @@
 		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
 		"fixedSlotTimes": (true|false), #true if the fixedSlotTimesList field has to be considered
 		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
-		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
+		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>, # -1 for unlimited
 		"canCreateTestSlot": (true|false) #true if the user is permitted to create a testing mountpoint
 	}
 }
@@ -542,6 +542,17 @@ List of playlists in which the user is owner or viewer
 
 }}}
 
+=== List Available Slot Types (for the timeslot.slottype field) ===
+
+{{{
+
+{
+	"request": "listslottypes",
+	"username": <username>,
+	"password": <password>
+}
+
+}}}
 
 === Test Slot ===
 

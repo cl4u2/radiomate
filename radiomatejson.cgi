@@ -19,12 +19,12 @@
 #  along with RadioMate.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import cgitb
+cgitb.enable()
+
 import cgi
 import radiomate.jsonif
 import sys
-
-import cgitb
-cgitb.enable()
 
 print "Content-type: text/plain;charset=utf-8"
 print 
