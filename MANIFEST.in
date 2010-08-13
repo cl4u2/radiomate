@@ -4,5 +4,5 @@ include TODO
 include COPYING
 include radiomate0.sql
 include JsonAPI.txt
-include radiomated.py
+include radiomated
 include radiomatejson.cgi
