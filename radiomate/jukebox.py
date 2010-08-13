@@ -49,8 +49,8 @@ class JukeBox(MainJukeSlot):
 
 				try:
 						# make a new connection every time, otherwise we have an outdated view of the database
-						cm = dao.DBConnectionManager(dbhost = config.DBHOST,\
-										dbuser = config.DBUSER, dbpassword = config.DBPASSWORD,\
+						cm = dao.DBConnectionManager(dbhost = config.DBHOST,
+										dbuser = config.DBUSER, dbpassword = config.DBPASSWORD,
 										database = config.DATABASE)
 						tsdao = dao.TimeSlotDAO(cm)
 				except Exception, e:
@@ -65,7 +65,7 @@ class JukeBox(MainJukeSlot):
 						return False
 				else:
 						self.nexttimeslot = next
-						self.logger.info("jukebox: queueing jukeslot %d %s at %s" % (self.nexttimeslot.id,\
+						self.logger.info("jukebox: queueing jukeslot %d %s at %s" % (self.nexttimeslot.id,
 										self.nexttimeslot.title, self.nexttimeslot.getBeginningDatetime()))
 						return True
 
@@ -82,29 +82,34 @@ class JukeBox(MainJukeSlot):
 				try:
 						jukeslotclass = JUKESLOTTYPEDICT[self.currenttimeslot.slottype]
 				except KeyError:
-						self.logger.error("Slot type %s not found. '%s' will be canceled." \
-										% (self.currenttimeslot.slottype, self.currenttimeslot.title))
+						self.logger.error("Slot type %s not found. '%s' will be canceled." % \
+										(self.currenttimeslot.slottype, self.currenttimeslot.title))
 						jukeslotclass = JukeSlot
 
 				self.logger.debug("chosen %s -> %s" % (self.currenttimeslot.slottype, jukeslotclass))
 				
-				# spawn a new process
-				self.currentjukeslot = jukeslotclass(timeslot=self.currenttimeslot, mainpassword=self.getPassword())
+				try:
+						# spawn a new process
+						self.currentjukeslot = jukeslotclass(timeslot=self.currenttimeslot, 
+										mainpassword=self.getPassword())
 
-				self.currentjukeslot.deathtime = time.time() + self.currentjukeslot.duration*60
+						self.currentjukeslot.deathtime = time.time() + self.currentjukeslot.duration*60
 
-				self.currentjukeslot.run()
+						self.currentjukeslot.run()
 				
-				if self.pollcurrent():
-						self.logger.info("jukebox: playing jukeslot %d %s for %d minutes until %s" % (self.currentjukeslot.id,\
-										self.currentjukeslot.title, self.currentjukeslot.duration,\
-										time.ctime(self.currentjukeslot.deathtime)))
-						return self.currentjukeslot.deathtime
-				else:
-						# TODO: if there is an error, update the timeslot info in the database
-						self.logger.error("jukebox: jukeslot %d %s failed to start." %(self.currentjukeslot.id,\
-										self.currentjukeslot.title))
-						return 0
+						if self.pollcurrent():
+								self.logger.info("jukebox: playing jukeslot %d %s for %d minutes until %s" % (self.currentjukeslot.id,
+												self.currentjukeslot.title, self.currentjukeslot.duration,
+												time.ctime(self.currentjukeslot.deathtime)))
+								return self.currentjukeslot.deathtime
+						else:
+								raise JukeBoxException("Process is dead.")
+				except Exception, e:
+						self.logger.error("jukebox: jukeslot %d %s failed. %s" %(self.currentjukeslot.id,
+												self.currentjukeslot.title, str(e)))
+						# TODO: update the timeslot info in the database
+						self.currentjukeslot = None
+
 		
 		def pollcurrent(self):
 				"Return False if the current JukeSlot is not alive"
@@ -120,7 +125,7 @@ class JukeBox(MainJukeSlot):
 						return True
 				now = time.time()
 				if force or (now >= self.currentjukeslot.deathtime):
-						self.logger.info("Stopping the current jukeslot (deathtime = %s, now = %s)" %\
+						self.logger.info("Stopping the current jukeslot (deathtime = %s, now = %s)" % \
 										(time.ctime(self.currentjukeslot.deathtime), time.ctime(now)))
 						self.currentjukeslot.gracefulKill()
 						self.currentjukeslot.wait()

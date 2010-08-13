@@ -56,7 +56,7 @@ class PlayListJukeSlot(JukeSlot):
 						mount = "radiomate.mp3", 
 						radio)
 
-				""" % (self.getPlayListName(self.playlist.id), self.getFallBackPlayListName(),\
+				""" % (self.getPlayListName(self.playlist.id), self.getFallBackPlayListName(),
 								config.INTERNALJUKEPORT, self.mainpassword)
 				self.logger.info("Starting playlist jukeslot")
 				return liq

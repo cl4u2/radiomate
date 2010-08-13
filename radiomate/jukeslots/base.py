@@ -57,8 +57,8 @@ class JukeSlot(Popen, mate.TimeSlot):
 				
 				# initialize the connection to the database
 				try:
-						self.cm = dao.DBConnectionManager(dbhost = config.DBHOST,\
-										dbuser = config.DBUSER, dbpassword = config.DBPASSWORD,\
+						self.cm = dao.DBConnectionManager(dbhost = config.DBHOST,
+										dbuser = config.DBUSER, dbpassword = config.DBPASSWORD,
 										database = config.DATABASE)
 						self.pldao = dao.PlayListDAO(self.cm)
 				except Exception, e:

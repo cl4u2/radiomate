@@ -61,8 +61,8 @@ class LiveJukeSlot(JukeSlot):
 					restart=true, 
 					description="%s",
 					radio)
-				""" % (config.LIVESTREAMPORT, self.slotparams['livepassword'], config.LIVESTREAMMOUNT,\
-								self.getFallBackPlayListName(), self.title, config.INTERNALJUKEPORT,\
+				""" % (config.LIVESTREAMPORT, self.slotparams['livepassword'], config.LIVESTREAMMOUNT,
+								self.getFallBackPlayListName(), self.title, config.INTERNALJUKEPORT,
 								self.mainpassword, self.title)
 				return liq
 

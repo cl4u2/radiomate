@@ -185,16 +185,16 @@ class Role(RadioMateParentClass):
 		"This entity class represents the roles of the users"
 		def __init__(self, classdict = {}):
 				"take as parameter a row dictionary obtained through a MySQLdb.cursors.DictCursor object, or a json string"
-				self.__dict__.update({'rolename' : '',\
-								'canManageRoles' : False,\
-								'canManageUsers' : False,\
-								'canManageAllPlaylists' : False,\
-								'canRegisterFiles' : False,\
-								'canManageRegisteredFiles' : False,\
-								'canManageTimetable' : False, \
-								'fixedSlotTimes' : False, \
-								'changeTimeBeforeTransmission' : 1440, \
-								'canCreateTestSlot' : False, \
+				self.__dict__.update({'rolename' : '',
+								'canManageRoles' : False,
+								'canManageUsers' : False,
+								'canManageAllPlaylists' : False,
+								'canRegisterFiles' : False,
+								'canManageRegisteredFiles' : False,
+								'canManageTimetable' : False, 
+								'fixedSlotTimes' : False, 
+								'changeTimeBeforeTransmission' : 1440, 
+								'canCreateTestSlot' : False, 
 								'fixedSlotTimesList' : "15,30,45,60,75,90,105,120"})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
@@ -208,9 +208,9 @@ class User(RadioMateParentClass):
 		"This entity class represents the users"
 		def __init__(self, classdict = {}):
 				"take as parameter a row dictionary obtained through a MySQLdb.cursors.DictCursor object, or a json string"
-				self.__dict__.update({'name' : '',\
-								'password' : '',\
-								'displayname' : '',\
+				self.__dict__.update({'name' : '',
+								'password' : '',
+								'displayname' : '',
 								'rolename' : ''})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
@@ -236,18 +236,18 @@ class MediaFile(RadioMateParentClass):
 		def __init__(self, classdict = {}):
 				"take as parameter a row dictionary obtained through a MySQLdb.cursors.DictCursor object, or a json string"
 				self.__dict__.update({
-								'id': 0L,\
-								'user' : '',\
-								'path' : '',\
-								'type' : 'audio',\
-								'title' : '',\
-								'author' : '',\
-								'album' : '',\
-								'genre' : '',\
-								'year' : 0, \
-								'comment' : '', \
-								'license' : '', \
-								'tags' : '', \
+								'id': 0L,
+								'user' : '',
+								'path' : '',
+								'type' : 'audio',
+								'title' : '',
+								'author' : '',
+								'album' : '',
+								'genre' : '',
+								'year' : 0, 
+								'comment' : '', 
+								'license' : '', 
+								'tags' : '', 
 								'position' : -1})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
@@ -259,15 +259,15 @@ class PlayList(RadioMateParentClass):
 		def __init__(self, classdict = {}):
 				"take as parameter a row dictionary obtained through a MySQLdb.cursors.DictCursor object, or a json string"
 				self.__dict__.update({
-								'id': 0L,\
-								'creator' : '',\
-								'mediafilelist' : [],\
-								'owners' : [],\
-								'viewers' : [],\
-								'private' : False,\
-								'title' : '',\
-								'description' : '',\
-								'comment' : '',\
+								'id': 0L,
+								'creator' : '',
+								'mediafilelist' : [],
+								'owners' : [],
+								'viewers' : [],
+								'private' : False,
+								'title' : '',
+								'description' : '',
+								'comment' : '',
 								'tags' : ''})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
@@ -343,22 +343,22 @@ class TimeSlot(RadioMateParentClass):
 		def __init__(self, classdict = {}):
 				"take as parameter a row dictionary obtained through a MySQLdb.cursors.DictCursor object, or a json string"
 				self.__dict__.update({
-								'id': 0L,\
-								'creator' : '',\
-								'slottype' : '',\
-								'slotparams' : {},\
+								'id': 0L,
+								'creator' : '',
+								'slottype' : '',
+								'slotparams' : {},
 								'beginningtime': {
-										'year' : 0,\
-										'month' : 0,\
-										'day' : 0,\
-										'hour' : 0,\
-										'minute' : 0\
-								 }, \
-								'duration': 0,\
-								'title' : '',\
-								'description' : '',\
-								'comment' : '',\
-								'fallbackplaylist' : 0L,\
+										'year' : 0,
+										'month' : 0,
+										'day' : 0,
+										'hour' : 0,
+										'minute' : 0
+								 }, 
+								'duration': 0,
+								'title' : '',
+								'description' : '',
+								'comment' : '',
+								'fallbackplaylist' : 0L,
 								'tags' : ''})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
@@ -389,21 +389,21 @@ class TimeSlot(RadioMateParentClass):
 
 		def getBeginningTimestamp(self):
 				"convert to unix timestamp"
-				timetuple = (self.beginningtime['year'],\
-								self.beginningtime['month'],\
-								self.beginningtime['day'],\
-								self.beginningtime['hour'],\
-								self.beginningtime['minute'],\
+				timetuple = (self.beginningtime['year'],
+								self.beginningtime['month'],
+								self.beginningtime['day'],
+								self.beginningtime['hour'],
+								self.beginningtime['minute'],
 								0, -1, -1, -1)
 				return time.mktime(timetuple)
 
 		def getEndingTimestamp(self):
 				"convert to unix timestamp"
-				timetuple = (self.beginningtime['year'],\
-								self.beginningtime['month'],\
-								self.beginningtime['day'],\
-								self.beginningtime['hour'],\
-								self.beginningtime['minute'],\
+				timetuple = (self.beginningtime['year'],
+								self.beginningtime['month'],
+								self.beginningtime['day'],
+								self.beginningtime['hour'],
+								self.beginningtime['minute'],
 								0, -1, -1, -1)
 				t = time.mktime(timetuple)
 				t += self.duration * 60 	#seconds in one minute
@@ -412,10 +412,10 @@ class TimeSlot(RadioMateParentClass):
 		def getBeginningDatetime(self):
 				"return a string with the beginning date and time"
 				return "%04d-%02d-%02d %02d:%02d" % \
-								(self.beginningtime['year'],\
-								self.beginningtime['month'],\
-								self.beginningtime['day'],\
-								self.beginningtime['hour'],\
+								(self.beginningtime['year'],
+								self.beginningtime['month'],
+								self.beginningtime['day'],
+								self.beginningtime['hour'],
 								self.beginningtime['minute'])
 
 		def getEndingDatetime(self):
@@ -433,7 +433,7 @@ class TimeSlot(RadioMateParentClass):
 				else:
 						tm = time.strptime(str(thetime), "%Y-%m-%d %H:%M:%S")
 
-				self.beginningtime = {'year': tm.tm_year, 'month': tm.tm_mon,\
+				self.beginningtime = {'year': tm.tm_year, 'month': tm.tm_mon,
 								'day': tm.tm_mday, 'hour': tm.tm_hour, 'minute': tm.tm_min}
 		
 		def setEndingDateTime(self, thetime):
