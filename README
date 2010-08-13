@@ -9,7 +9,7 @@ Structure
 =========
 
 At the moment, RadioMate has two main components: the radiomate.cgi CGI script
-and the radiomated.py daemon.
+and the radiomated daemon.
 
 radiomate.cgi accepts JSON requests, made with the POST method, interacts with
 the database, and returns JSON responses, as described in the JsonAPI.txt file. 
@@ -24,7 +24,7 @@ Through the JSON API, the user can:
   transmission. The slottype parameter must correspond to a defined JukeSlot 
   type (described later).
 
-The radiomated.py daemon retrieves the reserved timeslots from the database and
+The radiomated daemon retrieves the reserved timeslots from the database and
 schedules the transmissions, launching the appropriate JukeSlots.
 
 JukeSlots are an abstraction for liquidsoap instances: the main JukeSlot
@@ -81,7 +81,7 @@ from simplelive import *
 
 - for non-Python developers: be careful with tabs!!! :)  
 
-- restart the radiomated.py daemon
+- restart the radiomated daemon
 
 For any issue please write to the RadioMate mailing list.
 

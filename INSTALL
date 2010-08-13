@@ -20,7 +20,7 @@ Structure
 =========
 
 At the moment, RadioMate has two main components: the radiomate.cgi CGI script
-and the radiomated.py daemon.
+and the radiomated daemon.
 
 For more details please see the README file.
 
