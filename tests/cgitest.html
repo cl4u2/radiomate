@@ -1,0 +1,51 @@
+<html>
+		<head>
+		<script src="json.js" type="text/javascript"></script>
+		<script type="text/javascript">
+				var req
+
+				function myHandler() {
+						document.getElementById('resp').innerHTML="request at " + req.readyState + " " + req.status + "<br>";
+						if (req.readyState == 4 /*complete*/) {
+								var r = req.responseText
+								document.getElementById('resp').innerHTML+=""+req.status+"<br/>"+r+"<br/>";
+								var resp = eval('(' + r + ')');
+								if(resp.responsen == 0) 
+										document.getElementById('jsob').innerHTML = "OK, " + resp.userlist[0].displayname
+								else
+										document.getElementById('jsob').innerHTML = "noooo"
+								
+						}
+				}
+
+				function reque () {
+						/*
+						jsonrequesto = {"request": "listusers", "username": "foobar", "password": "secret"}
+						jsonrequest = jsonrequesto.toJSONString()
+						*/
+						var jsonrequesto = {}
+						jsonrequesto.request = "listusers"
+						jsonrequesto.username = "foobar"
+						jsonrequesto.password = "secret"
+						jsonrequest = jsonrequesto.toJSONString()
+
+						document.getElementById('resp').innerHTML+="requesting...<br/>";
+						req = new XMLHttpRequest();
+						req.onreadystatechange = myHandler;
+						req.open("POST", "/cgi-bin/radiomatejson.cgi", /*async*/true);
+						req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+						req.send("q="+escape(jsonrequest)+"");
+				}
+
+		</script>
+		</head>
+		<body>
+				<h3><div id="resp"> ready <br> </div></h3>
+
+				<h2><div id="jsob"></div></h2>
+
+				<button type="button" onclick="reque()"> REQ </button>
+				<br/>
+		</body>
+</html>
+
