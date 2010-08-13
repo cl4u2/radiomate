@@ -166,6 +166,7 @@ def playlistdaotest():
 		pl.title = "just a test"
 		pl.creator = "foobar2"
 		pl.private = False
+		pl.random = False
 		pl.description = "testing dao"
 		pl.comment = ":)"
 		pl.tags = "test,prova,foo,bar"
@@ -238,6 +239,7 @@ def timeslotdaotest():
 		pl.title = "just a test"
 		pl.creator = "foobar2"
 		pl.private = False
+		pl.random = False
 		pl.description = "testing dao"
 		pl.comment = ":)"
 		pl.tags = "test,prova,foo,bar"

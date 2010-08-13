@@ -66,7 +66,7 @@ class MainJukeSlot(JukeSlot):
 
 				transfunction = fun(a,b) -> sequence([fade.final(a, type="sin"), blank(duration=2.), fade.initial(b, type="sin")])
 
-				fallbackplaylist = playlist(mode="normal", '%s')
+				fallbackplaylist = %s
 
 				radiomate = input.harbor(password="%s", "radiomate.mp3")
 
@@ -87,7 +87,7 @@ class MainJukeSlot(JukeSlot):
 					url="%s", 
 					radio)
 
-				""" % (config.INTERNALJUKEPORT, self.getFallBackPlayListName(), self.getPassword(), 
+				""" % (config.INTERNALJUKEPORT, self.getFallBackPlayListLiquidCode(), self.getPassword(), 
 								config.TAKEOVERMOUNTURL, config.ICECASTSERVER, config.ICECASTPORT, 
 								config.ICECASTPASSWORD, config.ICECASTMAINMOUNT, config.RADIONAME, 
 								config.RADIOURL)

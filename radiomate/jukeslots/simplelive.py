@@ -42,7 +42,7 @@ class LiveJukeSlot(JukeSlot):
 
 				livestream = input.harbor(password="%s", "%s")
 				
-				fallbackplaylist = playlist(mode="normal", '%s')
+				fallbackplaylist = %s
 
 				radio = fallback(track_sensitive=false, 
 						[livestream, fallbackplaylist, blank()], 
@@ -62,7 +62,7 @@ class LiveJukeSlot(JukeSlot):
 					description="%s",
 					radio)
 				""" % (config.LIVESTREAMPORT, self.slotparams['livepassword'], config.LIVESTREAMMOUNT,
-								self.getFallBackPlayListName(), self.title, config.INTERNALJUKEPORT,
+								self.getFallBackPlayListLiquidCode(), self.title, config.INTERNALJUKEPORT,
 								self.mainpassword, self.title)
 				return liq
 

@@ -126,10 +126,45 @@ class JukeSlot(Popen, mate.TimeSlot):
 
 		def getFallBackPlayListName(self):
 				"return a filename for the fallback playlist"
-				if self.fallbackplaylist:
+				try:
 						return self.getPlayListName(self.fallbackplaylist)
-				else:
+				except:
 						return self.getPlayListName(config.GLOBALFALLBACKPLAYLIST)
+
+		def getPlayListLiquidCode(self, playlistid, playlistfilename=None):
+				"""return the liquidsoap code for the given playlist. 
+				If playlistfilename is given, use it, otherwise call getPlayListName()"""
+
+				try:
+						plist = self.pldao.getById(playlistid)
+				except dao.RadioMateDAOException, e:
+						raise JukeSlotException(str(e))
+
+				if not plist:
+						return "blank(duration=0.1)"
+
+				if plist.random:
+						pmode = "randomize"
+				else:
+						pmode = "normal"
+
+				if not playlistfilename:
+						playlistfilename = self.getPlayListName(playlistid)
+
+				return 'playlist(mode="%s", "%s")' % (pmode, playlistfilename)
+		
+		def getFallBackPlayListLiquidCode(self):
+				try:
+						pn = self.getPlayListName(self.fallbackplaylist)
+						return self.getPlayListLiquidCode(self.fallbackplaylist, playlistfilename=pn)
+				except Exception, e:
+						self.logger.debug("getFallBackPlayListLiquidCode: %s " % str(e))
+				try:
+						return self.getPlayListLiquidCode(config.GLOBALFALLBACKPLAYLIST)
+				except Exception, e:
+						self.logger.debug("getFallBackPlayListLiquidCode: %s " % str(e))
+						return "blank()"
+				
 
 		def gracefulKill(self):
 				"try to terminate, but if it does not work then kill"

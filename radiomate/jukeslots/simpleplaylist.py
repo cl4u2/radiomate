@@ -40,9 +40,9 @@ class PlayListJukeSlot(JukeSlot):
 				
 				transfunction = fun(a,b) -> sequence([fade.final(a, type="sin"), blank(duration=2.), fade.initial(b, type="sin")])
 
-				plist = playlist(mode="normal", '%s')
+				plist = %s
 
-				fallbackplist = playlist(mode="normal", '%s')
+				fallbackplist = %s
 
 				radio = fallback(track_sensitive=false, 
 						[plist, fallbackplist, blank()],
@@ -56,7 +56,7 @@ class PlayListJukeSlot(JukeSlot):
 						mount = "radiomate.mp3", 
 						radio)
 
-				""" % (self.getPlayListName(self.playlist.id), self.getFallBackPlayListName(),
+				""" % (self.getPlayListLiquidCode(self.playlist.id), self.getFallBackPlayListLiquidCode(),
 								config.INTERNALJUKEPORT, self.mainpassword)
 				self.logger.info("Starting playlist jukeslot")
 				return liq

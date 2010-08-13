@@ -1,7 +1,5 @@
 = API =
 
- * at the beginning only the user admin and the role admin exist
- * before reserving a new slot an user must define her own non-empty fallback playlist
  * before the definition of a playlist, files must be registered
 
  * when editing, leaving fields to null means that fields are left untouched
@@ -295,7 +293,8 @@
 			"description": <a description of the playlist>,
 			"comment": <comment>,
 			"tags": <tags>,
-			"private": (true|false), #true if this will be the user's fallback playlist
+			"private": (true|false), #true if this playlist can be viewed only by the owner (or with the canManageAllPlaylists role attribute)
+			"random": (true|false), #true if this playlist will be played in random order
 			"viewers": [ # a list of usernames of other users that can watch and play this playlist
 				<username>,
 				<username>
@@ -324,7 +323,8 @@
 			"description": <a new description of the playlist or null to leave unchanged>,
 			"comment": <a new comment or null to leave unchanged>,
 			"tags": <new tags or null to leave unchanged>,
-			"fallback": (true|false|null) #true if this will be the user's fallback playlist, null to leave unchanged
+			"private": (true|false), #true if this playlist can be viewed only by the owner (or with the canManageAllPlaylists role attribute)
+			"random": (true|false), #true if this playlist will be played in random order
 			"viewers": [ # a list of usernames of other users that can watch and play this playlist, or null to leave unchanged
 				<username>,
 				<username>

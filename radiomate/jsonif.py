@@ -1030,12 +1030,12 @@ class JSONProcessor(object):
 				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def createtestslot(self, requser, req):
-				#TODO
+				# TODO implement createtestslot
 				rd = {'requested': "createtestslot"}
 				return JsonResponse(RESPONSE_NOTIMPLEMENTED, "Not yet implemented", rd)
 
 		def listnetcasts(self, requser, req):
-				#TODO
+				#TODO implement listnetcasts
 				rd = {'requested': "listnetcasts"}
 				return JsonResponse(RESPONSE_NOTIMPLEMENTED, "Not yet implemented", rd)
 

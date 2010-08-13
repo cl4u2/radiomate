@@ -699,6 +699,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				INSERT INTO playlists (
 						creator,
 						private,
+						random,
 						title,
 						description,
 						comment,
@@ -707,6 +708,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				'%s', %d, '%s', '%s', '%s', '%s')""" % (
 						playlistobject.creator,
 						int(playlistobject.private),
+						int(playlistobject.random),
 						playlistobject.title,
 						playlistobject.description,
 						playlistobject.comment,
@@ -774,6 +776,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						id,
 						creator,
 						private,
+						random,
 						title,
 						description,
 						comment,
@@ -793,7 +796,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						position
 				FROM compilation
 				WHERE playlist = %d
-				ORDER BY position""" % playlistid 	#TODO: order in ascending order
+				ORDER BY position""" % playlistid 	
 
 				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
@@ -826,7 +829,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 		def __removeById(self, playlistid, cursor):
 				deletionstring = """
 				DELETE FROM playlists
-				WHERE id = %d""" % playlistid #TODO: check if CASCADE is well set in the SQL
+				WHERE id = %d""" % playlistid 
 
 				self.logger.debug(deletionstring)
 				cursor.execute(deletionstring)
@@ -837,6 +840,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				SET
 						creator = '%s',
 						private = %d,
+						random = %d,
 						title = '%s',
 						description = '%s',
 						comment = '%s',
@@ -844,6 +848,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				WHERE id = %d """ % (
 						playlistobject.creator,
 						int(playlistobject.private),
+						int(playlistobject.random),
 						playlistobject.title,
 						playlistobject.description,
 						playlistobject.comment,
@@ -881,6 +886,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						id,
 						creator,
 						private,
+						random,
 						title,
 						description,
 						comment,

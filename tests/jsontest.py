@@ -413,6 +413,7 @@ def playlisttest():
 					"comment": "Bad Music",
 					"tags": "me, justatest",
 					"private": true,
+					"random": false,
 					"viewers": [ "foobar" ],
 					"owners": [ "testuser", "foobar" ]
 			}
@@ -619,6 +620,7 @@ def timeslottest():
 					"comment": "Bad Music",
 					"tags": "me, justatest",
 					"private": true,
+					"random": false,
 					"viewers": [ "foobar" ],
 					"owners": [ "testuser", "foobar" ]
 			}

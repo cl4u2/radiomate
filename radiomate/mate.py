@@ -265,6 +265,7 @@ class PlayList(RadioMateParentClass):
 								'owners' : [],
 								'viewers' : [],
 								'private' : False,
+								'random' : False,
 								'title' : '',
 								'description' : '',
 								'comment' : '',
