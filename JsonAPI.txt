@@ -25,13 +25,11 @@
 		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
 		"canRegisterFiles": (true|false), #true if the user can register local files
 		"canManageRegisteredFiles": (true|false), #true if the user can manage registered files' data (i.e. change, delete)
-		"canSearchRegisteredFiles": (true|false), #true if the user can perform searchs among the registered files
 		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
-		"fixedSlotTime": (true|false), #true if the fixedSlotTimesList field has to be considered
+		"fixedSlotTimes": (true|false), #true if the fixedSlotTimesList field has to be considered
 		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
 		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
-		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
-		"canListNetcasts": (true|false) #ability to list archive/podcasts/netcasts
+		"canCreateTestSlot": (true|false) #true if the user is permitted to create a testing mountpoint
 	}
 }
 
@@ -54,13 +52,11 @@
 		"canManageAllPlaylists": (true|false),  #true if the user can create/edit/delete all playlists
 		"canRegisterFiles": (true|false), #true if the user can register local files
 		"canManageRegisteredFiles": (true|false), #true if the user can manage registered files' data (i.e. change, delete)
-		"canSearchRegisteredFiles": (true|false), #true if the user can perform searchs among the registered files
 		"canManageTimetable": (true|false),  #true if the user can edit/delete the beginning and ending time of scheduled slots
-		"fixedSlotTime": (true|false), #true if the fixedSlotTimesList field has to be considered
+		"fixedSlotTimes": (true|false), #true if the fixedSlotTimesList field has to be considered
 		"fixedSlotTimesList": <array of fixed slot times, in minutes>, #if fixedSlotTime is true, then this is the list of the allowed length for the timeslots for this user
 		"changeTimeBeforeTransmission": <number of minutes before the beginning of the transmission in which the user is permitted to change the beginning time>,
-		"canCreateTestMountpoint": (true|false), #true if the user is permitted to create a testing mountpoint
-		"canListNetcasts": (true|false) #ability to list archive/podcasts/netcasts
+		"canCreateTestSlot": (true|false) #true if the user is permitted to create a testing mountpoint
 	}
 }
 
@@ -299,7 +295,7 @@
 			"description": <a description of the playlist>,
 			"comment": <comment>,
 			"tags": <tags>,
-			"fallback": (true|false), #true if this will be the user's fallback playlist
+			"private": (true|false), #true if this will be the user's fallback playlist
 			"viewers": [ # a list of usernames of other users that can watch and play this playlist
 				<username>,
 				<username>
