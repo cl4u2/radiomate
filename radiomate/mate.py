@@ -191,13 +191,11 @@ class Role(RadioMateParentClass):
 								'canManageAllPlaylists' : False,\
 								'canRegisterFiles' : False,\
 								'canManageRegisteredFiles' : False,\
-								'canSearchRegisteredFiles' : False,\
 								'canManageTimetable' : False, \
-								'fixedSlotTime' : False, \
+								'fixedSlotTimes' : False, \
 								'changeTimeBeforeTransmission' : 1440, \
-								'canCreateTestMountpoint' : False, \
-								'canListNetcasts' : False, \
-								'fixedSlotTimesList' : "60,120"})
+								'canCreateTestSlot' : False, \
+								'fixedSlotTimesList' : "15,30,45,60,75,90,105,120"})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
 						self.__setattr__(k, v)
@@ -266,7 +264,7 @@ class PlayList(RadioMateParentClass):
 								'mediafilelist' : [],\
 								'owners' : [],\
 								'viewers' : [],\
-								'fallback' : False,\
+								'private' : False,\
 								'title' : '',\
 								'description' : '',\
 								'comment' : '',\

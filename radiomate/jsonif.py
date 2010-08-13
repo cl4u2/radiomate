@@ -22,6 +22,7 @@
 # The JSON interface 
 
 import json
+import time
 import config
 from mate import *
 from dao import *
@@ -331,9 +332,6 @@ class JSONProcessor(object):
 
 		def edituser(self, requser, req):
 				rd = {'requested': "edituser", 'user': None}
-				if not requser.role.canManageUsers:
-						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-
 				try:
 						userdao = UserDAO(self.connectionmanager)
 				except Exception, e:
@@ -344,6 +342,10 @@ class JSONProcessor(object):
 						username = req['user']['name']
 				except Exception, e:
 						return JsonResponse(RESPONSE_REQERROR, "Check JSON Syntax [%s]" % str(e), rd)
+				
+				# only the user herself and the role manager can do this
+				if requser.name != username and not requser.role.canManageUsers:
+						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 
 				try:
 						u = userdao.getByName(username)
@@ -373,9 +375,6 @@ class JSONProcessor(object):
 		
 		def removeuser(self, requser, req):
 				rd = {'requested': "removeuser", 'name': None}
-				if not requser.role.canManageUsers:
-						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-
 				try:
 						userdao = UserDAO(self.connectionmanager)
 				except Exception, e:
@@ -385,6 +384,10 @@ class JSONProcessor(object):
 						username = req['name']
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, "Check JSON Syntax [%s]" % str(e), rd)
+
+				# only the user herself and the role manager can do this
+				if requser.name != username and not requser.role.canManageUsers:
+						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 
 				try:
 						u = userdao.getByName(username)
@@ -497,9 +500,6 @@ class JSONProcessor(object):
 		
 		def getfile(self, requser, req):
 				rd = {'requested': "getfile", 'mediafile': None}
-				if not requser.role.canRegisterFiles:
-						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-
 				try:
 						mediafileid = req['mediafileid']
 				except Exception, e:
@@ -519,9 +519,6 @@ class JSONProcessor(object):
 
 		def searchfiles(self, requser, req):
 				rd = {'requested': "searchfiles", 'listlength': 0, 'mediafilelist': []}
-				if not requser.role.canSearchRegisteredFiles:
-						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-
 				try:
 						m = MediaFile(req['mediafile'])
 				except Exception, e:
@@ -549,9 +546,6 @@ class JSONProcessor(object):
 				canManageRegisteredFiles permission, can manage every media file"""
 
 				rd = {'requested': "editfile", 'mediafile': None}
-				if not requser.role.canRegisterFiles:
-						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-				
 				try:
 						mediafiledao = MediaFileDAO(self.connectionmanager)
 				except Exception, e:
@@ -566,7 +560,7 @@ class JSONProcessor(object):
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
-				if (requser.name != m.user) and not requser.role.canManageRegisteredFiles:
+				if requser.name != m.user and not requser.role.canManageRegisteredFiles:
 						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 
 				if not m:
@@ -593,9 +587,6 @@ class JSONProcessor(object):
 				canManageRegisteredFiles permission, can unregister every media file"""
 
 				rd = {'requested': "unregisterfile", 'mediafileid': None}
-				if not requser.role.canRegisterFiles:
-						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-				
 				try:
 						mediafiledao = MediaFileDAO(self.connectionmanager)
 				except Exception, e:
@@ -610,6 +601,9 @@ class JSONProcessor(object):
 						return JsonResponse(RESPONSE_REQERROR, "Check mediafileid in JSON syntax", rd)
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
+				if requser.name != m.user and not requser.role.canManageRegisteredFiles:
+						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 
 				if not m:
 						return JsonResponse(RESPONSE_DONTEXISTS, "Media file %d not found" % m.id, rd)
@@ -730,6 +724,10 @@ class JSONProcessor(object):
 								for ids in req['mediafileidlist']:
 										mediafileidlist.append(int(ids))
 						p = playlistdao.getById(playlistid)
+
+						if requser.name != p.creator and (not requser.name in p.owners) and not requser.role.canManageAllPlaylists:
+								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
 						n = 0
 						for id in mediafileidlist:
 								mf = mediafiledao.getById(id)
@@ -763,6 +761,10 @@ class JSONProcessor(object):
 								for pos in req['mediafilepositionlist']:
 										mediafileposlist.append(int(pos))
 						p = playlistdao.getById(playlistid)
+						
+						if requser.name != p.creator and (not requser.name in p.owners) and not requser.role.canManageAllPlaylists:
+								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
 						n = 0
 						mediafileposlist.sort()
 						mediafileposlist.reverse()
@@ -795,6 +797,9 @@ class JSONProcessor(object):
 						newmediafileposition = req['newmediafileposition']
 
 						p = playlistdao.getById(playlistid)
+						
+						if requser.name != p.creator and (not requser.name in p.owners) and not requser.role.canManageAllPlaylists:
+								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
 
 						mflist = p.mediafilelist[:]
 						oldmf = mflist[oldmediafileposition]
@@ -844,11 +849,13 @@ class JSONProcessor(object):
 						else:
 								userreq = req['username']
 
-						if userreq != req['username'] and not requser.role.canManageAllPlaylists:
-								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+						if requser.name == userreq or requser.canManageAllPlaylists:
+								getprivate = True
+						else:
+								getprivate = False
 
 						playlistdao = PlayListDAO(self.connectionmanager)
-						plist = playlistdao.getByUser(userreq)
+						plist = playlistdao.getByUser(userreq, getprivate)
 
 						playlistlist = [p.dictexport() for p in plist]
 						rd['listlength'] = len(playlistlist)
@@ -871,6 +878,11 @@ class JSONProcessor(object):
 						t.creator = requser.name
 				except Exception, e:
 						return JsonResponse(RESPONSE_REQERROR, str(e), rd)
+
+				if requser.role.fixedSlotTimes and not t.duration in requser.role.fixedSlotTimesListList():
+						return JsonResponse(RESPONSE_NOTALLOWED, 
+										"User role does not allow this action. Fixed slot times: %s." % \
+										requser.role.fixedSlotTimesList, rd)
 						
 				try:
 						# check the slot type
@@ -904,8 +916,9 @@ class JSONProcessor(object):
 						id = req['timeslotid']
 						timeslotdao = TimeSlotDAO(self.connectionmanager)
 						t = timeslotdao.getById(id)
-						if t.creator != requser.name or not requser.role.canManageTimetable:
+						if t.creator != requser.name and not requser.role.canManageTimetable:
 								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
 						res = timeslotdao.removeById(id)
 						if res:
 								rd['timeslotid'] = id
@@ -930,7 +943,17 @@ class JSONProcessor(object):
 
 						timeslotdao = TimeSlotDAO(self.connectionmanager)
 						t = timeslotdao.getById(id)
+						
+						if t.creator != requser.name and not requser.role.canManageTimetable:
+								return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
+
 						t.dictupdate(req['timeslot'])
+						
+						seconds2transmission = t.getBeginningTimestamp() - time.time()
+						if seconds2transmission <= requser.role.changeTimeBeforeTransmission*60:
+								return JsonResponse(RESPONSE_NOTALLOWED, 
+												"Changing time %d seconds before transmission is not allowed" % \
+																seconds2transmission, rd)
 
 						try:
 								# check the slot type

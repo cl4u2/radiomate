@@ -75,27 +75,23 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						canManageAllPlaylists,
 						canRegisterFiles,
 						canManageRegisteredFiles,
-						canSearchRegisteredFiles,
 						canManageTimetable,
-						fixedSlotTime,
+						fixedSlotTimes,
 						changeTimeBeforeTransmission,
-						canCreateTestMountpoint,
-						canListNetcasts,
+						canCreateTestSlot,
 						fixedSlotTimesList
 				) VALUES (
-				'%s', %d, %d, %d, %d, %d, %d, %d, %d, %d , %d, %d, '%s')""" % (
+				'%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, '%s')""" % (
 						roleobject.rolename,
 						int(roleobject.canManageRoles),
 						int(roleobject.canManageUsers),
 						int(roleobject.canManageAllPlaylists),
 						int(roleobject.canRegisterFiles),
 						int(roleobject.canManageRegisteredFiles),
-						int(roleobject.canSearchRegisteredFiles),
 						int(roleobject.canManageTimetable),
-						int(roleobject.fixedSlotTime),
+						int(roleobject.fixedSlotTimes),
 						roleobject.changeTimeBeforeTransmission,
-						int(roleobject.canCreateTestMountpoint),
-						int(roleobject.canListNetcasts),
+						int(roleobject.canCreateTestSlot),
 						roleobject.fixedSlotTimesList.strip("[]")
 				)
 
@@ -111,12 +107,10 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						canManageAllPlaylists,
 						canRegisterFiles,
 						canManageRegisteredFiles,
-						canSearchRegisteredFiles,
 						canManageTimetable,
-						fixedSlotTime,
+						fixedSlotTimes,
 						changeTimeBeforeTransmission,
-						canCreateTestMountpoint,
-						canListNetcasts,
+						canCreateTestSlot,
 						fixedSlotTimesList
 				FROM roles
 				WHERE rolename = '%s'""" % rolename
@@ -142,12 +136,10 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						canManageAllPlaylists,
 						canRegisterFiles,
 						canManageRegisteredFiles,
-						canSearchRegisteredFiles,
 						canManageTimetable,
-						fixedSlotTime,
+						fixedSlotTimes,
 						changeTimeBeforeTransmission,
-						canCreateTestMountpoint,
-						canListNetcasts,
+						canCreateTestSlot,
 						fixedSlotTimesList
 				FROM roles"""
 
@@ -164,12 +156,10 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						canManageAllPlaylists = %d,
 						canRegisterFiles = %d,
 						canManageRegisteredFiles = %d,
-						canSearchRegisteredFiles = %d,
 						canManageTimetable = %d,
-						fixedSlotTime = %d,
+						fixedSlotTimes = %d,
 						changeTimeBeforeTransmission = %d,
-						canCreateTestMountpoint = %d,
-						canListNetcasts = %d,
+						canCreateTestSlot= %d,
 						fixedSlotTimesList = '%s'
 				WHERE rolename = '%s' """ % (
 						int(roleobject.canManageRoles),
@@ -177,12 +167,10 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 						int(roleobject.canManageAllPlaylists),
 						int(roleobject.canRegisterFiles),
 						int(roleobject.canManageRegisteredFiles),
-						int(roleobject.canSearchRegisteredFiles),
 						int(roleobject.canManageTimetable),
-						int(roleobject.fixedSlotTime),
+						int(roleobject.fixedSlotTimes),
 						roleobject.changeTimeBeforeTransmission,
-						int(roleobject.canCreateTestMountpoint),
-						int(roleobject.canListNetcasts),
+						int(roleobject.canCreateTestSlot),
 						roleobject.fixedSlotTimesList.strip("[]"),
 						roleobject.rolename
 				)
@@ -710,7 +698,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				insertionstring = """
 				INSERT INTO playlists (
 						creator,
-						fallback,
+						private,
 						title,
 						description,
 						comment,
@@ -718,7 +706,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				) VALUES (
 				'%s', %d, '%s', '%s', '%s', '%s')""" % (
 						playlistobject.creator,
-						int(playlistobject.fallback),
+						int(playlistobject.private),
 						playlistobject.title,
 						playlistobject.description,
 						playlistobject.comment,
@@ -785,7 +773,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				SELECT  
 						id,
 						creator,
-						fallback,
+						private,
 						title,
 						description,
 						comment,
@@ -848,14 +836,14 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				UPDATE playlists
 				SET
 						creator = '%s',
-						fallback = %d,
+						private = %d,
 						title = '%s',
 						description = '%s',
 						comment = '%s',
 						tags = '%s'
 				WHERE id = %d """ % (
 						playlistobject.creator,
-						int(playlistobject.fallback),
+						int(playlistobject.private),
 						playlistobject.title,
 						playlistobject.description,
 						playlistobject.comment,
@@ -892,7 +880,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				SELECT  
 						id,
 						creator,
-						fallback,
+						private,
 						title,
 						description,
 						comment,
@@ -904,18 +892,20 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				cursor.execute(selectionstring)
 				return cursor.fetchall()
 		
-		def __getByUser(self, username, cursor):
-				"Returns playlist ids in which the user is creator, owner or viewer"
+		def __getByUser(self, username, getprivate, cursor):
+				"Returns public (i.e. not private) playlist ids in which the user is creator, owner or viewer"
 				selectionstring = """
 				SELECT  
 						playlists.id
 				FROM playlists JOIN (playlistowners, playlistviewers)
 				ON (playlistowners.playlist = playlists.id AND playlistviewers.playlist = playlists.id)
 				WHERE 
-				playlists.creator = '%s' OR
+				( playlists.creator = '%s' OR
 				playlistowners.user = '%s' OR
-				playlistviewers.user = '%s'
+				playlistviewers.user = '%s' )
 				""" % (username, username, username)
+				if not getprivate:
+						selectionstring+="AND playlists.private = 0" 
 
 				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
@@ -1037,7 +1027,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
-		def getByUser(self, username):
+		def getByUser(self, username, getprivate=False):
 				"Returns playlists in which the user is creator, owner or viewer"
 				try:
 						#TODO: type checking in all methods, not only in this one
@@ -1045,7 +1035,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 								raise RadioMateDAOException("String needed")
 
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
-						plresultdicts = self.__getByUser(username, cursor)
+						plresultdicts = self.__getByUser(username, getprivate, cursor)
 						cursor.close()
 
 						self.logger.debug("Number of playlist rows fetched: %d" % len(plresultdicts))
