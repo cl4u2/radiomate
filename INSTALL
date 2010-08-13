@@ -28,3 +28,16 @@ For more details please see the README file.
 Installation
 ============
 
+- To install the radiomate python package, type from the command line: 
+python setup.py install
+
+- To initalize the MySQL database, the radiomate0.sql script is provided.
+
+- Copy the radiomateconfig.cgi file to your Web server's CGI directory.
+
+- Copy radiomateconfig.sample.py to /etc/radiomateconfig.py and edit it to
+  reflect your settings and preferences.
+
+
+
+

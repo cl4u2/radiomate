@@ -1,6 +1,5 @@
 include README
 include INSTALL
-include TODO
 include COPYING
 include radiomate0.sql
 include JsonAPI.txt

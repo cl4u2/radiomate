@@ -7,14 +7,13 @@ import logging
 
 # Name and URL of the radio
 RADIONAME = "Radio Mate"
-RADIONAME = "Grr"
 RADIOURL = "http://radiomate.org"
 
 # Logging
 LOGFILENAME = "/tmp/radiomate.log"
 LOGGINGLEVEL = logging.DEBUG
 
-# Database parameters
+# MySQL database parameters
 DBHOST="127.0.0.1"
 DBUSER="mate"
 DBPASSWORD="radi0"
@@ -27,7 +26,7 @@ MEDIAFILESHOMEDIR = "/opt/radiomate/media/"
 LIQUIDSOAP = "/usr/local/bin/liquidsoap"
 
 # Play this if there are no transmissions
-GLOBALFALLBACKPLAYLIST = 7
+GLOBALFALLBACKPLAYLIST = 1
 
 # Icecast server parameters, to which the stream is sent
 ICECASTSERVER = "127.0.0.1"

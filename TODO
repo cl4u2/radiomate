@@ -1,11 +1,11 @@
 $Id$
 
 - when adding audio file take info from ID3 tags
-- search by tag (new tables?)
+- test searching by tag 
 - add "limit" attributes to JSON requests
 
-- couchdb DAO
-- WSGI
+- port to couchdb 
+- make a WSGI script instead of the CGI
 
 - grep -r TODO *
 

@@ -2,8 +2,18 @@
                      RadioMate - Radio Automation Made Easy
 ===============================================================================
 
+RadioMate is a Free Engine for Distributed Web Radios, i.e. Web Radios in which
+the users can broadcast from home or wherever there is a connection to the
+Internet.
+
+While Savonet Liquidsoap [http://savonet.sourceforge.net] already provides a
+scriptable language and engine for Web Radios with a centralized schedule,
+RadioMate wraps and extends it to be used for Web Radios in which the schedule
+is managed in an horizontal and distributed way.
+
 Website: http://radiomate.org
-Mailing List: 
+Mailing List: https://lists.subsignal.org/mailman/listinfo/radiomate
+
 
 Structure
 =========
@@ -45,7 +55,13 @@ JukeSlot Types" section below.
 Installation and Configuration
 ==============================
 
-Please refer to the INSTALL file.
+For system requirements and installation instructions please refer to the
+INSTALL file. 
+
+For what concerns configuration, radiomate will look for a file called
+radiomateconfig.py inside the /etc/ directory. A sample configuration file,
+radiomateconfig.sample.py, is provided, which contains commented sample
+configuration parameters.
 
 
 Plugging in New JukeSlot Types
