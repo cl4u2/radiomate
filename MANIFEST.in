@@ -6,3 +6,4 @@ include radiomate0.sql
 include JsonAPI.txt
 include radiomated
 include radiomatejson.cgi
+include radiomateconfig.sample.py

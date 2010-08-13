@@ -31,6 +31,7 @@ from daobase import *
 class MysqlConnectionManager(RadioMateConnectionManager):
 		"given the right parameters connect to the database"
 		def __init__(self, dbhost, dbuser, dbpassword, database):
+				self.conn = None
 				RadioMateConnectionManager.__init__(self, dbhost, dbuser, dbpassword, database)
 				conn = MySQLdb.connect(
 								host = self.dbhost, 
@@ -42,7 +43,8 @@ class MysqlConnectionManager(RadioMateConnectionManager):
 				self.conn = conn
 
 		def __del__(self):
-				self.conn.close()
+				if self.conn:
+						self.conn.close()
 
 		def getMysqlConnection(self):
 				return self.conn

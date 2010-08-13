@@ -53,6 +53,11 @@ def main():
 
 		sys.exit(1)
 
-main()
+
+try:
+		main()
+except Exception, e:
+		raise SystemExit(str(e))
+
 
 
