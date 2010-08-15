@@ -1,11 +1,29 @@
 $Id$
 
-- when adding audio file take info from ID3 tags
+- web interface. Wordpress plug-in?
+- CGI upload, return response w/ new inserted mediafile with id and author, title taken from id3 tags
+- add mediafile.length 
 - test searching by tag 
 - add "limit" attributes to JSON requests
+- jingles between two transmissions
+	- jingleplaylist (config.)
+	- 1) change transfunction chosing random jingle from playlist
+		- j = fallback(track_sensitive=false, [random([jingle1, jingle2]), blank(duration=2.)])
+		  transjingle = fun(a,b) -> sequence([fade.final(a, type="sin"), fade.in(fade.out(j)), fade.initial(b, type="sin")])
+	- or 2) use the rotate() function
+- make an archive copy of transmission
+	- during the transmission save with output.file the same stream.
+		- jukeslot plugins: no more output.icecast blabla but finish with radio=...
+		- then append to the liq code output.icecast(radio) output.file(radio)
+	- take the new file, put it in the uploads dir and register it
+	- new mediafile bit: netcast
+		- change db change mate change dao
+	- update timeslot w/ id mediafile -> archived
+		- change db change mate change dao for archived property
+- make a commonif used by jsonif, to make radiomate extendable also to non-json interfaces
 
-- port to couchdb 
 - make a WSGI script instead of the CGI
+- port to couchdb 
 
 - grep -r TODO *
 

@@ -48,22 +48,8 @@ class LiveJukeSlot(JukeSlot):
 						[livestream, fallbackplaylist, blank()], 
 						transitions=[transfunction, transfunction, transfunction])
 				
-				def rewritemeta(m) = 
-					[("song", "%s")]
-				end
-				radio = map_metadata(rewritemeta, radio)
-				
-				output.icecast.mp3(
-					host='127.0.0.1', 
-					port = %d, 
-					password = "%s", 
-					mount = "radiomate.mp3", 
-					restart=true, 
-					description="%s",
-					radio)
 				""" % (config.LIVESTREAMPORT, self.slotparams['livepassword'], config.LIVESTREAMMOUNT,
-								self.getFallBackPlayListLiquidCode(), self.title, config.INTERNALJUKEPORT,
-								self.mainpassword, self.title)
+								self.getFallBackPlayListLiquidCode())
 				return liq
 
 JUKESLOTTYPEDICT['simplelive'] = LiveJukeSlot

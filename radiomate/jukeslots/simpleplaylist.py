@@ -49,15 +49,8 @@ class PlayListJukeSlot(JukeSlot):
 						transitions=[transfunction, transfunction, transfunction]
 						)
 				
-				output.icecast.mp3(
-						host='127.0.0.1', 
-						port = %d, 
-						password = "%s", 
-						mount = "radiomate.mp3", 
-						radio)
 
-				""" % (self.getPlayListLiquidCode(self.playlist.id), self.getFallBackPlayListLiquidCode(),
-								config.INTERNALJUKEPORT, self.mainpassword)
+				""" % (self.getPlayListLiquidCode(self.playlist.id), self.getFallBackPlayListLiquidCode())
 				self.logger.info("Starting playlist jukeslot")
 				return liq
 

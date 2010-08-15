@@ -86,6 +86,40 @@ class JukeSlot(Popen, mate.TimeSlot):
 				if r:
 						raise JukeSlotException("liquidsoap instance not running (exitcode %d)" % r)
 
+				if main:
+						# the main jukeslot forwards to the icecast server
+						liq += """
+						output.icecast.mp3(
+							host='%s', 
+							port = %d, 
+							password = "%s", 
+							mount = "%s", 
+							restart=true, 
+							description="%s", 
+							url="%s", 
+							radio)
+						""" % (config.ICECASTSERVER, config.ICECASTPORT, config.ICECASTPASSWORD, 
+										config.ICECASTMAINMOUNT, config.RADIONAME, config.RADIOURL)
+						self.logger.info("Starting main liquidsoap istance")
+				else:
+						# the secondary jukeslots forward to the main jukeslot
+						liq += """
+						def rewritemeta(m) = 
+							[("song", "%s - %s")]
+						end
+						radio = map_metadata(rewritemeta, radio)
+
+						output.icecast.mp3(
+							host='127.0.0.1', 
+							port = %d, 
+							password = "%s", 
+							mount = "radiomate.mp3", 
+							restart=true, 
+							description="%s",
+							radio)
+						""" % (self.title, self.description, config.INTERNALJUKEPORT, self.mainpassword, self.title)
+						self.logger.info("Starting secondary liquidsoap istance")
+
 				time.sleep(1)
 				self.stdin.write(liq)
 				self.stdin.close()

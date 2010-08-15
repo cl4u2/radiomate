@@ -77,20 +77,8 @@ class MainJukeSlot(JukeSlot):
 					transitions = [transfunction, transfunction, transfunction, transfunction]
 					)
 
-				output.icecast.mp3(
-					host='%s', 
-					port = %d, 
-					password = "%s", 
-					mount = "%s", 
-					restart=true, 
-					description="%s", 
-					url="%s", 
-					radio)
 
-				""" % (config.INTERNALJUKEPORT, self.getFallBackPlayListLiquidCode(), self.getPassword(), 
-								config.TAKEOVERMOUNTURL, config.ICECASTSERVER, config.ICECASTPORT, 
-								config.ICECASTPASSWORD, config.ICECASTMAINMOUNT, config.RADIONAME, 
-								config.RADIOURL)
-				self.logger.info("Starting main liquidsoap istance")
+				""" % (config.INTERNALJUKEPORT, self.getFallBackPlayListLiquidCode(), 
+								self.getPassword(), config.TAKEOVERMOUNTURL)
 				return liq
 

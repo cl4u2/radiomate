@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 13, 2010 at 06:46 PM
+-- Generation Time: Aug 15, 2010 at 04:47 PM
 -- Server version: 5.1.47
 -- PHP Version: 5.3.2
 
@@ -33,6 +33,10 @@ CREATE TABLE IF NOT EXISTS `compilation` (
   KEY `mediafile` (`mediafile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `compilation`
+--
+
 -- --------------------------------------------------------
 
 --
@@ -58,6 +62,11 @@ CREATE TABLE IF NOT EXISTS `mediafiles` (
   KEY `user` (`user`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `mediafiles`
+--
+
+
 -- --------------------------------------------------------
 
 --
@@ -70,6 +79,11 @@ CREATE TABLE IF NOT EXISTS `playlistowners` (
   PRIMARY KEY (`playlist`,`user`),
   KEY `user` (`user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `playlistowners`
+--
+
 
 -- --------------------------------------------------------
 
@@ -91,6 +105,11 @@ CREATE TABLE IF NOT EXISTS `playlists` (
   KEY `creator` (`creator`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `playlists`
+--
+
+
 -- --------------------------------------------------------
 
 --
@@ -103,6 +122,11 @@ CREATE TABLE IF NOT EXISTS `playlistviewers` (
   PRIMARY KEY (`playlist`,`user`),
   KEY `user` (`user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `playlistviewers`
+--
+
 
 -- --------------------------------------------------------
 
@@ -124,6 +148,13 @@ CREATE TABLE IF NOT EXISTS `roles` (
   `fixedSlotTimesList` mediumtext,
   PRIMARY KEY (`rolename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `roles`
+--
+
+INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES
+('admin', 1, 1, 1, 1, 1, 1, 1, -1, 1, '60,120');
 
 -- --------------------------------------------------------
 
@@ -150,6 +181,11 @@ CREATE TABLE IF NOT EXISTS `timeslots` (
   KEY `creator` (`creator`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
+--
+-- Dumping data for table `timeslots`
+--
+
+
 -- --------------------------------------------------------
 
 --
@@ -164,6 +200,13 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`name`),
   KEY `role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`name`, `password`, `role`, `displayname`) VALUES
+('foobar', 'e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4', 'admin', 'Foo Bar');
 
 --
 -- Constraints for dumped tables

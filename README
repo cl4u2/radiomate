@@ -77,6 +77,10 @@ Python is required). The steps can be summarized in:
   the simplelive.py and simpleplaylist.py files, inside the radiomate/jukeslots
   directory and use them as template for the new JukeSlot classes.
 
+  Write your own liquidsoap code inside the liquidsoapcode() method. The code
+  must contain a variable named "radio". The stream correspondig to this 
+  variable will be forwarded (at runtime) to the main jukeslot istance.
+
 - be sure to add a JUKESLOTTYPEDICT entry at the end of the file. For example,
   at the end of simplelive.py we have the line:
 

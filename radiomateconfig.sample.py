@@ -11,7 +11,7 @@ RADIOURL = "http://radiomate.org"
 
 # Logging
 LOGFILENAME = "/tmp/radiomate.log"
-LOGGINGLEVEL = logging.DEBUG
+LOGGINGLEVEL = logging.INFO
 
 # MySQL database parameters
 DBHOST="127.0.0.1"
