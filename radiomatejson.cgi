@@ -25,19 +25,36 @@ cgitb.enable()
 import cgi
 import radiomate.jsonif
 import sys
+import os
 
-print "Content-type: text/plain;charset=utf-8"
-print 
+MEDIAFILESHOMEDIR = "/tmp/"
+FILEUPLOADKEY = 'upload'
 
 fs = cgi.FieldStorage()
 try:
 		rk = fs.keys()[0]
-		req = fs.getfirst(rk, "no request")
+		if rk == FILEUPLOADKEY:
+				fileitem = fs[FILEUPLOADKEY]	
+				bfn = os.path.basename(fileitem.filename)
+				f = open(MEDIAFILESHOMEDIR + bfn, 'wb', 10000)
+				while True:
+						chunk = fileitem.file.read(10000)
+						if not chunk: break
+						f.write(chunk)
+				f.close()
+				req = None
+				resp = "file uploaded"
+		else:
+				req = fs.getfirst(rk, "no request")
 except:
+		raise
 		req = "no request"
 
-jp = radiomate.jsonif.JSONProcessor()
-resp = jp.process(req)
+if req:
+		jp = radiomate.jsonif.JSONProcessor()
+		resp = jp.process(req)
 
+print "Content-type: text/plain;charset=utf-8"
+print 
 print resp
 
