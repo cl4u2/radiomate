@@ -1,0 +1,39 @@
+<html>
+		<head>
+				<title> Welcome to RadioMate </title>
+				<link rel="stylesheet" href="css/radiomate0.css" type="text/css" />
+		</head>
+		<body>
+				<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+				<script src="js/test0.js"></script>
+				<div id="radioname"></div>
+				<div id="schedule"></div>
+				<div id="newroleform">
+						<form method="POST" action="#" id="newrole">
+								<label for="rolename">Role Name:</label>
+								<input type="text" name="rolename" id="rolename">
+								<label for="canManageRoles">canManageRoles:</label>
+								<input type="checkbox" name="canManageRoles" id="canManageRoles">
+								<label for="canManageUsers">canManageUsers:</label> 
+								<input type="checkbox" name="canManageUsers" id="canManageUsers">
+								<label for="canManageAllPlaylists">canManageAllPlaylists:</label> 
+								<input type="checkbox" name="canManageAllPlaylists" id="canManageAllPlaylists">
+								<label for="canRegisterFiles">canRegisterFiles:</label> 
+								<input type="checkbox" name="canRegisterFiles" id="canRegisterFiles">
+								<label for="canManageRegisteredFiles">canManageRegisteredFiles:</label> 
+								<input type="checkbox" name="canManageRegisteredFiles" id="canManageRegisteredFiles">
+								<label for="canManageTimetable">canManageTimetable:</label> 
+								<input type="checkbox" name="canManageTimetable" id="canManageTimetable">
+								<label for="fixedSlotTimes">fixedSlotTimes:</label> 
+								<input type="checkbox" name="fixedSlotTimes" id="fixedSlotTimes">
+								<label for="changeTimeBeforeTransmission">changeTimeBeforeTransmission:</label> 
+								<input type="text" name="changeTimeBeforeTransmission" id="changeTimeBeforeTransmission">
+								<label for="canCreateTestSlot">canCreateTestSlot:</label> 
+								<input type="checkbox" name="canCreateTestSlot" id="canCreateTestSlot">
+								<input type="submit" name="rolesubmit" id="rolesubmit" value="create/update">
+								<input type="reset" name="rolereset" id="rolereset" value="reset/clear">
+						</form>
+				</div>
+				<div id="wjs"></div>
+		</body>
+</html>
