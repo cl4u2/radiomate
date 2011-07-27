@@ -109,18 +109,25 @@ class JSONProcessor(object):
 						response = JsonResponse(RESPONSE_REQERROR, "Incorrect JSON Request [%s]" % str(e))
 						return response.dumps()
 
-				# validate username and password
-				try:
-						userdao = UserDAO(self.connectionmanager)
-						username = req['username']
-						password = req['password']
-						requser = userdao.logincheck(username, password)
-						if not requser: raise RadioMateJSONError("Login Error")
-				except Exception, e:
-						response = JsonResponse(RESPONSE_NOTALLOWED, "Incorrect Login [%s]" % str(e))
+				# if required get a new session ID from username and password
+				if req.has_key('request') and (req['request'] == 'login'):
+						try:
+								response = self.login(req)
+						except Exception, e:
+								response = JsonResponse(RESPONSE_NOTALLOWED, "Not Allowed [%s]" % str(e))
 						return response.dumps()
 
-				# TODO: implement password changing
+				# validate username and session ID
+				try:
+						sessiondao = SessionDAO(self.connectionmanager)
+						username = req['username']
+						sessionid = req['sessionid']
+						requser = sessiondao.checkSessionID(username, sessionid)
+						if not requser: 
+								raise RadioMateJSONError("Invalid session ID. Expired?")
+				except Exception, e:
+						response = JsonResponse(RESPONSE_NOTALLOWED, "Not Allowed [%s]" % str(e))
+						return response.dumps()
 				
 				# small python magic to call the method that has the same name of the request
 				if req.has_key('request') and (req['request'] in self.__class__.__dict__):
@@ -129,6 +136,24 @@ class JSONProcessor(object):
 						response = JsonResponse(RESPONSE_REQERROR, "Incorrect JSON Request")
 
 				return response.dumps()
+		
+		def login(self, req):
+				rd = {'requested': "login", 'username': None, 'sessionid': None}
+				try:
+						sessiondao = SessionDAO(self.connectionmanager)
+						username = req['username']
+						rd['username'] = username
+						password = req['password']
+						sessionid = sessiondao.newSession(username, password)
+						if not sessionid:
+								return JsonResponse(RESPONSE_NOTALLOWED, "Invalid username and/or password", rd)
+						else:
+								rd['sessionid'] = sessionid
+								return JsonResponse(RESPONSE_OK, "New Session", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+		
+		# TODO: implement logout 
 				
 		def createrole(self, requser, req):
 				rd = {'requested': "createrole", 'role': None}
@@ -327,7 +352,8 @@ class JSONProcessor(object):
 				except RadioMateDAOException, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 				except Exception, e:
-						pass
+						raise
+						#return JsonResponse(RESPONSE_ERROR, str(e), rd)
 				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
 
 		def edituser(self, requser, req):

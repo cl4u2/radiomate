@@ -4,18 +4,27 @@
 
  * when editing, leaving fields to null means that fields are left untouched
 
-[[TOC]]
+
+== Logging in ==
+
+{
+	"request": "login",
+	"username": <role creator's username>,
+	"password": <role creator's password>
+}
+
+The response contains a 'sessionid' key, whose value is to be used on subsequent requests
 
 == Users and Roles ==
 
 === Create a New Role ===
 
-{{{
+
 
 {
 	"request": "createrole",
 	"username": <role creator's username>,
-	"password": <role creator's password>,
+	"sessionid": <role creator's session ID>,
 	"role" : {
 		"rolename": <name>,
 		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
@@ -33,16 +42,16 @@
 
 
 
-}}}
+
 
 === Edit an Existing Role ===
 
-{{{
+
 
 {
 	"request": "editrole",
 	"username": <role editor's username>,
-	"password": <role editor's password>,
+	"sessionid": <role editor's session ID>,
 	"role" : {
 		"rolename": <name>, #mandatory
 		"canManageRoles": (true|false),  #true if the user can create/edit/delete roles
@@ -59,138 +68,138 @@
 }
 
 
-}}}
+
 
 === Remove an Existing Role ===
 
-{{{
+
 
 {
 	"request": "removerole",
 	"username": <role editor's username>,
-	"password": <role editor's password>,
+	"sessionid": <role editor's session ID>,
 	"rolename": <name> 
 }
 
 
-}}}
+
 
 === List all Roles ===
 
-{{{
+
 
 {
 	"request": "listroles",
 	"username": <requestor's username>,
-	"password": <requestor's password>,
+	"sessionid": <requestor's session ID>,
 }
 
-}}}
+
 
 === Get an Existing Role's details ===
 
-{{{
+
 
 {
 	"request": "getrole",
 	"username": <requestor's username>,
-	"password": <requestor's password>,
+	"sessionid": <requestor's session ID>,
 	"rolename": <requested role's name> 
 }
 
-}}}
+
 
 === Create a New User ===
 
-{{{
+
 
 {
 	"request":"createuser",
 	"username": <creator's username>,
-	"password": <creator's password>,
+	"sessionid": <creator's session ID>,
 	"user" : {
 		"name": <username>,
-		"password": <password>,
+		"sessionid": <session ID>,
 		"displayname": <name to be displayed>,
 		"rolename": <existing role name>
 	}
 }
 
 
-}}}
+
 
 === Edit an Existing User ===
 
-{{{
+
 
 {
 	"request":"edituser",
 	"username": <editor's username>,
-	"password": <editor's password>,
+	"sessionid": <editor's session ID>,
 	"user" : {
 		"name": <name>,
-		"password": <password>,
+		"sessionid": <session ID>,
 		"displayname": <name to be displayed>,
 		"rolename": <existing role name>
 	}
 }
 
 
-}}}
+
 
 === Remove an Existing User ===
 
-{{{
+
 
 {
 	"request": "removeuser",
 	"username": <user editor's username>,
-	"password": <user editor's password>,
+	"sessionid": <user editor's session ID>,
 	"name": <username of the user to be removed> 
 }
 
 
-}}}
+
 
 === Retrieve an User's Details ==
 
-{{{
+
 
 {
 	"request": "getuser",
 	"username": <requestor's username>,
-	"password": <requestor's password>
+	"sessionid": <requestor's session ID>
 	"name": <user name of the user to be retrieved>
 }
 
 
-}}}
+
 
 
 === List All Users ===
 
-{{{
+
 
 {
 	"request":"listusers",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 }
 
 
-}}}
+
 
 
 == Files and Playlists ==
 
 === Register an Audio File ===
 
-{{{
+
 
 {
 	"request": "registerfile",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"mediafile": {
 		"path": <local path of the file>,
 		"title": <title of the track>,
@@ -204,28 +213,28 @@
 	}
 }
 
-}}}
+
 
 === Get an Audio File ===
 
-{{{
+
 
 {
 	"request": "getfile",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"mediafileid": <id of the media file>
 }
 
-}}}
+
 
 === Search for an Audio File ===
 
-{{{
+
 {
 	"request": "searchfiles",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"mediafile": {
 		"id": <id of the file>,
 		"path": <partial or complete local path of the file>,
@@ -240,15 +249,15 @@
 	}
 }
 
-}}}
+
 
 === Edit an Audio File ===
 
-{{{
+
 {
 	"request": "editfile",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"mediafile": {
 		"id": <id of the file>,
 		"path": <new local path of the file or null to leave unchanged>,
@@ -264,30 +273,30 @@
 }
 
 
-}}}
+
 
 === Unregister an Audio File ===
 
-{{{
+
 
 {
 	"request": "unregisterfile",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"mediafileid": <id of the media file to be deregistered>
 }
 
-}}}
+
 
 
 === Create a New Playlist ===
 
-{{{
+
 
 {
 	"request": "createplaylist",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"playlist": {
 			"title": <a name for the playlist>,
 			"description": <a description of the playlist>,
@@ -307,16 +316,16 @@
 }
 
 
-}}}
+
 
 === Edit an Existing Playlist ===
 
-{{{
+
 
 {
 	"request": "editplaylist",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"playlist": {
 			"id": <the id of the existing playlist that we are editing>,
 			"title": <a new name for the playlist or null to leave unchanged>,
@@ -336,30 +345,30 @@
 	}
 }
 
-}}}
+
 
 === Remove an Existing Playlist ===
 
-{{{
+
 
 {
 	"request": "removeplaylist",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"playlistid": <id of the playlist to be removed>
 }
 
-}}}
+
 
 
 === Add Files to an Existing Playlist ===
 
-{{{
+
 
 {	
 	"request": "addfilestoplaylist",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"playlistid": <id of an existing playlist>,
 	"mediafileidlist": [ #ordered list of file ids
 		<id of a registered file>,
@@ -368,17 +377,17 @@
 	]
 }
 
-}}}
+
 
 
 === Remove Files from an Existing Playlist ===
 
-{{{
+
 
 {	
 	"request": "removefilesfromplaylist",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"playlistid": <id of an existing playlist>,
 	"mediafilepositionlist": [ # list of mediafile positions
 		<position of a file in the playlist>,
@@ -387,23 +396,23 @@
 	]
 }
 
-}}}
+
 
 
 === Change Position of file in an Existing Playlist ===
 
-{{{
+
 
 {	
 	"request": "movefilesinplaylist",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"playlistid": <id of an existing playlist>,
 	"oldmediafileposition": <old position of a file in the playlist>,
 	"newmediafileposition": <new position of a file in the playlist> 
 		#if there is already a file present, then the old one is moved one position further
 
-}}}
+
 
 
 === List Users' Playlists ===
@@ -413,29 +422,29 @@ List of playlists in which the user is owner or viewer
  * users with a role with the canManageAllPlaylists flag set to true are co-owners of all playlists
  * an owner of a playlist is also viewer 
 
-{{{
+
 
 {
 	"request": "listuserplaylists",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"user": <username or null>
 }
 
 
-}}}
+
 
 
 == Time Slots ==
 
 === Reserve a Timeslot ===
 
-{{{
+
 
 {
 	"request": "reservetimeslot",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"timeslot": {
 		"title": <title of the transmission>,
 		"description": <description of the transmission>,
@@ -458,30 +467,30 @@ List of playlists in which the user is owner or viewer
 }
 
 
-}}}
+
 
 === Unreserve a Timeslot ===
 
-{{{
+
 
 {
 	"request": "unreservetimeslot",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"timeslotid": <id of the timeslot to be removed>
 }
 
 
-}}}
+
 
 === Edit a Timeslot ===
 
-{{{
+
 
 {
 	"request": "edittimeslot",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"timeslot": {
 		"id": <id of the timeslot to be edited>,
 		"title": <title of the transmission>,
@@ -505,16 +514,16 @@ List of playlists in which the user is owner or viewer
 }
 
 
-}}}
+
 
 === List Timeslots ===
 
-{{{
+
 
 {
 	"request": "listtimeslots",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"timeslot": {
 		"id": <id of the timeslot or null>,
 		"title": <title of the transmission or null>,
@@ -540,28 +549,28 @@ List of playlists in which the user is owner or viewer
 }
 
 
-}}}
+
 
 === List Available Slot Types (for the timeslot.slottype field) ===
 
-{{{
+
 
 {
 	"request": "listslottypes",
 	"username": <username>,
-	"password": <password>
+	"sessionid": <session ID>
 }
 
-}}}
+
 
 === Test Slot ===
 
-{{{
+
 
 {
 	"request": "createtestslot",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"testslot": {
 		"slottype": <type of slot to be created>,
 		"duration": <duration of the testslot in minutes>,
@@ -573,7 +582,7 @@ List of playlists in which the user is owner or viewer
 
 
 
-}}}
+
 
 
 == Archive/Podcasts/Netcasts ==
@@ -585,7 +594,7 @@ NOT YET IMPLEMENTED
 {
 	"request": "listnetcasts",
 	"username": <username>,
-	"password": <password>,
+	"sessionid": <session ID>,
 	"netcast": {
 		"user": <owner of the transmission, or null>
 		"title": <complete or partial title of the transmission, or null>
@@ -613,7 +622,7 @@ NOT YET IMPLEMENTED
 		
 == Responses ==
 
-{{{
+
 
 {
 	"response": ("ok" | "notallowed" | "dontexists" | "alreadyexists" | "servererror" | "error" | "requesterror", "notimplemented"),
@@ -624,7 +633,7 @@ NOT YET IMPLEMENTED
 	<the response follows>
 }
 
-}}}
+
 
 
 $Id$

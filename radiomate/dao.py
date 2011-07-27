@@ -26,6 +26,7 @@ from daobase import RadioMateBadTimeSlotException
 from mysqldao import MysqlConnectionManager as DBConnectionManager
 from mysqldao import RoleMysqlDAO as RoleDAO 
 from mysqldao import UserMysqlDAO as UserDAO
+from mysqldao import SessionMysqlDAO as SessionDAO
 from mysqldao import MediaFileMysqlDAO as MediaFileDAO
 from mysqldao import PlayListMysqlDAO as PlayListDAO
 from mysqldao import TimeSlotMysqlDAO as TimeSlotDAO

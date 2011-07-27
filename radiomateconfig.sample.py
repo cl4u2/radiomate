@@ -19,6 +19,12 @@ DBUSER="mate"
 DBPASSWORD="radi0"
 DATABASE="radiomate0"
 
+# Seed for randomness
+SEED = "pleasechangemetosomethingrandom"
+
+# In how many minutes a session expires
+SESSIONEXPIRATION = 60
+
 # Default media file storage directory
 MEDIAFILESHOMEDIR = "/opt/radiomate/media/"
 

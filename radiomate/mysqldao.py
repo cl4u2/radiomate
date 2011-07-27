@@ -248,7 +248,6 @@ class RoleMysqlDAO(RadioMateParentMysqlDAO):
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 
-
 class UserMysqlDAO(RadioMateParentMysqlDAO):
 		"The MySQL Database Access Object for Users"
 		def __insert(self, userobject, cursor):
@@ -258,12 +257,14 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						name,
 						password,
 						displayname,
+						email,
 						role
 				) VALUES (
-				'%s', SHA1('%s'), '%s', '%s')""" % (
+				'%s', SHA1('%s'), '%s', '%s', '%s')""" % (
 						userobject.name,
 						userobject.password,
 						userobject.displayname,
+						userobject.email,
 						userobject.rolename
 				)
 				self.logger.debug(insertionstring)
@@ -274,6 +275,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				SELECT  
 						name,
 						displayname,
+						email,
 						role
 				FROM users
 				WHERE name = '%s'""" % username
@@ -293,6 +295,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				SELECT  
 						name,
 						displayname,
+						email,
 						role
 				FROM users"""
 				self.logger.debug(selectionstring)
@@ -305,10 +308,12 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				SET
 						password = SHA1('%s'),
 						displayname = '%s',
+						email = '%s',
 						role = '%s'
 				WHERE name = '%s'""" % (
 						userobject.password,
 						userobject.displayname,
+						userobject.email,
 						userobject.rolename,
 						userobject.name
 				)
@@ -320,6 +325,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				SELECT  
 						name,
 						displayname,
+						email,
 						role
 				FROM users
 				WHERE name = '%s' and password = SHA1('%s')""" % (username, password)
@@ -422,6 +428,86 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 		
+class SessionMysqlDAO(RadioMateParentMysqlDAO):
+		"Session management"
+		def __generateSessionId(self, username, cursor):
+				selectionstring = """
+				SELECT CONCAT(SHA1(CONCAT(CONNECTION_ID() + RAND(), '%s')), '') AS newid
+				""" % config.SEED
+				self.logger.debug(selectionstring)
+				cursor.execute(selectionstring)
+				return cursor.fetchall()[0]['newid']
+
+		def __newSession(self, username, sessionid, cursor):
+				insertionstring = """
+				REPLACE INTO sessions (
+						id,
+						user
+				) VALUES (
+				'%s', '%s'
+				) """ % (sessionid, username)
+				self.logger.debug(insertionstring)
+				cursor.execute(insertionstring)
+
+		def __removeExpiredSessions(self, cursor):
+				deletionstring = """
+				DELETE FROM sessions
+				WHERE TIMESTAMPADD(MINUTE, %d, `lastseen`) < CURRENT_TIMESTAMP();
+				""" % config.SESSIONEXPIRATION
+				self.logger.debug(deletionstring)
+				cursor.execute(deletionstring)
+
+		def __checkSessionID(self, username, sessionid, cursor):
+				selectionstring = """
+				SELECT `id` 
+				FROM `sessions` 
+				WHERE `user` = '%s' AND id = '%s' AND TIMESTAMPADD(MINUTE, %d, `lastseen`) > CURRENT_TIMESTAMP()
+				""" % (username, sessionid, config.SESSIONEXPIRATION)
+				self.logger.debug(selectionstring)
+				cursor.execute(selectionstring)
+				return cursor.fetchall()
+
+		def __refreshSession(self, sessionid, cursor):
+				updatestring = """
+				UPDATE IGNORE `sessions` 
+				SET `lastseen` = NOW() 
+				WHERE `id` = '%s'
+				""" % sessionid
+				self.logger.debug(updatestring) 
+				cursor.execute(updatestring)
+
+		def newSession(self, username, password):
+				"return a new session id (login the user)"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						userdao = UserMysqlDAO(self.conn)
+						u = userdao.logincheck(username, password)
+						if u != None:
+								sessionid = self.__generateSessionId(username, cursor)
+								self.__newSession(username, sessionid, cursor)
+								#self.__removeExpiredSessions(cursor)
+								return sessionid
+						else:
+								return None
+				except MySQLdb.Error, e:
+						raise RadioMateDAOException(e.args)
+
+		def checkSessionID(self, username, sessionid):
+				"check if the session ID is valid and refresh its expiration"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						resultdicts = self.__checkSessionID(username, sessionid, cursor)
+						res = len(resultdicts) >= 1
+						if res:
+								self.__refreshSession(sessionid, cursor)
+								userdao = UserMysqlDAO(self.conn)
+								u = userdao.getByName(username)
+								return u
+						else:
+								return None
+				except MySQLdb.Error, e:
+						raise RadioMateDAOException(e.args)
+
 
 class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 		"The MySQL Database Access Object for media files"
@@ -705,7 +791,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 						comment,
 						tags
 				) VALUES (
-				'%s', %d, '%s', '%s', '%s', '%s')""" % (
+				'%s', %d, '%s', '%s', '%s', '%s', '%s')""" % (
 						playlistobject.creator,
 						int(playlistobject.private),
 						int(playlistobject.random),

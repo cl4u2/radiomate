@@ -16,12 +16,23 @@ def processandcheck(jsonrequest, check = True, ret = None):
 		if ret:
 				return rd[ret]
 
-def roletest():
+def logintest():
+		jsonrequest = """
+		{
+			"request": "login",
+			"username": "foobar",
+			"password": "secret"
+		}
+		""" 
+		return processandcheck(jsonrequest, ret='sessionid')
+
+
+def roletest(sessionid):
 		jsonrequest = """
 		{
 			"request": "createrole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"role" : {
 				"rolename": "testrole",
 				"canManageRoles": false,
@@ -36,54 +47,54 @@ def roletest():
 				"canCreateTestSlot": false
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
 			"request": "getrole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"rolename": "testrole"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
 			"request": "listroles",
 			"username": "foobar",
-			"password": "secret"
+			"sessionid": "%s"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "removerole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"rolename": "testroule"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "removerole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"rolename": "testrole"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
-def usertest():
+def usertest(sessionid):
 		jsonrequest = """
 		{
 			"request": "createrole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"role" : {
 				"rolename": "testrole",
 				"canManageRoles": false,
@@ -98,79 +109,80 @@ def usertest():
 				"canCreateTestSlot": false
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "createuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"user" : {
 				"name": "testuser",
 				"password": "secrettest",
 				"displayname": "Test user",
+				"email": "test@test.net",
 				"rolename": "testrole"
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "getuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"name": "testuser"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
 			"request": "listusers",
-			"username": "testuser",
-			"password": "secrettest"
+			"username": "foobar",
+			"sessionid": "%s"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "removeuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"name": "testusser"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "removeuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"name": "testuser"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
 			"request": "removerole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"rolename": "testrole"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
-def mediafiletest():
+def mediafiletest(sessionid):
 		jsonrequest = """
 		{
 			"request": "createrole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"role" : {
 				"rolename": "testrole",
 				"canManageRoles": false,
@@ -185,14 +197,14 @@ def mediafiletest():
 				"canCreateTestSlot": false
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "createuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"user" : {
 				"name": "testuser",
 				"password": "secrettest",
@@ -200,14 +212,14 @@ def mediafiletest():
 				"rolename": "testrole"
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "registerfile",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"user" : {
 				"name": "testuser",
 				"password": "secrettest",
@@ -215,14 +227,14 @@ def mediafiletest():
 				"rolename": "testrole"
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "registerfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafile": {
 				"path": "ugly/test.mp3",
 				"title": "Just A Test Track",
@@ -235,7 +247,7 @@ def mediafiletest():
 				"tags": "me, justatest"
 			}
 		}
-		"""
+		""" % sessionid
 		mediafile = processandcheck(jsonrequest, ret='mediafile')
 		print mediafile
 		id = mediafile['id']
@@ -243,91 +255,91 @@ def mediafiletest():
 		jsonrequest = """
 		{
 			"request": "getfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafileid": %d
 		}
-		""" % id
+		""" % (sessionid, id)
 		mediafile = processandcheck(jsonrequest, ret='mediafile')
 		print mediafile
 		
 		jsonrequest = """
 		{
 			"request": "searchfiles",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafile": {
 				"path": "ugly/",
 				"year": 2010
 			}
 		}
-		"""
+		""" % sessionid
 		mediafilelist = processandcheck(jsonrequest, ret='mediafilelist')
 		print mediafilelist
 		
 		jsonrequest = """
 		{
 			"request": "searchfiles",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafile": {
 				"user": "testuser"
 			}
 		}
-		"""
+		""" % sessionid
 		mediafilelist = processandcheck(jsonrequest, ret='mediafilelist')
 		print mediafilelist
 		
 		jsonrequest = """
 		{
 			"request": "editfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafile": {
 				"id": %d,
 				"title": "It Was Just A Test Track"
 			}
 		}
-		""" % id
+		""" % (sessionid, id)
 		mediafile = processandcheck(jsonrequest, ret='mediafile')
 		print mediafile
 		
 		jsonrequest = """
 		{
 			"request": "unregisterfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafileid": %d
 		}
-		""" % id
+		""" % (sessionid, id)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "removeuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"name": "testuser"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
 			"request": "removerole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"rolename": "testrole"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
-def playlisttest():
+def playlisttest(sessionid):
 		jsonrequest = """
 		{
 			"request": "createrole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"role" : {
 				"rolename": "testrole",
 				"canManageRoles": false,
@@ -342,14 +354,14 @@ def playlisttest():
 				"canCreateTestSlot": false
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "createuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"user" : {
 				"name": "testuser",
 				"password": "secrettest",
@@ -357,14 +369,14 @@ def playlisttest():
 				"rolename": "testrole"
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "registerfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafile": {
 				"path": "ugly/test.mp3",
 				"title": "Just A Test Track",
@@ -377,15 +389,15 @@ def playlisttest():
 				"tags": "me, justatest"
 			}
 		}
-		"""
+		""" % sessionid
 		mediafile = processandcheck(jsonrequest, ret='mediafile')
 		id1 = mediafile['id']
 		
 		jsonrequest = """
 		{
 			"request": "registerfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafile": {
 				"path": "bad/test.mp3",
 				"title": "Just Another Test Track",
@@ -398,15 +410,15 @@ def playlisttest():
 				"tags": "me, justatest"
 			}
 		}
-		"""
+		""" % sessionid
 		mediafile = processandcheck(jsonrequest, ret='mediafile')
 		id2 = mediafile['id']
 		
 		jsonrequest = """
 		{
 			"request": "createplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlist": {
 					"title": "Test Playlist",
 					"description": "Some Test Tracks",
@@ -418,123 +430,123 @@ def playlisttest():
 					"owners": [ "testuser", "foobar" ]
 			}
 		}
-		"""
+		""" % sessionid
 		playlist = processandcheck(jsonrequest, ret='playlist')
 		pid = playlist['id']
 		
 		jsonrequest = """
 		{
 			"request": "addfilestoplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlistid": %d,
 			"mediafileidlist": [ %d, %d ]
 		}
-		""" % (pid, id1, id2)
+		""" % (sessionid, pid, id1, id2)
 		playlist = processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "movefilesinplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlistid": %d,
 			"oldmediafileposition": %d, 
 			"newmediafileposition": %d 
 		}
-		""" % (pid, 1, 0)
+		""" % (sessionid, pid, 1, 0)
 		playlist = processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "removefilesfromplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlistid": %d,
 			"mediafilepositionlist": [ 0 ]
 		}
-		""" % (pid)
+		""" % (sessionid, pid)
 		playlist = processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "editplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlist": {
 					"id": %d,
 					"title": "Modified Playlist"
 			}
 		}
-		""" % pid
+		""" % (sessionid, pid)
 		playlist = processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "listuserplaylists",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"user": "admin"
 		}
-		""" 
+		""" % sessionid
 		playlist = processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "removeplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlistid": %d
 		}
-		""" % pid
+		""" % (sessionid, pid)
 		playlist = processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "unregisterfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafileid": %d
 		}
-		""" % id1
+		""" % (sessionid, id1)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "unregisterfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafileid": %d
 		}
-		""" % id2
+		""" % (sessionid, id2)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "removeuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"name": "testuser"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
 			"request": "removerole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"rolename": "testrole"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
-def timeslottest():
+def timeslottest(sessionid):
 		jsonrequest = """
 		{
 			"request": "createrole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"role" : {
 				"rolename": "testrole",
 				"canManageRoles": false,
@@ -549,14 +561,14 @@ def timeslottest():
 				"canCreateTestSlot": false
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "createuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"user" : {
 				"name": "testuser",
 				"password": "secrettest",
@@ -564,14 +576,14 @@ def timeslottest():
 				"rolename": "testrole"
 			}
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest, check=False)
 		
 		jsonrequest = """
 		{
 			"request": "registerfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafile": {
 				"path": "ugly/test.mp3",
 				"title": "Just A Test Track",
@@ -584,15 +596,15 @@ def timeslottest():
 				"tags": "me, justatest"
 			}
 		}
-		"""
+		""" % sessionid
 		mediafile = processandcheck(jsonrequest, ret='mediafile')
 		id1 = mediafile['id']
 		
 		jsonrequest = """
 		{
 			"request": "registerfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafile": {
 				"path": "bad/test.mp3",
 				"title": "Just Another Test Track",
@@ -605,15 +617,15 @@ def timeslottest():
 				"tags": "me, justatest"
 			}
 		}
-		"""
+		""" % sessionid
 		mediafile = processandcheck(jsonrequest, ret='mediafile')
 		id2 = mediafile['id']
 		
 		jsonrequest = """
 		{
 			"request": "createplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlist": {
 					"title": "Test Playlist",
 					"description": "Some Test Tracks",
@@ -625,28 +637,28 @@ def timeslottest():
 					"owners": [ "testuser", "foobar" ]
 			}
 		}
-		"""
+		""" % sessionid
 		playlist = processandcheck(jsonrequest, ret='playlist')
 		pid = playlist['id']
 		
 		jsonrequest = """
 		{
 			"request": "addfilestoplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlistid": %d,
 			"mediafileidlist": [ %d, %d ]
 		}
-		""" % (pid, id1, id2)
+		""" % (sessionid, pid, id1, id2)
 		playlist = processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
 			"request": "listslottypes",
 			"username": "foobar",
-			"password": "secret"
+			"sessionid": "%s"
 		}
-		"""
+		""" % sessionid
 		slottypelist = processandcheck(jsonrequest, ret='slottypeslist')
 		print "slottypelist = " , slottypelist
 
@@ -654,7 +666,7 @@ def timeslottest():
 		{
 			"request": "reservetimeslot",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"timeslot" : {
 					"title": "Test Timeslot",
 					"description": "Some Test Tracks Transmission",
@@ -675,7 +687,7 @@ def timeslottest():
 					"tags": "me, justatest"
 			}
 		}
-		""" % pid
+		""" % (sessionid, pid)
 		timeslot = processandcheck(jsonrequest, ret = "timeslot")
 		tid = timeslot['id']
 		
@@ -683,44 +695,44 @@ def timeslottest():
 		{
 			"request": "edittimeslot",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"timeslot" : {
 					"id": %d,
 					"title": "Modified Test Timeslot"
 			}
 		}
-		""" % tid
+		""" % (sessionid, tid)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "listtimeslots",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"timeslot" : {
 					"title": "Test"
 			}
 		}
-		""" 
+		""" % sessionid
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "listtimeslots",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"timeslot" : {
 					"comment": "booo"
 			}
 		}
-		""" 
+		""" % sessionid
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "listtimeslots",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"timeslot" : {
 					"from": {
 						"year": 1970
@@ -731,26 +743,26 @@ def timeslottest():
 					}
 			}
 		}
-		""" 
+		""" % sessionid
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "listtimeslots",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"timeslot": {
 				"id": %d
 			}
 		}
-		""" % tid
+		""" % (sessionid, tid)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "edittimeslot",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"timeslot" : {
 					"id": %d,
 					"beginningtime": {
@@ -763,75 +775,76 @@ def timeslottest():
 					"duration": 60
 			}
 		}
-		""" % tid
+		""" % (sessionid, tid)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "unreservetimeslot",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"timeslotid" : %d
-		}""" % tid
+		}""" % (sessionid, tid)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "removeplaylist",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"playlistid": %d
 		}
-		""" % pid
+		""" % (sessionid, pid)
 		playlist = processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "unregisterfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafileid": %d
 		}
-		""" % id1
+		""" % (sessionid, id1)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "unregisterfile",
-			"username": "testuser",
-			"password": "secrettest",
+			"username": "foobar",
+			"sessionid": "%s",
 			"mediafileid": %d
 		}
-		""" % id2
+		""" % (sessionid, id2)
 		processandcheck(jsonrequest)
 		
 		jsonrequest = """
 		{
 			"request": "removeuser",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"name": "testuser"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
 		jsonrequest = """
 		{
 			"request": "removerole",
 			"username": "foobar",
-			"password": "secret",
+			"sessionid": "%s",
 			"rolename": "testrole"
 		}
-		"""
+		""" % sessionid
 		processandcheck(jsonrequest)
 
 
 # Perform some tests on the JSON interface
 jp = jsonif.JSONProcessor()
-roletest()
-usertest()
-mediafiletest()
-playlisttest()
-timeslottest()
+login = logintest()
+roletest(login)
+usertest(login)
+mediafiletest(login)
+playlisttest(login)
+timeslottest(login)
 
 

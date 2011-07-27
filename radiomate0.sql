@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 3.3.4
+-- version 3.4.3.1
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 15, 2010 at 04:47 PM
--- Server version: 5.1.47
--- PHP Version: 5.3.2
+-- Generation Time: Jul 27, 2011 at 10:54 PM
+-- Server version: 5.1.49
+-- PHP Version: 5.2.6-1+lenny9
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -33,10 +34,6 @@ CREATE TABLE IF NOT EXISTS `compilation` (
   KEY `mediafile` (`mediafile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dumping data for table `compilation`
---
-
 -- --------------------------------------------------------
 
 --
@@ -60,12 +57,7 @@ CREATE TABLE IF NOT EXISTS `mediafiles` (
   `tags` mediumtext,
   PRIMARY KEY (`id`),
   KEY `user` (`user`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `mediafiles`
---
-
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=67 ;
 
 -- --------------------------------------------------------
 
@@ -79,11 +71,6 @@ CREATE TABLE IF NOT EXISTS `playlistowners` (
   PRIMARY KEY (`playlist`,`user`),
   KEY `user` (`user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `playlistowners`
---
-
 
 -- --------------------------------------------------------
 
@@ -103,12 +90,7 @@ CREATE TABLE IF NOT EXISTS `playlists` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY `id` (`id`),
   KEY `creator` (`creator`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `playlists`
---
-
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 -- --------------------------------------------------------
 
@@ -122,11 +104,6 @@ CREATE TABLE IF NOT EXISTS `playlistviewers` (
   PRIMARY KEY (`playlist`,`user`),
   KEY `user` (`user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `playlistviewers`
---
-
 
 -- --------------------------------------------------------
 
@@ -153,8 +130,28 @@ CREATE TABLE IF NOT EXISTS `roles` (
 -- Dumping data for table `roles`
 --
 
-INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES
-('admin', 1, 1, 1, 1, 1, 1, 1, -1, 1, '60,120');
+INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES('admin', 1, 1, 1, 1, 1, 1, 1, -1, 1, '60,120');
+INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES('ddd', 0, 1, 1, 0, 0, 1, 0, 1440, 0, '15,30,45,60,75,90,105,120');
+INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES('s1', 1, 0, 0, 0, 0, 0, 0, 1440, 0, '15,30,45,60,75,90,105,120');
+INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES('s2', 1, 0, 0, 0, 0, 0, 0, 1440, 0, '15,30,45,60,75,90,105,120');
+INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES('s3', 0, 1, 0, 0, 0, 0, 0, 1440, 0, '15,30,45,60,75,90,105,120');
+INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES('s4', 1, 1, 0, 0, 0, 0, 1, 5, 0, '15,30,45,60,75,90,105,120');
+INSERT INTO `roles` (`rolename`, `canManageRoles`, `canManageUsers`, `canManageAllPlaylists`, `canRegisterFiles`, `canManageRegisteredFiles`, `canManageTimetable`, `fixedSlotTimes`, `changeTimeBeforeTransmission`, `canCreateTestSlot`, `fixedSlotTimesList`) VALUES('s5', 0, 0, 1, 0, 1, 1, 0, 1440, 0, '15,30,45,60,75,90,105,120');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sessions`
+--
+
+CREATE TABLE IF NOT EXISTS `sessions` (
+  `id` varchar(60) NOT NULL,
+  `user` varchar(60) NOT NULL,
+  `lastseen` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user` (`user`),
+  KEY `user_2` (`user`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -179,12 +176,7 @@ CREATE TABLE IF NOT EXISTS `timeslots` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `creator` (`creator`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `timeslots`
---
-
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 -- --------------------------------------------------------
 
@@ -196,7 +188,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `name` varchar(60) NOT NULL,
   `password` varchar(60) NOT NULL,
   `role` varchar(60) NOT NULL,
-  `displayname` varchar(100) DEFAULT NULL,
+  `displayname` varchar(100) NOT NULL DEFAULT '',
+  `email` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`name`),
   KEY `role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -205,8 +198,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`name`, `password`, `role`, `displayname`) VALUES
-('foobar', 'e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4', 'admin', 'Foo Bar');
+INSERT INTO `users` (`name`, `password`, `role`, `displayname`, `email`) VALUES('foobar', 'e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4', 'admin', 'Foo Bar', '');
 
 --
 -- Constraints for dumped tables
@@ -256,3 +248,7 @@ ALTER TABLE `timeslots`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role`) REFERENCES `roles` (`rolename`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

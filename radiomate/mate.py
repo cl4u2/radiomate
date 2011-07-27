@@ -211,6 +211,7 @@ class User(RadioMateParentClass):
 				self.__dict__.update({'name' : '',
 								'password' : '',
 								'displayname' : '',
+								'email' : '',
 								'rolename' : ''})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
