@@ -276,6 +276,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						name,
 						displayname,
 						email,
+						MD5(email) AS emailsmd5,
 						role
 				FROM users
 				WHERE name = '%s'""" % username
@@ -296,6 +297,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						name,
 						displayname,
 						email,
+						MD5(email) AS emailsmd5,
 						role
 				FROM users"""
 				self.logger.debug(selectionstring)
@@ -326,6 +328,7 @@ class UserMysqlDAO(RadioMateParentMysqlDAO):
 						name,
 						displayname,
 						email,
+						MD5(email) AS emailsmd5,
 						role
 				FROM users
 				WHERE name = '%s' and password = SHA1('%s')""" % (username, password)

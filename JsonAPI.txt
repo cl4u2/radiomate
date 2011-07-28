@@ -116,11 +116,12 @@ The response contains a 'sessionid' key, whose value is to be used on subsequent
 {
 	"request":"createuser",
 	"username": <creator's username>,
-	"sessionid": <creator's session ID>,
+	"sessionid": <session ID>,
 	"user" : {
 		"name": <username>,
-		"sessionid": <session ID>,
+		"password": <password>,
 		"displayname": <name to be displayed>,
+		"email": <user's email address>,
 		"rolename": <existing role name>
 	}
 }
@@ -135,11 +136,12 @@ The response contains a 'sessionid' key, whose value is to be used on subsequent
 {
 	"request":"edituser",
 	"username": <editor's username>,
-	"sessionid": <editor's session ID>,
+	"sessionid": <session ID>,
 	"user" : {
 		"name": <name>,
-		"sessionid": <session ID>,
+		"password": <password>, 
 		"displayname": <name to be displayed>,
+		"email": <user's email address>,
 		"rolename": <existing role name>
 	}
 }

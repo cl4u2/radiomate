@@ -1,0 +1,39 @@
+<html>
+		<head>
+				<title> Welcome to RadioMate </title>
+				<link rel="stylesheet" href="css/radiomate0.css" type="text/css" />
+				<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+				<script src="js/jquery.cookie.js"></script>
+				<script src="js/users.js"></script>
+		</head>
+		<body>
+				<div id="messages">message</div>
+				<div id="menu">
+						<ul class="menuclass">
+								<li>home</li>
+								<li><a href="roles.html">roles</a></li>
+								<li><a href="users.html">users</a></li>
+								<li>...</li>
+						</ul>
+				</div>
+				<div id="listofusers"></div>
+				<div id="newuserform">
+						<form method="POST" action="#" id="newuser">
+								<label for="username">User Name:</label>
+								<input type="text" name="name" id="name">
+								<label for="password">Password:</label>
+								<input type="text" name="password" id="password">
+								<label for="displayname">Display Name:</label>
+								<input type="text" name="displayname" id="displayname">
+								<label for="email">E-mail Address:</label>
+								<input type="text" name="email" id="email">
+								<label for="role">Role:</label>
+								<select name="rolename" id="rolename">
+								</select>
+								<input type="submit" name="usersubmit" id="usersubmit" value="create/update">
+								<input type="reset" name="userreset" id="userreset" value="reset/clear">
+						</form>
+				</div>
+		</body>
+</html>
+

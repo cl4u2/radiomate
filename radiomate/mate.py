@@ -212,6 +212,7 @@ class User(RadioMateParentClass):
 								'password' : '',
 								'displayname' : '',
 								'email' : '',
+								'emailsmd5': '',
 								'rolename' : ''})
 				RadioMateParentClass.__init__(self)
 				for k,v in classdict.iteritems(): 
