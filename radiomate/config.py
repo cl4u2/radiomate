@@ -24,7 +24,7 @@ DBPASSWORD="radi0"
 DATABASE="radiomate0"
 
 # Seed for randomness
-SEED = "pleasechangemetosomethingrandom"
+SALT = "pleasechangemetosomethingrandom"
 
 # In how many minutes a session expires
 SESSIONEXPIRATION = 60

@@ -433,7 +433,7 @@ class SessionMysqlDAO(RadioMateParentMysqlDAO):
 		def __generateSessionId(self, username, cursor):
 				selectionstring = """
 				SELECT CONCAT(SHA1(CONCAT(CONNECTION_ID() + RAND(), '%s')), '') AS newid
-				""" % config.SEED
+				""" % config.SALT
 				self.logger.debug(selectionstring)
 				cursor.execute(selectionstring)
 				return cursor.fetchall()[0]['newid']
