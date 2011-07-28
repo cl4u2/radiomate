@@ -108,13 +108,17 @@ class JSONProcessor(object):
 				except Exception, e:
 						response = JsonResponse(RESPONSE_REQERROR, "Incorrect JSON Request [%s]" % str(e))
 						return response.dumps()
+				
+				if not req.has_key('request') or (req['request'] == ''):
+						response = JsonResponse(RESPONSE_REQERROR, "Incorrect JSON Request [%s]" % str(e))
+						return response.dumps()
 
 				# if required get a new session ID from username and password
 				if req.has_key('request') and (req['request'] == 'login'):
 						try:
 								response = self.login(req)
 						except Exception, e:
-								response = JsonResponse(RESPONSE_NOTALLOWED, "Not Allowed [%s]" % str(e))
+								response = JsonResponse(RESPONSE_NOTALLOWED, "Not Allowed (Login) [%s]" % str(e))
 						return response.dumps()
 
 				# validate username and session ID
@@ -126,7 +130,7 @@ class JSONProcessor(object):
 						if not requser: 
 								raise RadioMateJSONError("Invalid session ID. Expired?")
 				except Exception, e:
-						response = JsonResponse(RESPONSE_NOTALLOWED, "Not Allowed [%s]" % str(e))
+						response = JsonResponse(RESPONSE_NOTALLOWED, "Not Allowed (Session) [%s]" % str(e))
 						return response.dumps()
 				
 				# small python magic to call the method that has the same name of the request
