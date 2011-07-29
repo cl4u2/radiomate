@@ -837,6 +837,15 @@ def timeslottest(sessionid):
 		""" % sessionid
 		processandcheck(jsonrequest)
 
+def logouttest(sessionid):
+		jsonrequest = """
+		{
+			"request": "logout",
+			"username": "foobar",
+			"sessionid": "%s"
+		}
+		""" % sessionid
+		return processandcheck(jsonrequest)
 
 # Perform some tests on the JSON interface
 jp = jsonif.JSONProcessor()
@@ -846,5 +855,6 @@ usertest(login)
 mediafiletest(login)
 playlisttest(login)
 timeslottest(login)
+logouttest(login)
 
 

@@ -5,15 +5,26 @@
  * when editing, leaving fields to null means that fields are left untouched
 
 
-== Logging in ==
+== Logging in and out ==
+
+=== Log in ===
 
 {
 	"request": "login",
-	"username": <role creator's username>,
-	"password": <role creator's password>
+	"username": <username>,
+	"password": <password>
 }
 
 The response contains a 'sessionid' key, whose value is to be used on subsequent requests
+
+=== Log out ===
+
+{
+	"request": "logout",
+	"username": <session ID>,
+	"sessionid": <password>
+}
+
 
 == Users and Roles ==
 

@@ -455,7 +455,7 @@ class SessionMysqlDAO(RadioMateParentMysqlDAO):
 		def __removeExpiredSessions(self, cursor):
 				deletionstring = """
 				DELETE FROM sessions
-				WHERE TIMESTAMPADD(MINUTE, %d, `lastseen`) < CURRENT_TIMESTAMP();
+				WHERE TIMESTAMPADD(MINUTE, %d, `lastseen`) < CURRENT_TIMESTAMP()
 				""" % config.SESSIONEXPIRATION
 				self.logger.debug(deletionstring)
 				cursor.execute(deletionstring)
@@ -479,6 +479,14 @@ class SessionMysqlDAO(RadioMateParentMysqlDAO):
 				self.logger.debug(updatestring) 
 				cursor.execute(updatestring)
 
+		def __removeSession(self, username, sessionid, cursor):
+				deletionstring = """
+				DELETE FROM sessions
+				WHERE `id` = '%s';
+				""" % sessionid
+				self.logger.debug(deletionstring)
+				cursor.execute(deletionstring)
+
 		def newSession(self, username, password):
 				"return a new session id (login the user)"
 				try:
@@ -488,7 +496,7 @@ class SessionMysqlDAO(RadioMateParentMysqlDAO):
 						if u != None:
 								sessionid = self.__generateSessionId(username, cursor)
 								self.__newSession(username, sessionid, cursor)
-								#self.__removeExpiredSessions(cursor)
+								self.__removeExpiredSessions(cursor)
 								return sessionid
 						else:
 								return None
@@ -508,6 +516,18 @@ class SessionMysqlDAO(RadioMateParentMysqlDAO):
 								return u
 						else:
 								return None
+				except MySQLdb.Error, e:
+						raise RadioMateDAOException(e.args)
+
+		def logout(self, username, sessionid):
+				"log out by deleting the session specified by sessionid"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						self.__removeSession(username, sessionid, cursor)
+						self.conn.commit()
+						cursor.close()
+						self.logger.debug("Number of session rows deleted: %d" % cursor.rowcount)
+						return cursor.rowcount >= 1
 				except MySQLdb.Error, e:
 						raise RadioMateDAOException(e.args)
 

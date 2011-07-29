@@ -157,8 +157,20 @@ class JSONProcessor(object):
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 		
-		# TODO: implement logout 
-				
+		def logout(self, requser, req):
+				rd = {'requested': "logout"}
+				try:
+						sessiondao = SessionDAO(self.connectionmanager)
+						username = req['username']
+						rd['username'] = username
+						sessionid = req['sessionid']
+						if sessiondao.logout(username, sessionid):
+								return JsonResponse(RESPONSE_OK, "Logged out", rd)
+						else:
+								return JsonResponse(RESPONSE_NOTALLOWED, "Invalid username and/or session id", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
 		def createrole(self, requser, req):
 				rd = {'requested': "createrole", 'role': None}
 				if not requser.role.canManageRoles:
