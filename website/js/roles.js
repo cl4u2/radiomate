@@ -6,10 +6,6 @@
 var user = '';
 var session = '';
 
-$.fn.log = function(resp) {
-		console.log(resp.responsen + "|" + resp.requested + "|" + resp.response + "|" + resp.description);
-}
-
 $.fn.delRoles = function() {
 		var rcount = $('.delroles:checked').length;
 		if(rcount == 0)
@@ -112,7 +108,6 @@ $.fn.listRoles = function() {
 				t.html("");
 				if(data.responsen == 0) {
 						t.append($.fn.renderRolesTableVert(data.rolelist));
-						t.removeClass("redclass");
 						
 						/* Role deletion event */ 
 						$("#delbutton").click($.fn.delRoles);
@@ -120,7 +115,7 @@ $.fn.listRoles = function() {
 						/* Role editing event */
 						$(".editrole").click($.fn.editRole);
 				} else {
-						//TODO: handle this
+						// TODO: handle this
 				}
 		});
 };

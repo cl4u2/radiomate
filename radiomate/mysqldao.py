@@ -482,8 +482,8 @@ class SessionMysqlDAO(RadioMateParentMysqlDAO):
 		def __removeSession(self, username, sessionid, cursor):
 				deletionstring = """
 				DELETE FROM sessions
-				WHERE `id` = '%s';
-				""" % sessionid
+				WHERE `user` = '%s';
+				""" % username
 				self.logger.debug(deletionstring)
 				cursor.execute(deletionstring)
 
@@ -495,8 +495,8 @@ class SessionMysqlDAO(RadioMateParentMysqlDAO):
 						u = userdao.logincheck(username, password)
 						if u != None:
 								sessionid = self.__generateSessionId(username, cursor)
-								self.__newSession(username, sessionid, cursor)
 								self.__removeExpiredSessions(cursor)
+								self.__newSession(username, sessionid, cursor)
 								return sessionid
 						else:
 								return None

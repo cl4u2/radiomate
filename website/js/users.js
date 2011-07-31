@@ -6,10 +6,6 @@
 var user = '';
 var session = '';
 
-$.fn.log = function(resp) {
-		console.log(resp.responsen + "|" + resp.requested + "|" + resp.response + "|" + resp.description);
-}
-
 $.fn.delUsers = function() {
 		var rcount = $('.delusers:checked').length;
 		if(rcount == 0)
