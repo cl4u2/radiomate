@@ -30,31 +30,34 @@ import os
 MEDIAFILESHOMEDIR = "/tmp/"
 FILEUPLOADKEY = 'upload'
 
+print "Content-type: text/plain;charset=utf-8"
+print 
+
 fs = cgi.FieldStorage()
 try:
 		rk = fs.keys()[0]
 		if rk == FILEUPLOADKEY:
 				fileitem = fs[FILEUPLOADKEY]	
 				bfn = os.path.basename(fileitem.filename)
-				f = open(MEDIAFILESHOMEDIR + bfn, 'wb', 10000)
+				longpath = MEDIAFILESHOMEDIR + bfn 
+				f = open(longpath, 'wb', 10000)
 				while True:
 						chunk = fileitem.file.read(10000)
 						if not chunk: break
 						f.write(chunk)
 				f.close()
 				req = None
-				resp = "file uploaded"
+				resp = '{"requested": "upload", "warning": null, "description": "file uploaded", "responsen": 0, "response": "ok", "path": "%s"}' % longpath
 		else:
 				req = fs.getfirst(rk, "no request")
-except:
-		raise
+except Exception:
+		print fs
+		raise #debug
 		req = "no request"
 
 if req:
 		jp = radiomate.jsonif.JSONProcessor()
 		resp = jp.process(req)
 
-print "Content-type: text/plain;charset=utf-8"
-print 
 print resp
 
