@@ -627,6 +627,31 @@ class JSONProcessor(object):
 				rd['listlength'] = len(mediafilelist)
 				rd['mediafilelist'] = mediafilelist
 				return JsonResponse(RESPONSE_OK, "List Follows", rd)
+		
+		def fullsearchfiles(self, requser, req):
+				rd = {'requested': "fullsearchfiles", 'listlength': 0, 'mediafilelist': []}
+				try:
+						searchterm = req['q'].strip()
+						rd['q'] = searchterm
+				except Exception, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON Syntax [%s]" % str(e), rd)
+
+				try:
+						mediafiledao = MediaFileDAO(self.connectionmanager)
+						mlist = mediafiledao.searchAllFields(searchterm)
+				except Exception, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				
+				mediafilelist = []
+				for m in mlist:
+						try:
+								mediafilelist.append(m.dictexport())
+						except Exception, e:
+								return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
+				rd['listlength'] = len(mediafilelist)
+				rd['mediafilelist'] = mediafilelist
+				return JsonResponse(RESPONSE_OK, "List Follows", rd)
 
 		def editfile(self, requser, req):
 				"""An user can edit her own files or, if she has the 

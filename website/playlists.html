@@ -13,19 +13,22 @@
 		<body>
 				<div id="messages">message</div>
 				<div id="menu"></div>
-				<div id="listoffiles"></div>
+				<div id="searchnlist">
+						Search: <input type="text" id="search1">
+						<div id="listoffiles"></div>
+				</div>
 						<div id="fileupload">
 								<form id="fileuploadform" method="POST" action="/cgi-bin/radiomatejson.cgi" enctype="multipart/form-data">
-										<span>Add files...</span>
+										<span>Add file:</span>
 										<input type="file" name="upload" id="fileupload">
+										<br/>
 										<button type="submit">Upload</button>
 										<button type="reset">Cancel upload</button>
 								</form>
 						</div>
 						<div id="fileedit">
 						<form id="fileeditform" method="GET" action="#" id="newfile">
-								<label for="id">id:</label>
-								<input type="text" name="id" id="id" value="0" readonly="readonly">
+								<input type="hidden" name="id" id="id" value="0" readonly="readonly">
 								<label for="path">Path:</label>
 								<input type="text" name="path" id="path" readonly="readonly">
 								<label for="title">Title:</label>

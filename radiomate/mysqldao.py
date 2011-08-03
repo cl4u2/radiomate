@@ -657,6 +657,38 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 				self.logger.debug(searchstring)
 				cursor.execute(searchstring)
 				return cursor.fetchall()
+		
+		def __searchAllFields(self, searchterm, cursor):
+				searchstring = """
+				SELECT  
+						id,
+						user, 
+						path, 
+						type,
+						title,
+						author,
+						album,
+						genre,
+						year,
+						comment,
+						license,
+						tags
+				FROM mediafiles
+				WHERE 
+						user  LIKE '%%%s%%' OR
+						path  LIKE '%%%s%%' OR
+						title LIKE '%%%s%%' OR
+						author LIKE '%%%s%%' OR
+						album LIKE '%%%s%%' OR
+						genre LIKE '%%%s%%' OR
+						year LIKE '%%%s%%' OR
+						comment LIKE '%%%s%%' OR
+						license LIKE '%%%s%%' OR
+						tags LIKE '%%%s%%' 
+				""" % tuple([searchterm]*10)
+				self.logger.debug(searchstring)
+				cursor.execute(searchstring)
+				return cursor.fetchall()
 
 		def __update(self, mediafileobject, cursor):
 				updatestring = """
@@ -760,6 +792,22 @@ class MediaFileMysqlDAO(RadioMateParentMysqlDAO):
 				try:
 						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
 						resultdicts = self.__search(partialmediafile, cursor)
+						cursor.close()
+
+						self.logger.debug("Number of mediafile rows fetched while searching: %d" % len(resultdicts))
+
+						res = []
+						for mf in resultdicts:
+								res.append(MediaFile(mf))
+						return res
+				except MySQLdb.Error, e:
+						raise RadioMateDAOException(e.args)
+		
+		def searchAllFields(self, searchterm):
+				"Search for a media file"
+				try:
+						cursor = self.conn.cursor(MySQLdb.cursors.DictCursor)
+						resultdicts = self.__searchAllFields(searchterm, cursor)
 						cursor.close()
 
 						self.logger.debug("Number of mediafile rows fetched while searching: %d" % len(resultdicts))

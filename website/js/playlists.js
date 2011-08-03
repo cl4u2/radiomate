@@ -5,6 +5,7 @@
 
 var user = '';
 var session = '';
+var firstsearch = true;
 
 $.fn.renderFileList = function(filelist) {
 		/* Render list */
@@ -14,11 +15,22 @@ $.fn.renderFileList = function(filelist) {
 				s += "<option value='" + tmp.id + "'>" + tmp.author + " -" + tmp.title + "[" + tmp.album + "] </option>";
 		});
 
-		return '<select id="filelist" size="50" multiple="multiple">' + s + '</select>';
+		return '<select id="filelist" size="30" multiple="multiple">' + s + '</select>';
 }
 
-$.fn.listFiles = function() {
-		var r0 = {request: "searchfiles", username: user, sessionid: session, mediafile: {}};
+$.fn.delSearch = function() {
+		this.value = "";
+		firstsearch = false;
+		$(this).unbind('focus');
+};
+
+$.fn.changeSearch = function() {
+		searchterm = this.value;
+		$.fn.listFiles(searchterm);
+};
+
+$.fn.listFiles = function(searchterm) {
+		var r0 = {request: "fullsearchfiles", username: user, sessionid: session, q: searchterm};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
 				var t = $("#listoffiles");
@@ -58,7 +70,7 @@ $.fn.registerFileAndLoad = function(mediafile){
 				if(data.responsen == 0) {
 						var mf = data.mediafile;
 						$.fn.loadEditForm(mf);
-						$.fn.listFiles();
+						$.fn.listFiles("");
 				} else {
 						//TODO: handle this
 				}
@@ -100,7 +112,7 @@ $.fn.updatefile = function (e){
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
 				if(data.responsen == 0) {
-						$.fn.listFiles();
+						$.fn.listFiles("");
 				} else {
 						//TODO: handle this
 				}
@@ -138,12 +150,14 @@ $(document).ready(function(){
 		user = $.cookie("username");
 		session = $.cookie("sessionid");
 
-		$("input, select").each(function(){
+		$("input[type='text'], select").each(function(){
 				$(this).after("<br />");
 		});
-		$.fn.listFiles();
+		$.fn.listFiles("");
 		$('#fileuploadform').ajaxForm({dataType: 'json', success: $.fn.processfileupload, resetForm: true});
 		$('#fileeditform').submit($.fn.updatefile);
 		$('#filerescan').click($.fn.rescanfile);
+		$('#search1').focus($.fn.delSearch);
+		$('#search1').keyup($.fn.changeSearch);
 });
 

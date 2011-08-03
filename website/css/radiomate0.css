@@ -138,6 +138,7 @@ input[type=SUBMIT], input[type=BUTTON], input[type=RESET], button {
 
 #filelist {
 		height: 500px;
+		width: 300px;
 }
 img {
     border-color: #000000;

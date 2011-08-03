@@ -272,6 +272,14 @@ The response contains a 'sessionid' key, whose value is to be used on subsequent
 	}
 }
 
+== Search on all fields ==
+
+{
+	"request": "fullsearchfiles",
+	"username": <username>,
+	"sessionid": <session ID>,
+	"q": <search term>
+}
 
 
 === Edit an Audio File ===
