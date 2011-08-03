@@ -828,11 +828,11 @@ class JSONProcessor(object):
 				try:
 						playlistdao = PlayListDAO(self.connectionmanager)
 						mediafiledao = MediaFileDAO(self.connectionmanager)
-						playlistid = req['playlistid']
+						playlistid = int(req['playlistid'])
+						mediafileidlist = []
 						if len(req['mediafileidlist']) == 0:
 								JsonResponse(RESPONSE_OK, "Ok, but no files added to the playlist", rd)
 						else:
-								mediafileidlist = []
 								for ids in req['mediafileidlist']:
 										mediafileidlist.append(int(ids))
 						p = playlistdao.getById(playlistid)

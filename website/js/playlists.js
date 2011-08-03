@@ -182,7 +182,15 @@ $.fn.listPlaylists = function() {
 								var r0 = {request: "getplaylist", username: user, sessionid: session, playlistid: this.value};
 								$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 										$.fn.log(data);
-										$.fn.loadPlaylistEditForm(data.playlist);
+										if(data.responsen == 0) {
+												$.fn.loadPlaylistEditForm(data.playlist);
+												var t = $("#playlistcontent");
+												t.html("");
+												filelist = $.fn.renderFileList(data.playlist.mediafilelist);
+												t.append(filelist);
+										} else {
+												// TODO: handle this
+										}
 								});
 						});
 				} else {
@@ -224,6 +232,40 @@ $.fn.updateplaylist = function (e){
 		return false;
 };
 
+$.fn.addFiles2Playlist = function() {
+		var playlistid = $('#listofplaylists option:selected').val();
+		if(!playlistid) {
+			// TODO: remove this alert
+			alert('no valid playlist selected');
+			return false;
+		}
+		var fileids = Array();
+		$('#listoffiles option:selected').each(function() {
+						fileid = $(this).val();
+						fileids.push(fileid);
+		});
+		//alert(fileids.length);
+		var r0 = {request: "addfilestoplaylist", username: user, sessionid: session, playlistid: playlistid, mediafileidlist: fileids};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				if(data.responsen == 0) {
+						//reload the playlist
+						var r0 = {request: "getplaylist", username: user, sessionid: session, playlistid: playlistid};
+						$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+								$.fn.log(data);
+								if(data.responsen == 0) {
+										var t = $("#playlistcontent");
+										filelist = $.fn.renderFileList(data.playlist.mediafilelist);
+										t.html(filelist);
+								} else {
+										// TODO: handle this
+								}
+						});
+				} else {
+				}
+		});
+};
+
 $(document).ready(function(){
 		user = $.cookie("username");
 		session = $.cookie("sessionid");
@@ -238,6 +280,8 @@ $(document).ready(function(){
 		$('#search1').focus($.fn.delSearch);
 		$('#search1').keyup($.fn.changeSearch);
 		$('#playlisteditform').submit($.fn.updateplaylist);
+		//$('#removebutton').click($.fn.removeFilesFromPlaylist);
+		$('#addbutton').click($.fn.addFiles2Playlist);
 		$.fn.listPlaylists();
 });
 

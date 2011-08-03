@@ -153,6 +153,6 @@ img {
 		float: left;
 		clear: left;
 		width: 8em;
-		padding-bottom: 1024px;
+		/* padding-bottom: 1024px; */
 		padding-left: 0px;
 }
