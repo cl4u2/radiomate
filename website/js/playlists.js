@@ -311,6 +311,40 @@ $.fn.removeFilesFromPlaylist = function() {
 		});
 };
 
+$.fn.filemove = function(direction) {
+		var playlistid = $('#listofplaylists option:selected').val();
+		if(!playlistid) {
+			// TODO: remove this alert
+			alert('no valid playlist selected');
+			return false;
+		}
+		var fileposition = $('#playlistcontent option:selected').val();
+		var newfileposition = parseInt(fileposition) + direction;
+		var r0 = {request: "movefilesinplaylist", username: user, sessionid: session, playlistid: playlistid, oldmediafileposition: fileposition, newmediafileposition: newfileposition};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				if(data.responsen == 0) {
+						//reload the playlist
+						var r0 = {request: "getplaylist", username: user, sessionid: session, playlistid: playlistid};
+						$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+								$.fn.log(data);
+								if(data.responsen == 0) {
+										var t = $("#playlistcontent");
+										filelist = $.fn.renderPlayListContent(data.playlist.mediafilelist);
+										t.html(filelist);
+								} else {
+										// TODO: handle this
+								}
+						});
+				} else {
+					// TODO
+				}
+		});
+};
+
+$.fn.fileup = function() { return $.fn.filemove(-1) };
+$.fn.filedown = function() { return $.fn.filemove(+1) };
+
 $(document).ready(function(){
 		user = $.cookie("username");
 		session = $.cookie("sessionid");
@@ -327,6 +361,8 @@ $(document).ready(function(){
 		$('#playlisteditform').submit($.fn.updateplaylist);
 		$('#addbutton').click($.fn.addFiles2Playlist);
 		$('#removebutton').click($.fn.removeFilesFromPlaylist);
+		$('#upbutton').click($.fn.fileup);
+		$('#downbutton').click($.fn.filedown);
 		$.fn.listPlaylists();
 });
 

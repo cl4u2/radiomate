@@ -904,9 +904,9 @@ class JSONProcessor(object):
 				try:
 						playlistdao = PlayListDAO(self.connectionmanager)
 
-						playlistid = req['playlistid']
-						oldmediafileposition = req['oldmediafileposition']
-						newmediafileposition = req['newmediafileposition']
+						playlistid = int(req['playlistid'])
+						oldmediafileposition = int(req['oldmediafileposition'])
+						newmediafileposition = int(req['newmediafileposition'])
 
 						p = playlistdao.getById(playlistid)
 						
@@ -931,7 +931,10 @@ class JSONProcessor(object):
 								elif newmediafileposition <= 0:
 										mflist.insert(0, oldmf)
 								else:
-										mflist.insert(newmediafileposition, oldmf)
+										if newmediafileposition > oldmediafileposition:
+												mflist.insert(newmediafileposition + 1, oldmf)
+										else:
+												mflist.insert(newmediafileposition, oldmf)
 
 								if newmediafileposition > oldmediafileposition:
 										del mflist[oldmediafileposition]
@@ -940,7 +943,7 @@ class JSONProcessor(object):
 								assert len(mflist) == listlen
 
 								p.mediafilelist = mflist
-
+								playlistdao.update(p)
 						rd['playlist'] = p.dictexport()
 						return JsonResponse(RESPONSE_OK, "Playlist successfully edited", rd)
 
