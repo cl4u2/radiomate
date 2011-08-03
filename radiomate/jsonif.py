@@ -27,7 +27,7 @@ import config
 from mate import *
 from dao import *
 from jukeslots.all import *
-
+from mutagen.easyid3 import EasyID3
 
 RESPONSE_OK = 0
 RESPONSE_NOTALLOWED = 101
@@ -516,9 +516,6 @@ class JSONProcessor(object):
 				except Exception, e:
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
 
-				# TODO: check if file exists
-				# config.MEDIAFILESHOMEDIR
-
 				# check if file has already been registered
 				try:
 						mcheck = mediafiledao.getByPath(m.path)
@@ -539,6 +536,44 @@ class JSONProcessor(object):
 				except Exception, e:
 						pass
 				return JsonResponse(RESPONSE_ERROR, "Unknown Error", rd)
+
+		def scanfile(self, requser, req):
+				"Scan a file for ID3 tags and return them. No registration is performed."
+				rd = {'requested': "scanfile", 'mediafile': None}
+				try:
+						mpath = req['path']
+						mfid3 = EasyID3(mpath)
+						m = MediaFile()
+						m.path = mpath
+						m.user = requser.name
+				except KeyError, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON Syntax. Mediafile missing?", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+				try:
+						m.author = str(mfid3['artist'][0])
+				except KeyError, e:
+						pass
+
+				try:
+						m.album = str(mfid3['album'][0])
+				except KeyError, e:
+						pass
+				
+				try:
+						m.year = int(mfid3['date'][0])
+				except KeyError, e:
+						pass
+				except ValueError, e:
+						pass
+				
+				try:
+						m.title = str(mfid3['title'][0])
+				except KeyError, e:
+						pass
+
+				rd['mediafile'] = m.dictexport()
+				return JsonResponse(RESPONSE_OK, "MediaFile Scanned", rd)
 		
 		def getfile(self, requser, req):
 				rd = {'requested': "getfile", 'mediafile': None}

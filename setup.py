@@ -16,7 +16,8 @@ setup(
 						'radiomate.jukeslots' 
 						],
 				requires=[
-						'MySQLdb'
+						'MySQLdb',
+						'mutagen'
 						]
 				)
 
