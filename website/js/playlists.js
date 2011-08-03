@@ -23,7 +23,7 @@ $.fn.renderPlayListContent = function(filelist) {
 		var s = "";
 		$.each(filelist, function(){
 				var tmp = this;
-				s += "<option value='" + tmp.position + "'>" + tmp.author + " -" + tmp.title + "[" + tmp.album + "] </option>";
+				s += "<option value='"+ tmp.id +"' id='" + tmp.position + "'>" + tmp.author + " -" + tmp.title + "[" + tmp.album + "] </option>";
 		});
 
 		return '<select id="playlistcontentlist" size="30" multiple="multiple">' + s + '</select>';
@@ -40,6 +40,14 @@ $.fn.changeSearch = function() {
 		$.fn.listFiles(searchterm);
 };
 
+$.fn.getAndLoadFile = function(v) {
+		var r0 = {request: "getfile", username: user, sessionid: session, mediafileid: v};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				$.fn.loadFileEditForm(data.mediafile);
+		});
+};
+
 $.fn.listFiles = function(searchterm) {
 		var r0 = {request: "fullsearchfiles", username: user, sessionid: session, q: searchterm};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
@@ -48,13 +56,7 @@ $.fn.listFiles = function(searchterm) {
 				t.html("");
 				if(data.responsen == 0) {
 						t.append($.fn.renderFileList(data.mediafilelist));
-						$('#filelist option').dblclick(function(){
-								var r0 = {request: "getfile", username: user, sessionid: session, mediafileid: this.value};
-								$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
-										$.fn.log(data);
-										$.fn.loadFileEditForm(data.mediafile);
-								});
-						});
+						$('#filelist option').dblclick(function(){ $.fn.getAndLoadFile(this.value); });
 				} else {
 						//TODO: handle this
 				}
@@ -199,6 +201,7 @@ $.fn.listPlaylists = function() {
 												t.html("");
 												filelist = $.fn.renderPlayListContent(data.playlist.mediafilelist);
 												t.append(filelist);
+												$('#playlistcontentlist option').dblclick(function() {$.fn.getAndLoadFile(this.value); });
 										} else {
 												// TODO: handle this
 										}
@@ -318,8 +321,9 @@ $.fn.filemove = function(direction) {
 			alert('no valid playlist selected');
 			return false;
 		}
-		var fileposition = $('#playlistcontent option:selected').val();
+		var fileposition = $('#playlistcontent option:selected').attr('id');
 		var newfileposition = parseInt(fileposition) + direction;
+		alert(fileposition + "->" + newfileposition);
 		var r0 = {request: "movefilesinplaylist", username: user, sessionid: session, playlistid: playlistid, oldmediafileposition: fileposition, newmediafileposition: newfileposition};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
@@ -342,8 +346,6 @@ $.fn.filemove = function(direction) {
 		});
 };
 
-$.fn.fileup = function() { return $.fn.filemove(-1) };
-$.fn.filedown = function() { return $.fn.filemove(+1) };
 
 $(document).ready(function(){
 		user = $.cookie("username");
@@ -361,8 +363,8 @@ $(document).ready(function(){
 		$('#playlisteditform').submit($.fn.updateplaylist);
 		$('#addbutton').click($.fn.addFiles2Playlist);
 		$('#removebutton').click($.fn.removeFilesFromPlaylist);
-		$('#upbutton').click($.fn.fileup);
-		$('#downbutton').click($.fn.filedown);
+		$('#upbutton').click(function() { return $.fn.filemove(-1); });
+		$('#downbutton').click(function() { return $.fn.filemove(+1); });
 		$.fn.listPlaylists();
 });
 
