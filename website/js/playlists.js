@@ -287,7 +287,6 @@ $.fn.removeFilesFromPlaylist = function() {
 		var filepos = Array();
 		$('#playlistcontent option:selected').each(function() {
 						fileposition = $(this).val();
-						alert(fileposition);
 						filepos.push(fileposition);
 		});
 		var r0 = {request: "removefilesfromplaylist", username: user, sessionid: session, playlistid: playlistid, mediafilepositionlist: filepos};
