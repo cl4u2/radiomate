@@ -865,7 +865,7 @@ class JSONProcessor(object):
 				rd = {'requested': "removefilesfromplaylist", 'numberoffilesremoved': 0, 'playlist': None}
 				try:
 						playlistdao = PlayListDAO(self.connectionmanager)
-						playlistid = req['playlistid']
+						playlistid = int(req['playlistid'])
 						if len(req['mediafilepositionlist']) == 0:
 								JsonResponse(RESPONSE_OK, "Ok, but no files removed from the playlist", rd)
 						else:

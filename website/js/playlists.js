@@ -18,6 +18,17 @@ $.fn.renderFileList = function(filelist) {
 		return '<select id="filelist" size="30" multiple="multiple">' + s + '</select>';
 }
 
+$.fn.renderPlayListContent = function(filelist) {
+		/* Render list */
+		var s = "";
+		$.each(filelist, function(){
+				var tmp = this;
+				s += "<option value='" + tmp.position + "'>" + tmp.author + " -" + tmp.title + "[" + tmp.album + "] </option>";
+		});
+
+		return '<select id="playlistcontentlist" size="30" multiple="multiple">' + s + '</select>';
+}
+
 $.fn.delSearch = function() {
 		this.value = "";
 		firstsearch = false;
@@ -186,7 +197,7 @@ $.fn.listPlaylists = function() {
 												$.fn.loadPlaylistEditForm(data.playlist);
 												var t = $("#playlistcontent");
 												t.html("");
-												filelist = $.fn.renderFileList(data.playlist.mediafilelist);
+												filelist = $.fn.renderPlayListContent(data.playlist.mediafilelist);
 												t.append(filelist);
 										} else {
 												// TODO: handle this
@@ -244,7 +255,6 @@ $.fn.addFiles2Playlist = function() {
 						fileid = $(this).val();
 						fileids.push(fileid);
 		});
-		//alert(fileids.length);
 		var r0 = {request: "addfilestoplaylist", username: user, sessionid: session, playlistid: playlistid, mediafileidlist: fileids};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
@@ -255,13 +265,49 @@ $.fn.addFiles2Playlist = function() {
 								$.fn.log(data);
 								if(data.responsen == 0) {
 										var t = $("#playlistcontent");
-										filelist = $.fn.renderFileList(data.playlist.mediafilelist);
+										filelist = $.fn.renderPlayListContent(data.playlist.mediafilelist);
 										t.html(filelist);
 								} else {
 										// TODO: handle this
 								}
 						});
 				} else {
+					// TODO 
+				}
+		});
+};
+
+$.fn.removeFilesFromPlaylist = function() {
+		var playlistid = $('#listofplaylists option:selected').val();
+		if(!playlistid) {
+			// TODO: remove this alert
+			alert('no valid playlist selected');
+			return false;
+		}
+		var filepos = Array();
+		$('#playlistcontent option:selected').each(function() {
+						fileposition = $(this).val();
+						alert(fileposition);
+						filepos.push(fileposition);
+		});
+		var r0 = {request: "removefilesfromplaylist", username: user, sessionid: session, playlistid: playlistid, mediafilepositionlist: filepos};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				if(data.responsen == 0) {
+						//reload the playlist
+						var r0 = {request: "getplaylist", username: user, sessionid: session, playlistid: playlistid};
+						$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+								$.fn.log(data);
+								if(data.responsen == 0) {
+										var t = $("#playlistcontent");
+										filelist = $.fn.renderPlayListContent(data.playlist.mediafilelist);
+										t.html(filelist);
+								} else {
+										// TODO: handle this
+								}
+						});
+				} else {
+					// TODO
 				}
 		});
 };
@@ -280,8 +326,8 @@ $(document).ready(function(){
 		$('#search1').focus($.fn.delSearch);
 		$('#search1').keyup($.fn.changeSearch);
 		$('#playlisteditform').submit($.fn.updateplaylist);
-		//$('#removebutton').click($.fn.removeFilesFromPlaylist);
 		$('#addbutton').click($.fn.addFiles2Playlist);
+		$('#removebutton').click($.fn.removeFilesFromPlaylist);
 		$.fn.listPlaylists();
 });
 
