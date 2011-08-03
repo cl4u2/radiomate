@@ -982,7 +982,26 @@ class JSONProcessor(object):
 						return JsonResponse(RESPONSE_REQERROR, "Check JSON syntax [%s]" % str(e), rd)
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+		
+		def getplaylist(self, requser, req):
+				rd = {'requested': "getplaylist", 'playlist': None}
+				try:
+						playlistid = int(req['playlistid'])
+				except Exception, e:
+						return JsonResponse(RESPONSE_REQERROR, "Check JSON Syntax [%s]" % str(e), rd)
 
+				try:
+						playlistdao = PlayListDAO(self.connectionmanager)
+						p = playlistdao.getById(playlistid)
+				except Exception, e:
+						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
+				
+				if p:
+						rd['playlist'] = p.dictexport()
+						return JsonResponse(RESPONSE_OK, "Playlist Found", rd)
+				else:
+						return JsonResponse(RESPONSE_DONTEXISTS, "Playlist not Found", rd)
+				
 		def reservetimeslot(self, requser, req):
 				rd = {'requested': "reservetimeslot", 'timeslot': None}
 				try:

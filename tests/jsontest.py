@@ -486,7 +486,7 @@ def playlisttest(sessionid):
 			"request": "listuserplaylists",
 			"username": "foobar",
 			"sessionid": "%s",
-			"user": "admin"
+			"user": "foobar"
 		}
 		""" % sessionid
 		playlist = processandcheck(jsonrequest)

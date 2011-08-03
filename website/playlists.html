@@ -13,6 +13,27 @@
 		<body>
 				<div id="messages">message</div>
 				<div id="menu"></div>
+				<div id="playlistedit">
+						<h3> Playlist </h3>
+						<form id="playlisteditform" method="GET" action="#">
+								<input type="hidden" name="id" id="id" value="0" readonly="readonly">
+								<label for="title">Title:</label>
+								<input type="text" name="title" id="title">
+								<label for="author">Description:</label>
+								<input type="text" name="description" id="description">
+								<label for="comment">comment:</label>
+								<input type="text" name="comment" id="comment">
+								<label for="tags">tags:</label>
+								<input type="text" name="tags" id="tags">
+								<label for="private">private:</label>
+								<input type="checkbox" name="private" id="private">
+								<label for="random">random:</label>
+								<input type="checkbox" name="random" id="random">
+								<input type="submit" name="playlistsubmit" id="playlistsubmit" value="create/update">
+								<input type="reset" name="playlistreset" id="playlistreset" value="clear">
+						</form>
+				</div>
+				<div id="playlists"><div id="listofplaylists"></div><div id="playlistcontent"></div></div>
 				<div id="searchnlist">
 						Search: <input type="text" id="search1">
 						<div id="listoffiles"></div>
@@ -27,7 +48,8 @@
 								</form>
 						</div>
 						<div id="fileedit">
-						<form id="fileeditform" method="GET" action="#" id="newfile">
+						<h3> Audio File</h3>
+						<form id="fileeditform" method="GET" action="#">
 								<input type="hidden" name="id" id="id" value="0" readonly="readonly">
 								<label for="path">Path:</label>
 								<input type="text" name="path" id="path" readonly="readonly">

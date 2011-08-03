@@ -171,7 +171,11 @@ $(document).ready(function(){
 										var r0 = {request: "createuser", username: user, sessionid: session, user: nuser};
 										$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 												$.fn.log(data)
-												$.fn.listUsers();
+												if (data.responsen == 0) {
+														$.fn.listUsers();
+												} else {
+														// TODO: handle this
+												}
 										});
 								}
 						});

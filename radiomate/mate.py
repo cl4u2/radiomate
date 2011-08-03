@@ -73,6 +73,8 @@ class RadioMateParentClass(object):
 								return (name, int(newvalue))
 						elif isinstance(dictvalue, long) and isinstance(newvalue, basestring):
 								return (name, int(newvalue))
+						elif isinstance(dictvalue, int) and isinstance(newvalue, unicode):
+								return (name, int(newvalue))
 						elif isinstance(dictvalue, long) and isinstance(newvalue, unicode):
 								return (name, int(newvalue))
 						else:

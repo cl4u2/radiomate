@@ -1060,7 +1060,7 @@ class PlayListMysqlDAO(RadioMateParentMysqlDAO):
 				selectionstring = """
 				SELECT  
 						playlists.id
-				FROM playlists JOIN (playlistowners, playlistviewers)
+				FROM playlists LEFT JOIN (playlistowners, playlistviewers)
 				ON (playlistowners.playlist = playlists.id AND playlistviewers.playlist = playlists.id)
 				WHERE 
 				( playlists.creator = '%s' OR

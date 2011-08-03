@@ -377,6 +377,16 @@ The response contains a 'sessionid' key, whose value is to be used on subsequent
 }
 
 
+=== Get a Playlist ===
+
+{
+	"request": "getplaylist",
+	"username": <username>,
+	"sessionid": <session ID>,
+	"playlistid": <id of the playlist to be retrieved>
+}
+
+
 
 === Remove an Existing Playlist ===
 

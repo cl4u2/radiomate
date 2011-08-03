@@ -41,7 +41,7 @@ $.fn.listFiles = function(searchterm) {
 								var r0 = {request: "getfile", username: user, sessionid: session, mediafileid: this.value};
 								$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 										$.fn.log(data);
-										$.fn.loadEditForm(data.mediafile);
+										$.fn.loadFileEditForm(data.mediafile);
 								});
 						});
 				} else {
@@ -50,7 +50,7 @@ $.fn.listFiles = function(searchterm) {
 		});
 };
 
-$.fn.loadEditForm = function(obj) {
+$.fn.loadFileEditForm = function(obj) {
 		for(var i in obj) {
 				if(obj[i]+"" == "true") {
 						$('#fileeditform input[id="'+i+'"]').attr('checked','checked');
@@ -69,7 +69,7 @@ $.fn.registerFileAndLoad = function(mediafile){
 				$.fn.log(data);
 				if(data.responsen == 0) {
 						var mf = data.mediafile;
-						$.fn.loadEditForm(mf);
+						$.fn.loadFileEditForm(mf);
 						$.fn.listFiles("");
 				} else {
 						//TODO: handle this
@@ -86,7 +86,7 @@ $.fn.processfileupload = function (data){
 						$.fn.log(data);
 						if(data.responsen == 0) {
 								var mf = data.mediafile
-								$.fn.loadEditForm(mf);
+								$.fn.loadFileEditForm(mf);
 						} else {
 								//TODO: handle this
 						}
@@ -139,18 +139,96 @@ $.fn.rescanfile = function() {
 				if(data.responsen == 0) {
 						mf = data.mediafile
 						mf.id = mediafile.id
-						$.fn.loadEditForm(mf);
+						$.fn.loadFileEditForm(mf);
 				} else {
 						//TODO: handle this
 				}
 		});
 };
 
+$.fn.renderPlayLists = function(playlists) {
+		/* Render list */
+		var s = "";
+		$.each(playlists, function(){
+				var tmp = this;
+				s += "<option value='" + tmp.id + "'>" + tmp.title + "[" + tmp.description + "] </option>";
+		});
+
+		return '<select id="playlistlist" size="30" multiple="multiple">' + s + '</select>';
+};
+
+$.fn.loadPlaylistEditForm = function(obj) {
+		for(var i in obj) {
+				if(obj[i]+"" == "true") {
+						$('#playlisteditform input[id="'+i+'"]').attr('checked','checked');
+				} else {
+						if(obj[i]+"" == "false")
+								$('#playlisteditform input[id="'+i+'"]').removeAttr('checked');
+						else
+								$('#playlisteditform input[id="'+i+'"]').val(obj[i]);
+				}
+		}
+};
+
+$.fn.listPlaylists = function() {
+		var r0 = {request: "listuserplaylists", username: user, sessionid: session, user: user};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				var t = $("#listofplaylists");
+				t.html("");
+				if(data.responsen == 0) {
+						t.append($.fn.renderPlayLists(data.playlistlist));
+						$('#listofplaylists option').dblclick(function(){
+								var r0 = {request: "getplaylist", username: user, sessionid: session, playlistid: this.value};
+								$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+										$.fn.log(data);
+										$.fn.loadPlaylistEditForm(data.playlist);
+								});
+						});
+				} else {
+						//TODO: handle this
+				}
+		});
+};
+
+$.fn.updateplaylist = function (e){
+		var sa = $(this).serializeArray();
+		var obj = {};
+		$.each(sa, function(){
+				if(this.value == "on") 
+						v = true;
+				else 
+						v = this.value;
+
+				if(v)
+					obj[this.name] = v;
+		});
+		var r0 = {request: "editplaylist", username: user, sessionid: session, playlist: obj};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				if(data.responsen == 0) {
+						$.fn.listPlaylists();
+				} else {
+						var r0 = {request: "createplaylist", username: user, sessionid: session, playlist: obj};
+						$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+								$.fn.log(data)
+								if(data.responsen == 0) {
+										$.fn.listPlaylists();
+								} else {
+										// TODO: handle this
+								}
+						});
+				}
+		});
+		e.preventDefault();
+		return false;
+};
+
 $(document).ready(function(){
 		user = $.cookie("username");
 		session = $.cookie("sessionid");
 
-		$("input[type='text'], select").each(function(){
+		$("input[type='text'], input[type='checkbox'], select").each(function(){
 				$(this).after("<br />");
 		});
 		$.fn.listFiles("");
@@ -159,5 +237,7 @@ $(document).ready(function(){
 		$('#filerescan').click($.fn.rescanfile);
 		$('#search1').focus($.fn.delSearch);
 		$('#search1').keyup($.fn.changeSearch);
+		$('#playlisteditform').submit($.fn.updateplaylist);
+		$.fn.listPlaylists();
 });
 
