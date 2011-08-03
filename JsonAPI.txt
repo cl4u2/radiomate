@@ -228,6 +228,16 @@ The response contains a 'sessionid' key, whose value is to be used on subsequent
 
 
 
+== Scan an existing file for ID3 tags ==
+
+{
+	"request": "getfile",
+	"username": <username>,
+	"sessionid": <session ID>,
+	"path": <path of the media file>
+}
+
+
 === Get an Audio File ===
 
 
