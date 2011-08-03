@@ -39,10 +39,15 @@ class RadioMateParentClass(object):
 
 		def __setattr__(self, name, value):
 				# check value and set it
-				def recursetattr(dictionary, name, newvalue):
+				def recursetattr(dictionary, name, newval):
 						# check correctness of name
 						if not name in dictionary.keys():
 								raise RadioMateException("wrong parameter name: %s" % name)
+
+						if isinstance(newval, basestring) or isinstance(newval, unicode):
+								newvalue = newval.strip()
+						else:
+								newvalue = newval
 
 						dictvalue = dictionary[name]
 
@@ -65,6 +70,10 @@ class RadioMateParentClass(object):
 						elif isinstance(dictvalue, unicode) and isinstance(newvalue, str):
 								return (name, str(newvalue))
 						elif isinstance(dictvalue, int) and isinstance(newvalue, basestring):
+								return (name, int(newvalue))
+						elif isinstance(dictvalue, long) and isinstance(newvalue, basestring):
+								return (name, int(newvalue))
+						elif isinstance(dictvalue, long) and isinstance(newvalue, unicode):
 								return (name, int(newvalue))
 						else:
 								raise RadioMateException("wrong parameter type: %s (%s) in %s (%s)" \

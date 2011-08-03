@@ -14,7 +14,6 @@
 				<div id="messages">message</div>
 				<div id="menu"></div>
 				<div id="listoffiles"></div>
-				<div id="fileuploadandedit">
 						<div id="fileupload">
 								<form id="fileuploadform" method="POST" action="/cgi-bin/radiomatejson.cgi" enctype="multipart/form-data">
 										<span>Add files...</span>
@@ -24,9 +23,11 @@
 								</form>
 						</div>
 						<div id="fileedit">
-						<form id="fileeditform" method="POST" action="#" id="newfile">
+						<form id="fileeditform" method="GET" action="#" id="newfile">
+								<label for="id">id:</label>
+								<input type="text" name="id" id="id" value="0" readonly="readonly">
 								<label for="path">Path:</label>
-								<input type="text" name="path" id="path" disabled="disabled">
+								<input type="text" name="path" id="path" readonly="readonly">
 								<label for="title">Title:</label>
 								<input type="text" name="title" id="title">
 								<label for="author">Author:</label>
@@ -44,10 +45,10 @@
 								<label for="tags">tags:</label>
 								<input type="text" name="tags" id="tags">
 								<input type="submit" name="filesubmit" id="filesubmit" value="update">
+								<input type="button" name="filerescan" id="filerescan" value="ID3 scan">
 								<input type="reset" name="filereset" id="filereset" value="clear">
 						</form>
 						</div>
-				</div>
 		</body>
 </html>
 

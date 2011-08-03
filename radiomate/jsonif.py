@@ -572,13 +572,23 @@ class JSONProcessor(object):
 				except KeyError, e:
 						pass
 
+				try:
+						m.genre = str(mfid3['genre'][0])
+				except KeyError, e:
+						pass
+
+				try:
+						m.license = str(mfid3['copyright'][0])
+				except KeyError, e:
+						pass
+
 				rd['mediafile'] = m.dictexport()
 				return JsonResponse(RESPONSE_OK, "MediaFile Scanned", rd)
 		
 		def getfile(self, requser, req):
 				rd = {'requested': "getfile", 'mediafile': None}
 				try:
-						mediafileid = req['mediafileid']
+						mediafileid = int(req['mediafileid'])
 				except Exception, e:
 						return JsonResponse(RESPONSE_REQERROR, "Check JSON Syntax [%s]" % str(e), rd)
 
@@ -629,7 +639,7 @@ class JSONProcessor(object):
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
-						m = mediafiledao.getById(req['mediafile']['id'])
+						m = mediafiledao.getById(int(req['mediafile']['id']))
 				except RadioMateDAOException, e:
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
 				except NameError, e:
