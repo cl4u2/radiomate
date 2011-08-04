@@ -3,8 +3,9 @@
  *
  */
 
-var user = '';
-var session = '';
+var user = $.cookie("username");
+var session = $.cookie("sessionid");
+checkSession(user, session);
 
 $.fn.delRoles = function() {
 		var rcount = $('.delroles:checked').length;
@@ -121,9 +122,6 @@ $.fn.listRoles = function() {
 };
 
 $(document).ready(function(){
-				user = $.cookie("username");
-				session = $.cookie("sessionid");
-
 				$("input").each(function(){
 						$(this).after("<br />");
 				});

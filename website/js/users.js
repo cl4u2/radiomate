@@ -3,8 +3,9 @@
  *
  */
 
-var user = '';
-var session = '';
+var user = $.cookie("username");
+var session = $.cookie("sessionid");
+checkSession(user, session);
 
 $.fn.delUsers = function() {
 		var rcount = $('.delusers:checked').length;
@@ -139,9 +140,6 @@ $.fn.loadRoles = function(element) {
 }
 
 $(document).ready(function(){
-				user = $.cookie("username");
-				session = $.cookie("sessionid");
-
 				$("input, select").each(function(){
 						$(this).after("<br />");
 				});

@@ -3,9 +3,9 @@
  *
  */
 
-var user = '';
-var session = '';
-var firstsearch = true;
+var user = $.cookie("username");
+var session = $.cookie("sessionid");
+checkSession(user, session);
 
 $.fn.renderFileList = function(filelist) {
 		/* Render list */
@@ -31,7 +31,6 @@ $.fn.renderPlayListContent = function(filelist) {
 
 $.fn.delSearch = function() {
 		this.value = "";
-		firstsearch = false;
 		$(this).unbind('focus');
 };
 
@@ -348,9 +347,6 @@ $.fn.filemove = function(direction) {
 
 
 $(document).ready(function(){
-		user = $.cookie("username");
-		session = $.cookie("sessionid");
-
 		$("input[type='text'], input[type='checkbox'], select").each(function(){
 				$(this).after("<br />");
 		});
