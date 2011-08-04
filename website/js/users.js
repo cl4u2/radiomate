@@ -133,11 +133,12 @@ $.fn.loadRoles = function(element) {
 		var r0 = {request: "listroles", username: user, sessionid: session};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
+				// TODO: check responsen code
 				$.each(data.rolelist, function() {
 						element.append('<option value="' + this.rolename + '">' + this.rolename + '</option>');
 				});
 		});
-}
+};
 
 $(document).ready(function(){
 				$("input, select").each(function(){

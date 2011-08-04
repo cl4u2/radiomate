@@ -19,6 +19,11 @@ div {
 		float: left;
 }
 
+#calendar div {
+		border: none;
+		float: none;
+}
+
 .cyanclass {
 		background-color: cyan;
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html lang="en" class="no-js">
+		<head>
+				<title> Welcome to RadioMate </title>
+				<link rel="stylesheet" href="css/radiomate0.css" type="text/css" />
+				<link rel='stylesheet' type='text/css' href='3p/css/fullcalendar.css' />
+				<link rel='stylesheet' type='text/css' href='3p/css/fullcalendar.print.css' media='print' />
+				<script src="3p/js/jquery-1.5.2.min.js"></script>
+				<script src='3p/js/jquery-ui-1.8.11.custom.min.js'></script>
+				<script src="3p/js/jquery.cookie.js"></script>
+				<script src="3p/js/fullcalendar.min.js"></script>
+				<script src="3p/js/jquery.form.js"></script>
+				<script src="js/common.js"></script>
+				<script src="js/menu.js"></script>
+				<script src="js/transmissions.js"></script>
+		</head>
+		<body>
+				<div id="messages">message</div>
+				<div id="menu"></div>
+				<div id="transmissionedit">
+						<h3> Transmission </h3>
+						<form id="transmissioneditform" method="GET" action="#">
+								<label for="beginningtime">Beginning:</label>
+								<input type="text" name="beginningtime" id="beginningtime" class="datepicker">
+								<label for="duration">Duration:</label>
+								<select name="duration" id="duration">
+								</select>
+								<label for="slottype">Transmission type:</label>
+								<select name="slottype" id="slottype">
+								</select>
+								<label for="title">Title:</label>
+								<input type="text" name="title" id="title">
+								<label for="description">Description:</label>
+								<input type="text" name="description" id="description">
+								<label for="comment">comment:</label>
+								<input type="text" name="comment" id="comment">
+								<label for="tags">tags:</label>
+								<input type="text" name="tags" id="tags">
+								<label for="fallbackplaylist">Fallback Playlist:</label>
+								<select name="fallbackplaylist" id="fallbackplaylist">
+								</select>
+								<input type="submit" name="transmissionsubmit" id="transmissionsubmit" value="create">
+						</form>
+				</div>
+				<div id="calendar"></div>
+		</body>
+</html>
+

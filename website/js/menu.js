@@ -8,6 +8,7 @@ radiomatemenu = function () {
 				menu += '<li><a href="roles.html">roles</a></li>';
 				menu += '<li><a href="users.html">users</a></li>';
 				menu += '<li><a href="playlists.html">playlists</a></li>';
+				menu += '<li><a href="transmissions.html">transmissions</a></li>';
 				menu += '<li><a href="logout.html">logout</a></li>';
 				menu += '</ul>';
 				$('#menu').html(menu);
