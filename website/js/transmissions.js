@@ -80,8 +80,18 @@ $.fn.updateTransmission = function(e) {
 				$.fn.log(data);
 				if(data.responsen == 0) {
 						// reload the calendar
+						$('#calendar').fullCalendar('refetchEvents');
 				} else {
-						// TODO: handle by printing an error somewhere
+						var r0 = {request: "edittimeslot", username: user, sessionid: session, timeslot: obj};
+						$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+								$.fn.log(data);
+								if(data.responsen == 0) {
+										// reload the calendar
+										$('#calendar').fullCalendar('refetchEvents');
+								} else {
+										// TODO: display error message
+								}
+						});
 				}
 		});
 		e.preventDefault();
@@ -121,6 +131,57 @@ $.fn.loadParams = function(slotname) {
 		});
 };
 
+$.fn.loadEvents = function(start, end, callback) {
+		var r0 = {
+				request: "listtimeslots", 
+				username: user, 
+				sessionid: session, 
+				timeslot: {
+						from: {
+								year: start.getFullYear(),
+								month: start.getMonth()+1,
+								day: start.getDate(),
+								hour: start.getHours(),
+								minute: start.getMinutes()
+						},
+						to: {
+								year: end.getFullYear(),
+								month: end.getMonth()+1,
+								day: end.getDate(),
+								hour: end.getHours(),
+								minute: end.getMinutes()
+						}
+				}
+		};
+		$.ajax({
+				url: '/cgi-bin/radiomatejson.cgi',
+				dataType: 'json',
+				data: {"req": JSON.stringify(r0)},
+				success: function(data) {
+						$.fn.log(data);
+						if(data.responsen != 0) {
+								// TODO: handle this
+								return false;
+						}
+						var events = [];
+						$.each(data.timeslotlist, function() {
+								var ts = this;
+								var bt = ts.beginningtime;
+								var bd = new Date(bt.year, bt.month-1, bt.day, bt.hour, bt.minute, 0, 0);
+								var ed = new Date(bd.getTime() + ts.duration * 60 * 1000);
+								events.push({
+										title: ts.title,
+										start: bd,
+										end: ed,
+										allDay: false,
+										ts: ts
+								});
+						});
+						callback(events);
+				},
+		});
+}
+
 $(document).ready(function(){
 		$("input[type='text'], input[type='checkbox'], select").each(function(){
 				$(this).after("<br />");
@@ -135,45 +196,22 @@ $(document).ready(function(){
 		});
 		$('#calendar').fullCalendar({
 				firstDay: 1,
-				events: function(start, end, callback) {
-						var r0 = {
-								request: "listtimeslots", 
-								username: user, 
-								sessionid: session, 
-								timeslot: {
-										from: {
-												year: start.getFullYear(),
-												month: start.getMonth(),
-												day: start.getDate(),
-												hour: start.getHours(),
-												minute: start.getMinutes()
-										},
-										to: {
-												year: end.getFullYear(),
-												month: end.getMonth(),
-												day: end.getDate(),
-												hour: end.getHours(),
-												minute: end.getMinutes()
-										}
-								}
-						};
-						$.ajax({
-								url: '/cgi-bin/radiomatejson.cgi',
-								dataType: 'json',
-								data: {"req": JSON.stringify(r0)},
-								success: function(doc) {
-										var events = [];
-										$(doc).find('event').each(function() {
-												events.push({
-														title: $(this).attr('title'),
-														description: $(this).attr('description'),
-														start: $(this).attr('start') // will be parsed
-												});
-										});
-										callback(events);
-								}
-						});
-				}
+				dayClick: function(date, allDay, jsEvent, view) {
+						$('#beginningtimepicker').val(date.toString());
+						$('#beginningtimepicker').focus();
+				},
+				eventClick: function(calEvent, jsEvent, view) {
+						// load values into form
+						var obj = calEvent.ts;
+						for(var i in obj) {
+								if(i == "beginningtime")
+										$('#transmissioneditform input[id="beginningtimepicker"]').val(calEvent.start.toString());
+								else
+										$('#transmissioneditform input[id="'+i+'"]').val(obj[i]);
+						}
+						$('#beginningtimepicker').focus();
+				},
+				events: $.fn.loadEvents
 		});
 		$('#transmissioneditform').submit($.fn.updateTransmission);
 		$('#slottype').change(function() { $.fn.loadParams($('#slottype').val()) });

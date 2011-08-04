@@ -1009,7 +1009,6 @@ class JSONProcessor(object):
 				rd = {'requested': "reservetimeslot", 'timeslot': None}
 				try:
 						t = TimeSlot(req['timeslot'])
-						print t.slotparams #debug
 						t.creator = requser.name
 				except Exception, e:
 						return JsonResponse(RESPONSE_REQERROR, str(e), rd)
@@ -1030,6 +1029,9 @@ class JSONProcessor(object):
 
 				try:
 						timeslotdao = TimeSlotDAO(self.connectionmanager)
+						if t.id > 0:
+								if timeslotdao.getById(t.id):
+										return JsonResponse(RESPONSE_ERROR, "Timeslot conflict. Id already exists.", rd)
 						id = timeslotdao.insert(t)
 						tcheck = timeslotdao.getById(id)
 						if id and tcheck:
@@ -1075,7 +1077,7 @@ class JSONProcessor(object):
 		def edittimeslot(self, requser, req):
 				rd = {'requested': "edittimeslot", 'timeslot': None}
 				try:
-						id = req['timeslot']['id']
+						id = int(req['timeslot']['id'])
 
 						timeslotdao = TimeSlotDAO(self.connectionmanager)
 						t = timeslotdao.getById(id)
