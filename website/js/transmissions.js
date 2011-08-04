@@ -43,6 +43,9 @@ $.fn.loadPlaylists = function(element) {
 		});
 };
 
+$.fn.editTransmission = function(obj) {
+};
+
 $.fn.updateTransmission = function(e) {
 		var sa = $(this).serializeArray();
 		var obj = {};
@@ -196,6 +199,12 @@ $(document).ready(function(){
 		});
 		$('#calendar').fullCalendar({
 				firstDay: 1,
+				editable: true,
+				header: {
+						left:   'title',
+						center: 'month,agendaWeek,agendaDay',
+						right:  'today prev,next'
+				},
 				dayClick: function(date, allDay, jsEvent, view) {
 						$('#beginningtimepicker').val(date.toString());
 						$('#beginningtimepicker').focus();
@@ -210,6 +219,25 @@ $(document).ready(function(){
 										$('#transmissioneditform input[id="'+i+'"]').val(obj[i]);
 						}
 						$('#beginningtimepicker').focus();
+				},
+				eventDrop: function(calEvent, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+						calEvent.ts.beginningtime.year = calEvent.start.getFullYear();
+						calEvent.ts.beginningtime.month = calEvent.start.getMonth()+1;
+						calEvent.ts.beginningtime.day = calEvent.start.getDate();
+						calEvent.ts.beginningtime.hour = calEvent.start.getHours();
+						calEvent.ts.beginningtime.minute = calEvent.start.getMinutes();
+
+						var r0 = {request: "edittimeslot", username: user, sessionid: session, timeslot: calEvent.ts};
+						$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+								$.fn.log(data);
+								if(data.responsen == 0) {
+										// reload the calendar
+										$('#calendar').fullCalendar('refetchEvents');
+								} else {
+										// TODO: display error message
+										revertFunc();
+								}
+						});
 				},
 				events: $.fn.loadEvents
 		});
