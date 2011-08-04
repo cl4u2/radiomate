@@ -602,6 +602,14 @@ List of playlists in which the user is owner or viewer
 	"sessionid": <session ID>
 }
 
+=== List Required parameter for a specified slot type ===
+
+{
+	"request": "getslotreqparameters",
+	"username": <username>,
+	"sessionid": <session ID>,
+	"slottype": <slot type name>
+}
 
 
 === Test Slot ===

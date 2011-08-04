@@ -15,6 +15,7 @@ $.fn.loadSlotTypes = function(element) {
 				$.each(data.slottypeslist, function() {
 						element.append('<option value="' + this + '">' + this + '</option>');
 				});
+				$('#slottype').change();
 		});
 };
 
@@ -42,6 +43,84 @@ $.fn.loadPlaylists = function(element) {
 		});
 };
 
+$.fn.updateTransmission = function(e) {
+		var sa = $(this).serializeArray();
+		var obj = {};
+		obj['slotparams'] = {};
+		$.each(sa, function(){
+				if(this.value == "on") 
+						v = true;
+				else 
+						v = this.value;
+
+				if(v) {
+						if(this.name.substring(0,3) == "sp_"){
+								var tmpname = this.name.split('_')[1];
+								if(tmpname == "playlistid") // really awful. FIXME!!!
+										obj['slotparams'][tmpname] = parseInt(v);
+								else
+										obj['slotparams'][tmpname] = v;
+						} else {
+								obj[this.name] = v;
+						}
+				}
+		});
+		var d = new Date(obj.beginningtimepicker);
+		var dnew = {
+				year: d.getFullYear(),
+				month: d.getMonth() + 1,
+				day: d.getDate(),
+				hour: d.getHours(),
+				minute: d.getMinutes()
+		};
+		obj.beginningtime = dnew;
+		delete obj.beginningtimepicker;
+		var r0 = {request: "reservetimeslot", username: user, sessionid: session, timeslot: obj};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				if(data.responsen == 0) {
+						// reload the calendar
+				} else {
+						// TODO: handle by printing an error somewhere
+				}
+		});
+		e.preventDefault();
+		return false;
+};
+
+$.fn.loadParams = function(slotname) {
+		var r0 = {request: "getslotreqparameters", username: user, sessionid: session, slottype: slotname};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				if(data.responsen == 0) {
+						t = $('#slotparamdiv');
+						t.html("");
+						$.each(data.parameters, function(){
+								var pname0 = this.split(':')[0];
+								pname = "sp_" + pname0;
+								var ptype = this.split(':')[1];
+								switch(ptype) {
+									case 'text':
+										t.append('<label for="'+pname+'">'+pname0+': </label>');
+										t.append('<input type="text" name="'+pname+'" id="'+pname+'">');
+										t.append('<br/>');
+										break;
+									case 'playlist':
+										t.append('<label for="'+pname+'">'+pname0+': </label>');
+										t.append('<select name="'+pname+'" id="'+pname+'">');
+										t.append('</select>');
+										t.append('<br/>');
+										$.fn.loadPlaylists($('#'+pname));
+										break;
+									default:
+										//do nothing
+								}
+						});
+				} else {
+				}
+		});
+};
+
 $(document).ready(function(){
 		$("input[type='text'], input[type='checkbox'], select").each(function(){
 				$(this).after("<br />");
@@ -49,8 +128,13 @@ $(document).ready(function(){
 		$.fn.loadSlotTypes($('#slottype'));
 		$.fn.loadDurations($('#duration'));
 		$.fn.loadPlaylists($('#fallbackplaylist'));
-		Protoplasm.use('datepicker').transform('input.datepicker');
+		$('#beginningtimepicker').datetimepicker({
+				firstday: 1,
+				dateFormat: 'default',
+				showButtonPanel: true
+		});
 		$('#calendar').fullCalendar({
+				firstDay: 1,
 				events: function(start, end, callback) {
 						var r0 = {
 								request: "listtimeslots", 
@@ -76,7 +160,7 @@ $(document).ready(function(){
 						$.ajax({
 								url: '/cgi-bin/radiomatejson.cgi',
 								dataType: 'json',
-								data: r0,
+								data: {"req": JSON.stringify(r0)},
 								success: function(doc) {
 										var events = [];
 										$(doc).find('event').each(function() {
@@ -91,5 +175,7 @@ $(document).ready(function(){
 						});
 				}
 		});
+		$('#transmissioneditform').submit($.fn.updateTransmission);
+		$('#slottype').change(function() { $.fn.loadParams($('#slottype').val()) });
 });
 

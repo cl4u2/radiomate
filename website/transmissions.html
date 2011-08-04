@@ -5,11 +5,12 @@
 				<link rel="stylesheet" href="css/radiomate0.css" type="text/css" />
 				<link rel='stylesheet' type='text/css' href='3p/css/fullcalendar.css' />
 				<link rel='stylesheet' type='text/css' href='3p/css/fullcalendar.print.css' media='print' />
+				<link rel='stylesheet' type='text/css' href='3p/css/jquery.ui.datetimepicker.css' />
 				<script src="3p/js/jquery-1.5.2.min.js"></script>
 				<script src='3p/js/jquery-ui-1.8.11.custom.min.js'></script>
 				<script src="3p/js/jquery.cookie.js"></script>
 				<script src="3p/js/fullcalendar.min.js"></script>
-				<script src="3p/js/jquery.form.js"></script>
+				<script src="3p/js/jquery.ui.datetimepicker.min.js"></script>
 				<script src="js/common.js"></script>
 				<script src="js/menu.js"></script>
 				<script src="js/transmissions.js"></script>
@@ -20,14 +21,15 @@
 				<div id="transmissionedit">
 						<h3> Transmission </h3>
 						<form id="transmissioneditform" method="GET" action="#">
-								<label for="beginningtime">Beginning:</label>
-								<input type="text" name="beginningtime" id="beginningtime" class="datepicker">
-								<label for="duration">Duration:</label>
+								<label for="beginningtimepicker">Beginning:</label>
+								<input type="text" name="beginningtimepicker" id="beginningtimepicker" class="datepicker">
+								<label for="duration">Duration (minutes):</label>
 								<select name="duration" id="duration">
 								</select>
 								<label for="slottype">Transmission type:</label>
 								<select name="slottype" id="slottype">
 								</select>
+								<span id="slotparamdiv"></span>
 								<label for="title">Title:</label>
 								<input type="text" name="title" id="title">
 								<label for="description">Description:</label>

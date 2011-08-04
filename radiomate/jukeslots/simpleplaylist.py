@@ -55,4 +55,5 @@ class PlayListJukeSlot(JukeSlot):
 				return liq
 
 JUKESLOTTYPEDICT['simpleplaylist'] = PlayListJukeSlot
+JUKESLOTREQUIREDPARAMS['simpleplaylist'] = ['playlistid:playlist']
 

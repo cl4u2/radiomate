@@ -35,10 +35,11 @@ from .. import config
 from .. import dao
 from .. import mate
 
-__all__ = ["JUKESLOTTYPEDICT", "JukeSlotException", "JukeSlot", "dao", "mate", "config"]
+__all__ = ["JUKESLOTTYPEDICT", "JUKESLOTREQUIREDPARAMS", "JukeSlotException", "JukeSlot", "dao", "mate", "config"]
 
 # dict to associate timeslot types to JukeSlot classes
 JUKESLOTTYPEDICT = {}
+JUKESLOTREQUIREDPARAMS = {}
 
 class JukeSlotException(Exception):
 		pass

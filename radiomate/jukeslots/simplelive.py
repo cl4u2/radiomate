@@ -53,3 +53,5 @@ class LiveJukeSlot(JukeSlot):
 				return liq
 
 JUKESLOTTYPEDICT['simplelive'] = LiveJukeSlot
+JUKESLOTREQUIREDPARAMS['simplelive'] = ['livepasword:text']
+

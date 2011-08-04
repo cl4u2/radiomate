@@ -1009,6 +1009,7 @@ class JSONProcessor(object):
 				rd = {'requested': "reservetimeslot", 'timeslot': None}
 				try:
 						t = TimeSlot(req['timeslot'])
+						print t.slotparams #debug
 						t.creator = requser.name
 				except Exception, e:
 						return JsonResponse(RESPONSE_REQERROR, str(e), rd)
@@ -1024,6 +1025,7 @@ class JSONProcessor(object):
 						tj = jukeslotclass(timeslot=t, mainpassword="")
 						tj.liquidsoapcode()
 				except:
+						raise
 						return JsonResponse(RESPONSE_REQERROR, "Slot type not supported or wrong slot parameters")
 
 				try:
@@ -1182,6 +1184,18 @@ class JSONProcessor(object):
 				try:
 						rd['slottypeslist'] = JUKESLOTTYPEDICT.keys()
 						rd['listlength'] = len(rd['slottypeslist'])
+						return JsonResponse(RESPONSE_OK, "Available slot type list follows", rd)
+				except Exception, e:
+						return JsonResponse(RESPONSE_ERROR, str(e), rd)
+
+		def getslotreqparameters(self, requser, req):
+				"return the requested parameters for a timeslot/JukeSlot type"
+				rd = {'requested': "getslotreqparameters", 'slottype': "", 'listlength': 0, 'parameters': []}
+				try:
+						slottypename = req['slottype']
+						rd['slottype'] = slottypename
+						rd['parameters'] = JUKESLOTREQUIREDPARAMS[slottypename]
+						rd['listlength'] = len(rd['parameters'])
 						return JsonResponse(RESPONSE_OK, "Available slot type list follows", rd)
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
