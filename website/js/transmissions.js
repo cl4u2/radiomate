@@ -183,7 +183,28 @@ $.fn.loadEvents = function(start, end, callback) {
 						callback(events);
 				},
 		});
-}
+};
+
+$.fn.transmissionChange	= function(calEvent, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
+		calEvent.ts.beginningtime.year = calEvent.start.getFullYear();
+		calEvent.ts.beginningtime.month = calEvent.start.getMonth()+1;
+		calEvent.ts.beginningtime.day = calEvent.start.getDate();
+		calEvent.ts.beginningtime.hour = calEvent.start.getHours();
+		calEvent.ts.beginningtime.minute = calEvent.start.getMinutes();
+		calEvent.ts.duration = (calEvent.end.getTime() - calEvent.start.getTime()) / 60000; // millis to minutes
+
+		var r0 = {request: "edittimeslot", username: user, sessionid: session, timeslot: calEvent.ts};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				if(data.responsen == 0) {
+						// reload the calendar
+						$('#calendar').fullCalendar('refetchEvents');
+				} else {
+						// TODO: display error message
+						revertFunc();
+				}
+		});
+};
 
 $(document).ready(function(){
 		$("input[type='text'], input[type='checkbox'], select").each(function(){
@@ -220,25 +241,8 @@ $(document).ready(function(){
 						}
 						$('#beginningtimepicker').focus();
 				},
-				eventDrop: function(calEvent, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
-						calEvent.ts.beginningtime.year = calEvent.start.getFullYear();
-						calEvent.ts.beginningtime.month = calEvent.start.getMonth()+1;
-						calEvent.ts.beginningtime.day = calEvent.start.getDate();
-						calEvent.ts.beginningtime.hour = calEvent.start.getHours();
-						calEvent.ts.beginningtime.minute = calEvent.start.getMinutes();
-
-						var r0 = {request: "edittimeslot", username: user, sessionid: session, timeslot: calEvent.ts};
-						$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
-								$.fn.log(data);
-								if(data.responsen == 0) {
-										// reload the calendar
-										$('#calendar').fullCalendar('refetchEvents');
-								} else {
-										// TODO: display error message
-										revertFunc();
-								}
-						});
-				},
+				eventDrop: $.fn.transmissionChange,
+				eventResize: $.fn.transmissionChange, 
 				events: $.fn.loadEvents
 		});
 		$('#transmissioneditform').submit($.fn.updateTransmission);
