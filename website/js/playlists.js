@@ -73,6 +73,9 @@ $.fn.loadFileEditForm = function(obj) {
 								$('#fileeditform input[id="'+i+'"]').val(obj[i]);
 				}
 		}
+		// TODO: check if obj.path exists
+		var url = "player.php?url=" + encodeURIComponent(obj.path) + "";
+		$('#player').attr('src', url);
 };
 
 $.fn.registerFileAndLoad = function(mediafile){
@@ -126,7 +129,7 @@ $.fn.updatefile = function (e){
 				if(data.responsen == 0) {
 						$.fn.listFiles("");
 				} else {
-						//TODO: handle this
+						$.fn.registerFileAndLoad(mediafile);
 				}
 		});
 		e.preventDefault();

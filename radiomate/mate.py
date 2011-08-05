@@ -46,6 +46,8 @@ class RadioMateParentClass(object):
 
 						if isinstance(newval, basestring) or isinstance(newval, unicode):
 								newvalue = newval.strip()
+								for c in '\\\';\"%':
+										newvalue = newvalue.replace(c,'')
 						else:
 								newvalue = newval
 

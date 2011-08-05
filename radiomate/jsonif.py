@@ -546,7 +546,7 @@ class JSONProcessor(object):
 						mpath = req['path']
 						m.path = mpath
 						m.user = requser.name
-						m.title = os.path.basename(mpath)
+						m.title = os.path.basename(mpath).split('+')[-1]
 						rd['mediafile'] = m.dictexport()
 						mfid3 = EasyID3(mpath)
 				except KeyError, e:
