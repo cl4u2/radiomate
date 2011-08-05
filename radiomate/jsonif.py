@@ -28,6 +28,7 @@ from mate import *
 from dao import *
 from jukeslots.all import *
 from mutagen.easyid3 import EasyID3
+import os
 
 RESPONSE_OK = 0
 RESPONSE_NOTALLOWED = 101
@@ -541,11 +542,13 @@ class JSONProcessor(object):
 				"Scan a file for ID3 tags and return them. No registration is performed."
 				rd = {'requested': "scanfile", 'mediafile': None}
 				try:
-						mpath = req['path']
-						mfid3 = EasyID3(mpath)
 						m = MediaFile()
+						mpath = req['path']
 						m.path = mpath
 						m.user = requser.name
+						m.title = os.path.basename(mpath)
+						rd['mediafile'] = m.dictexport()
+						mfid3 = EasyID3(mpath)
 				except KeyError, e:
 						return JsonResponse(RESPONSE_REQERROR, "Check JSON Syntax. Mediafile missing?", rd)
 				except Exception, e:

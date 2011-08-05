@@ -79,32 +79,32 @@ $.fn.registerFileAndLoad = function(mediafile){
 		var r0 = {request: "registerfile", username: user, sessionid: session, mediafile: mediafile};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
+				var mf = {};
 				if(data.responsen == 0) {
-						var mf = data.mediafile;
-						$.fn.loadFileEditForm(mf);
-						$.fn.listFiles("");
+						mf = data.mediafile;
 				} else {
-						//TODO: handle this
+						//TODO: display error message
+						mf = mediafile;
 				}
+				$.fn.loadFileEditForm(mf);
+				$.fn.listFiles("");
 		});
 };
 
 $.fn.processfileupload = function (data){
 		$.fn.log(data);
+		var path = data.path;
 		if(data.responsen == 0) {
 				// go on, scan the new file, register it and then load its data into edit form for registration
 				var r0 = {request: "scanfile", username: user, sessionid: session, path: data.path};
 				$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 						$.fn.log(data);
-						if(data.responsen == 0) {
-								var mf = data.mediafile
-								$.fn.loadFileEditForm(mf);
-						} else {
-								//TODO: handle this
-						}
+						var mf = data.mediafile;
+						//$.fn.loadFileEditForm(mf);
+						$.fn.registerFileAndLoad(mf);
 				});
 		} else {
-				//TODO: handle this
+				//TODO: handle failed upload
 		}
 };
 

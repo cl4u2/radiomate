@@ -24,35 +24,37 @@ cgitb.enable()
 
 import cgi
 import radiomate.jsonif
+from radiomate.config import MEDIAFILESHOMEDIR
 import sys
 import os
 
-MEDIAFILESHOMEDIR = "/tmp/"
 FILEUPLOADKEY = 'upload'
 
 print "Content-type: text/plain;charset=utf-8"
 print 
 
+req = None
 fs = cgi.FieldStorage()
 try:
 		rk = fs.keys()[0]
 		if rk == FILEUPLOADKEY:
 				fileitem = fs[FILEUPLOADKEY]	
 				bfn = os.path.basename(fileitem.filename)
-				longpath = MEDIAFILESHOMEDIR + bfn 
-				f = open(longpath, 'wb', 10000)
-				while True:
-						chunk = fileitem.file.read(10000)
-						if not chunk: break
-						f.write(chunk)
-				f.close()
-				req = None
-				resp = '{"requested": "upload", "warning": null, "description": "file uploaded", "responsen": 0, "response": "ok", "path": "%s"}' % longpath
+				longpath = MEDIAFILESHOMEDIR + "/" + bfn 
+				if os.path.exists(longpath):
+						resp = '{"requested": "upload", "warning": "file already exists", "description": "file not uploaded", "responsen": 202, "response": "alreadyexists", "path": "%s"}' % longpath
+				else:
+						f = open(longpath, 'wb', 10000)
+						while True:
+								chunk = fileitem.file.read(10000)
+								if not chunk: break
+								f.write(chunk)
+						f.close()
+						resp = '{"requested": "upload", "warning": null, "description": "file uploaded", "responsen": 0, "response": "ok", "path": "%s"}' % longpath
 		else:
 				req = fs.getfirst(rk, "no request")
-except Exception:
-		print fs
-		raise #debug
+except Exception,e:
+		raise
 		req = "no request"
 
 if req:
