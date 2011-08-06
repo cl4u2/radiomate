@@ -762,7 +762,7 @@ class JSONProcessor(object):
 				rd = {'requested': "editplaylist", 'playlist': None}
 				try:
 						playlistdao = PlayListDAO(self.connectionmanager)
-						p = playlistdao.getById(req['playlist']['id'])
+						p = playlistdao.getById(int(req['playlist']['id']))
 				except RadioMateDAOException, e:
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
 				except NameError, e:

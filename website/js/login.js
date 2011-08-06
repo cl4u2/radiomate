@@ -22,7 +22,7 @@ $(document).ready(function(){
 								if(data.responsen == 0) {
 										$.cookie("sessionid", data.sessionid);
 										$.cookie("username", username);
-										location.href = "dashboard.html";
+										location.href = "users.html";
 								} else {
 										// TODO: message "try again"
 										return false
