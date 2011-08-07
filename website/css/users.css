@@ -1,0 +1,42 @@
+.mate table {
+	border-collapse: collapse;
+	border: none;
+	border-color: #000000;
+	background-color: #eeeeff;
+	empty-cells: show;
+	table-layout: fixed;
+}
+
+.mate th {
+	width: 8em;
+}
+
+.mate td {
+	text-align: center;
+	border: solid 2px;
+	border-color: #000000;
+	padding: 5px;
+	width: 15em;
+}
+
+button {
+		width: 10em;
+}
+
+.mate img {
+    border-color: #000000;
+    border-style: solid;
+    border-width: 1px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+}
+
+td.emptycell{
+		background-color: none;
+}
+
+td.noborder {
+		border: none 0px;
+		width: 5em;
+}
+

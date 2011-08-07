@@ -1,0 +1,39 @@
+.mate table {
+	border-collapse: collapse;
+	border: none;
+	border-color: #000000;
+	background-color: #eeeeff;
+	empty-cells: show;
+	table-layout: fixed;
+}
+
+.mate th {
+	width: 8em;
+}
+
+.mate td {
+	text-align: center;
+	border: solid 2px;
+	border-color: #000000;
+	padding: 5px;
+	width: 5em;
+}
+
+#rolelist .tdc {
+		font-size: x-small;
+		border: 1px solid black;
+		width: 5px;
+}
+
+#rolelist .thc {
+		font-size: x-small;
+		border: 1px solid black;
+		background-color: yellow;
+		width: 5px;
+}
+
+td.noborder {
+		border: none 0px;
+		width: 5em;
+}
+

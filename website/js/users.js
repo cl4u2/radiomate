@@ -70,9 +70,12 @@ $.fn.renderUserTableVert = function(userlist) {
 				}
 		}
 		function incell(data) {
-				return "<td>" + data + "</td>";
+				if(data)
+						return "<td>" + data + "</td>";
+				else
+						return "<td class='emptycell'></td>";
 		}
-		function gravatar(md5sum) {
+		function avatar(md5sum) {
 				return "<td><img src='http://www.gravatar.com/avatar/" + md5sum + "?s=40'></td>";
 		}
 		var rows = new Array();
@@ -89,22 +92,28 @@ $.fn.renderUserTableVert = function(userlist) {
 								appendtorow(i, incell(tmp[i]), rows);
 						}
 				}
-				appendtorow('', gravatar(tmp.emailsmd5), rows);
+				appendtorow('avatar', avatar(tmp.emailsmd5), rows);
 				if(tmp.name == "admin")
 						appendtorow('Edit', incell(''), rows);
 				else
 						appendtorow('Edit', incell("<input type='button' class='edituser' id='e" + tmp.name + "' value='Edit' />"), rows);
 		});
+	    
+		appendtorow('checkbox', '<td class="noborder"><input id="delbutton" type="button" value="del"></td>', rows);
+	    appendtorow('Edit', '<td class="noborder"><input id="addbutton" type="button" value="new"></td>', rows);
 
 		var s = "";
 		for(var label in rows) {
-				s += "<tr><th>" + label + "</th>";
+				if(label in {Edit: 0, checkbox: 0, avatar: 0})
+						s += "<tr><th class='emptycell'></th>";
+				else
+						s += "<tr><th>" + label + "</th>";
 				for(var i=0; i<rows[label].length; i++) {
 						s += rows[label][i];
 				}
 				s += "</tr>";
 		}
-		return '<table id="userlist">' + s + '<tr><td><input id="delbutton" type="button" value="del"></td></tr></table>';
+		return '<table id="userlist">' + s + '</table>';
 }
 
 $.fn.listUsers = function() {

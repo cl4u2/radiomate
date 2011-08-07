@@ -68,7 +68,10 @@ $.fn.renderRolesTableVert = function(rolelist) {
 				}
 		}
 		function incell(data) {
-				return "<td>" + data + "</td>";
+				if(data)
+						return "<td>" + data + "</td>";
+				else
+						return "<td class='emptycell'></td>";
 		}
 		var rows = new Array();
 		$.each(rolelist, function(){
@@ -90,15 +93,21 @@ $.fn.renderRolesTableVert = function(rolelist) {
 						appendtorow('Edit', incell("<input type='button' class='editrole' id='e" + tmp.rolename + "' value='Edit' />"), rows);
 		});
 
+		appendtorow('checkbox', '<td class="noborder"><input id="delbutton" type="button" value="del"></td>', rows);
+		appendtorow('Edit', '<td class="noborder"><input id="addbutton" type="button" value="new"></td>', rows);
+
 		var s = "";
 		for(var label in rows) {
-				s += "<tr><th>" + label + "</th>";
+				if(label in {Edit: 0, checkbox: 0})
+						s += "<tr><th class='emptycell'></th>";
+				else
+						s += "<tr><th>" + label + "</th>";
 				for(var i=0; i<rows[label].length; i++) {
 						s += rows[label][i];
 				}
 				s += "</tr>";
 		}
-		return '<table id="rolelist">' + s + '<tr><td><input id="delbutton" type="button" value="del"></td></tr></table>';
+		return '<table id="rolelist">' + s + '</table>';
 }
 
 $.fn.listRoles = function() {
