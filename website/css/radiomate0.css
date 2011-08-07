@@ -9,7 +9,7 @@ body {
 		color: #000000;
 }
 
-div {
+div.mate {
 		border: 2px solid #999999;
 		background-color: #ddddff;
 		margin: 10px;
@@ -17,11 +17,6 @@ div {
 		-moz-border-radius: 4px;
 		border-radius: 4px;
 		float: left;
-}
-
-#calendar div {
-		border: none;
-		float: none;
 }
 
 .cyanclass {
@@ -75,24 +70,10 @@ div {
 }
 */
 
-#calendar {
-		float:left;
-		clear:left;
-}
-
-#agenda {
-		float: left;
-		clear:right;
-}
-
 #messages {
 		float: left;
 		clear:both;
 		width: 80%;
-}
-
-.menuclass {
-		list-style-type: none;
 }
 
 a:link {
@@ -110,19 +91,19 @@ a:hover {
 	color: #5555ff;
 }
 
-table {
+.mate table {
 	border-collapse: collapse;
 	border: none;
 	border-color: #000000;
 	background-color: #eeeeff;
 }
 
-th {
+.mate th {
     border: solid 2px;
 	border-color: #000000;
 }
 
-td {
+.mate td {
 	text-align: center;
 	border: solid 2px;
 	border-color: #000000;
@@ -145,7 +126,7 @@ input[type=SUBMIT], input[type=BUTTON], input[type=RESET], button {
 		height: 500px;
 		width: 300px;
 }
-img {
+.mate img {
     border-color: #000000;
     border-style: solid;
     border-width: 1px;
@@ -155,9 +136,68 @@ img {
 
 
 #menu {
-		float: left;
-		clear: left;
-		width: 8em;
-		/* padding-bottom: 1024px; */
-		padding-left: 0px;
+		width: 99%;
+		height: 30px;
+		margin-left: 0px;
+		margin-right: 0px;
+		margin-top: 10px;
+		margin-bottom: 20px;
+		padding: 0px;
 }
+
+.menuclass {
+		padding: 0px;
+		margin-top: 0px;
+		margin-bottom: 0px;
+		margin-right: 0px;
+		margin-left: 20px;
+		height: 30px;
+		background-color: #ddddff;
+		border-top: 1px solid red;
+		border-bottom: 1px solid red;
+		vertical-align: middle;
+}
+
+.menuclass li {
+		list-style-type: none;
+		float: left;
+		margin: 0px;
+		padding-left: 20px;
+		padding-right: 25px;
+		line-height: 30px;
+		vertical-align: middle;
+}
+
+.menuclass li a {
+		text-decoration: none;
+		font-weight: bold;
+		line-height: 30px;
+}
+
+.menuclass li a:hover {
+		color: #ddddff;
+		background-color: black;
+}
+
+#menu img {
+		display: inline;
+		float: left;
+		border-color: #000000;
+		border-style: solid;
+		border-width: 1px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		height: 28px;
+		margin-left: 10px;
+		margin-top: 1px;
+		margin-right: 0px;
+		margin-bottom: 1px;
+}
+
+#calendar {
+		border: 2px solid black;
+		background-color: #ddddff;
+		float: left;
+		width: 100%;
+}
+

@@ -325,7 +325,6 @@ $.fn.filemove = function(direction) {
 		}
 		var fileposition = $('#playlistcontent option:selected').attr('id');
 		var newfileposition = parseInt(fileposition) + direction;
-		alert(fileposition + "->" + newfileposition);
 		var r0 = {request: "movefilesinplaylist", username: user, sessionid: session, playlistid: playlistid, oldmediafileposition: fileposition, newmediafileposition: newfileposition};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);

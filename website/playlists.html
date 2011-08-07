@@ -11,9 +11,8 @@
 				<script src="js/playlists.js"></script>
 		</head>
 		<body>
-				<div id="messages">message</div>
 				<div id="menu"></div>
-				<div id="playlistedit">
+				<div class="mate" id="playlistedit">
 						<h3> Playlist </h3>
 						<form id="playlisteditform" method="GET" action="#">
 								<input type="hidden" name="id" id="id" value="0" readonly="readonly">
@@ -33,14 +32,14 @@
 								<input type="reset" name="playlistreset" id="playlistreset" value="clear">
 						</form>
 				</div>
-				<div id="playlistnfiles">
-						<div id="playlists">
-								<div id="listofplaylists"></div>
-								<div id="playlistcontent">
+				<div class="mate" id="playlistnfiles">
+						<div class="mate" id="playlists">
+								<div class="mate" id="listofplaylists"></div>
+								<div class="mate" id="playlistcontent">
 										<select id="playlistcontentlist" size="30" multiple="multiple"></select>
 								</div>
 						</div>
-						<div id="playlistbuttons">
+						<div class="mate" id="playlistbuttons">
 								<input type="button" value="<<" id="addbutton" name="addbutton">
 								<br />
 								<input type="button" value=">>" id="removebutton" name="removebutton">
@@ -49,14 +48,14 @@
 								<br />
 								<input type="button" value="down" id="downbutton" name="downbutton">
 						</div>
-						<div id="searchnlist">
+						<div class="mate" id="searchnlist">
 								Search: <input type="text" id="search1">
-								<div id="listoffiles">
+								<div class="mate" id="listoffiles">
 										<select id="filelist" size="30" multiple="multiple"></select>
 								</div>
 						</div>
 				</div>
-				<div id="fileupload">
+				<div class="mate" id="fileupload">
 						<form id="fileuploadform" method="POST" action="/cgi-bin/radiomatejson.cgi" enctype="multipart/form-data">
 								<span>Add file:</span>
 								<input type="file" name="upload" id="fileupload">
@@ -65,7 +64,7 @@
 								<button type="reset">Cancel upload</button>
 						</form>
 				</div>
-				<div id="fileedit">
+				<div class="mate" id="fileedit">
 				<h3> Audio File</h3>
 				<form id="fileeditform" method="GET" action="#">
 						<input type="hidden" name="id" id="id" value="0" readonly="readonly">
