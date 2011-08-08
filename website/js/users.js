@@ -46,11 +46,11 @@ $.fn.editUser = function(e) {
 								if(curr[i]+"" == "false")
 										$('input[id="'+i+'"]').removeAttr('checked');
 								else
-										$('input[id="'+i+'"]').val(curr[i]);
+										$('#newuser #'+i).val(curr[i]);
 						}
 				}
-				var y = e.pageY + 30;
-				var x = e.pageX - 30;
+				var y = e.pageY - 30;
+				var x = e.pageX + 30;
 				$('#newuserform').css('top', y + 'px').css('left', x + 'px');
 				$('#newuserform').hide();
 				$('#newuserform').slideDown();
@@ -60,8 +60,8 @@ $.fn.editUser = function(e) {
 		});
 }
 
-$.fn.renderUserTableVert = function(userlist) {
-		/* Render list as a table, vertical layout */
+$.fn.renderUserTableHoriz = function(userlist) {
+		/* Render list as a table, horizontal layout */
 		function truefalse(el) {
 				if(el) 
 					return '<td class="greenclass"> yes </td>';
@@ -116,14 +116,19 @@ $.fn.renderUserTableVert = function(userlist) {
 		appendtorow('checkbox', '<td class="noborder"><input id="delbutton" type="button" value="del"></td>', rows);
 	    appendtorow('Edit', '<td class="noborder"><input id="addbutton" type="button" value="new"></td>', rows);
 
-		var s = "";
+		var s = "<tr>";
 		for(var label in rows) {
 				if(label in {Edit: 0, checkbox: 0, avatar: 0})
-						s += "<tr><th class='emptycell'></th>";
+						s += "<th class='emptycell'></th>";
 				else
-						s += "<tr><th>" + label + "</th>";
-				for(var i=0; i<rows[label].length; i++) {
-						s += rows[label][i];
+						s += "<th>" + label + "</th>";
+		}
+		s += "</tr>";
+		for(var i=0; i < rows['checkbox'].length; i++) {
+				s += "<tr>";
+				for(var label in rows) {
+						var t = rows[label][i];
+						if(t) s += t;
 				}
 				s += "</tr>";
 		}
@@ -136,21 +141,13 @@ $.fn.listUsers = function() {
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
 				var t = $("#listofusers");
-				t.html("");
 				if(data.responsen == 0) {
-						t.append($.fn.renderUserTableVert(data.userlist));
-						t.removeClass("redclass");
+						t.html($.fn.renderUserTableHoriz(data.userlist));
 						
 						/* User management events */ 
 						$("#delbutton").click($.fn.delUsers);
 						$("#addbutton").click($.fn.addUser);
 						$("input.edituser").click($.fn.editUser);
-						/*
-						$(".edituser").toggle($.fn.editUser, function(){
-								$('#newuserform').slideUp(); 
-								$(this).removeClass('open')}
-						);
-						*/
 				} else {
 						//TODO: handle this
 				}
@@ -178,8 +175,8 @@ $.fn.addUser = function(e) {
 				$(this).removeClass('clickededit');
 				return true;
 		}
-		var y = e.pageY - 30;
-		var x = e.pageX + 30;
+		var y = e.pageY + 30;
+		var x = e.pageX - 30;
 		$('#newuserform').css('top', y + 'px').css('left', x + 'px');
 		$('#newuserform').hide();
 		$('#userreset').click();

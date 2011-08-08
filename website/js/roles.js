@@ -49,6 +49,7 @@ $.fn.editRole = function(e) {
 										$('input[id="'+i+'"]').val(curr[i]);
 						}
 				}
+				$('input[id=rolename]').attr('disabled', 'disabled');
 				var y = e.pageY + 30;
 				var x = e.pageX - 30;
 				$('#newroleform').css('top', y + 'px').css('left', x + 'px');
@@ -153,8 +154,9 @@ $.fn.addRole = function(e) {
 				$(this).removeClass('clickededit');
 				return true;
 		}
-		var y = e.pageY - 30;
-		var x = e.pageX + 30;
+		$('input[id=rolename]').attr('disabled', '');
+		var y = e.pageY - 250;
+		var x = e.pageX + 40;
 		$('#newroleform').css('top', y + 'px').css('left', x + 'px');
 		$('#newroleform').hide();
 		$('#rolereset').click();
@@ -165,7 +167,6 @@ $.fn.addRole = function(e) {
 };
 
 $(document).ready(function(){
-				$('#newroleform').hide();
 				$("input").each(function(){
 						$(this).after("<br />");
 				});
