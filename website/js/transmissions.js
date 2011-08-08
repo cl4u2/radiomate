@@ -227,10 +227,23 @@ $(document).ready(function(){
 						right:  'today prev,next'
 				},
 				dayClick: function(date, allDay, jsEvent, view) {
+						if($('#transmissionedit').hasClass('opened'))
+						{
+							$('#transmissionedit').slideUp();
+							$('#transmissionedit').removeClass('opened');
+							return true;
+						}
+						var y = jsEvent.pageY+10;
+						var x = jsEvent.pageX;
+						$('#transmissionedit').css('top', y + 'px').css('left', x + 'px');
+						$('#transmissionedit').hide();
+						$('#transmissionreset').click();
 						$('#beginningtimepicker').val(date.toString());
-						$('#beginningtimepicker').focus();
+						$('#transmissionedit').slideDown();
+						$('#transmissionedit').addClass('opened');
 				},
 				eventClick: function(calEvent, jsEvent, view) {
+						$('#transmissionedit').hide();
 						// load values into form
 						var obj = calEvent.ts;
 						for(var i in obj) {
@@ -239,7 +252,11 @@ $(document).ready(function(){
 								else
 										$('#transmissioneditform input[id="'+i+'"]').val(obj[i]);
 						}
-						$('#beginningtimepicker').focus();
+						var y = jsEvent.pageY+10;
+						var x = jsEvent.pageX;
+						$('#transmissionedit').css('top', y + 'px').css('left', x + 'px');
+						$('#transmissionedit').slideDown();
+						$('#transmissionedit').addClass('opened');
 				},
 				eventDrop: $.fn.transmissionChange,
 				eventResize: $.fn.transmissionChange, 
@@ -247,5 +264,10 @@ $(document).ready(function(){
 		});
 		$('#transmissioneditform').submit($.fn.updateTransmission);
 		$('#slottype').change(function() { $.fn.loadParams($('#slottype').val()) });
+		$('#closeeditform').click(function(e) {
+				$('#transmissionedit').slideUp(); 
+				$('#transmissionedit').removeClass('opened');
+				e.preventDefault();
+		});
 });
 

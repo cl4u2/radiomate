@@ -4,8 +4,10 @@
 				<title> Welcome to RadioMate </title>
 				<link rel='stylesheet' type='text/css' href='3p/css/fullcalendar.css' />
 				<link rel="stylesheet" href="css/radiomate0.css" type="text/css" />
+				<link rel="stylesheet" href="css/transmissions.css" type="text/css" />
 				<link rel='stylesheet' type='text/css' href='3p/css/fullcalendar.print.css' media='print' />
 				<link rel='stylesheet' type='text/css' href='3p/css/jquery.ui.datetimepicker.css' />
+				<link rel="stylesheet" href="3p/css/ui-darkness/jquery-ui-1.8.14.custom.css" type="text/css" />
 				<script src="3p/js/jquery-1.5.2.min.js"></script>
 				<script src='3p/js/jquery-ui-1.8.11.custom.min.js'></script>
 				<script src="3p/js/jquery.cookie.js"></script>
@@ -18,7 +20,7 @@
 		<body>
 				<div id="menu"></div>
 				<div class="mate" id="transmissionedit">
-						<h3> Transmission </h3>
+						<h3> Transmission <span id="closeeditform">[close]</span> </h3> 
 						<form id="transmissioneditform" method="GET" action="#">
 								<input type="hidden" name="id" id="id" >
 								<label for="beginningtimepicker">Beginning:</label>
@@ -42,6 +44,7 @@
 								<select name="fallbackplaylist" id="fallbackplaylist">
 								</select>
 								<input type="submit" name="transmissionsubmit" id="transmissionsubmit" value="create/update">
+								<input type="reset" name="transmissionreset" id="transmissionreset" value="reset">
 						</form>
 				</div>
 				<div id="calendar"></div>
