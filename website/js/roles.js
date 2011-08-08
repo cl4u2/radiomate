@@ -23,7 +23,14 @@ $.fn.delRoles = function() {
 		});
 };
 
-$.fn.editRole = function() {
+$.fn.editRole = function(e) {
+		var thisbutton = $(this);
+		if(thisbutton.hasClass('clickededit'))
+		{
+				$('#newroleform').slideUp();
+				$(this).removeClass('clickededit');
+				return true;
+		}
 		rname = this.id.slice(1);
 		var r0 = {request: "getrole", username: user, sessionid: session, rolename: rname};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
@@ -42,6 +49,14 @@ $.fn.editRole = function() {
 										$('input[id="'+i+'"]').val(curr[i]);
 						}
 				}
+				var y = e.pageY + 30;
+				var x = e.pageX - 30;
+				$('#newroleform').css('top', y + 'px').css('left', x + 'px');
+				$('#newroleform').hide();
+				$('#newroleform').slideDown();
+				$('#newroleform input:first').focus();
+				$('.clickededit').removeClass('clickededit');
+				thisbutton.addClass('clickededit');
 
 		});
 }
@@ -111,6 +126,7 @@ $.fn.renderRolesTableVert = function(rolelist) {
 }
 
 $.fn.listRoles = function() {
+		$('#newroleform').hide();
 		var r0 = {request: "listroles", username: user, sessionid: session};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
@@ -119,10 +135,9 @@ $.fn.listRoles = function() {
 				if(data.responsen == 0) {
 						t.append($.fn.renderRolesTableVert(data.rolelist));
 						
-						/* Role deletion event */ 
+						/* Role management events */ 
 						$("#delbutton").click($.fn.delRoles);
-
-						/* Role editing event */
+						$("#addbutton").click($.fn.addRole);
 						$(".editrole").click($.fn.editRole);
 				} else {
 						// TODO: handle this
@@ -130,7 +145,27 @@ $.fn.listRoles = function() {
 		});
 };
 
+$.fn.addRole = function(e) {
+		var thisbutton = $(this);
+		if(thisbutton.hasClass('clickededit'))
+		{
+				$('#newroleform').slideUp();
+				$(this).removeClass('clickededit');
+				return true;
+		}
+		var y = e.pageY - 30;
+		var x = e.pageX + 30;
+		$('#newroleform').css('top', y + 'px').css('left', x + 'px');
+		$('#newroleform').hide();
+		$('#rolereset').click();
+		$('#newroleform').slideDown();
+		$('#newroleform input:first').focus();
+		$('.clickededit').removeClass('clickededit');
+		thisbutton.addClass('clickededit');
+};
+
 $(document).ready(function(){
+				$('#newroleform').hide();
 				$("input").each(function(){
 						$(this).after("<br />");
 				});

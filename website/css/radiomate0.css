@@ -139,4 +139,10 @@ input[type=SUBMIT], input[type=BUTTON], input[type=RESET], button {
 		width: 100%;
 }
 
+input.clickededit {
+		background-color: black;
+		color: white;
+		font-weight: bold;
+}
+
 

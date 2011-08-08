@@ -37,3 +37,8 @@ td.noborder {
 		width: 5em;
 }
 
+#newroleform{
+		position: absolute;
+		display: none;
+		width: 300px;
+}

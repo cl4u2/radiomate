@@ -141,7 +141,7 @@ $.fn.listUsers = function() {
 						t.append($.fn.renderUserTableVert(data.userlist));
 						t.removeClass("redclass");
 						
-						/* Role management events */ 
+						/* User management events */ 
 						$("#delbutton").click($.fn.delUsers);
 						$("#addbutton").click($.fn.addUser);
 						$("input.edituser").click($.fn.editUser);
