@@ -9,6 +9,7 @@ $(document).ready(function(){
 		menu += '<li><a href="transmissions.html">transmissions</a></li>';
 		menu += '<li><a href="logout.html">logout</a></li>';
 
+		$('#menu').before("<a href='http://radiomate.org'><h1>RadioMate</h1></a>");
 		$('#menu').html("");
 		if(loggeduser) 
 				$('#menu')

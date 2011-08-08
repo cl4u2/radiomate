@@ -90,7 +90,7 @@ $.fn.renderUserTableHoriz = function(userlist) {
 						return "<td class='emptycell'></td>";
 		}
 		function avatar(md5sum) {
-				return "<td><img src='http://www.gravatar.com/avatar/" + md5sum + "?s=40'></td>";
+				return "<td><img src='http://www.gravatar.com/avatar/" + md5sum + "?s=32'></td>";
 		}
 		var rows = new Array();
 		$.each(userlist, function(){

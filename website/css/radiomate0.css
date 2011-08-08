@@ -146,4 +146,10 @@ input.clickededit {
 		font-weight: bold;
 }
 
+h1 { 
+		color: yellow; 
+		margin-left: 42px;
+		margin-top: 16px;
+		text-decoration: none;
+}
 
