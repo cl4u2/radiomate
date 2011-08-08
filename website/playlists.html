@@ -3,7 +3,10 @@
 		<head>
 				<title> Welcome to RadioMate </title>
 				<link rel="stylesheet" href="css/radiomate0.css" type="text/css" />
+				<link rel="stylesheet" href="css/playlists.css" type="text/css" />
+				<link rel="stylesheet" href="3p/css/ui-darkness/jquery-ui-1.8.14.custom.css" type="text/css" />
 				<script src="3p/js/jquery-1.5.1.min.js"></script>
+				<script src="3p/js/jquery-ui-1.8.11.custom.min.js"></script>
 				<script src="3p/js/jquery.cookie.js"></script>
 				<script src="3p/js/jquery.form.js"></script>
 				<script src="js/common.js"></script>
@@ -33,13 +36,13 @@
 						</form>
 				</div>
 				<div class="mate" id="playlistnfiles">
-						<div class="mate" id="playlists">
-								<div class="mate" id="listofplaylists"></div>
-								<div class="mate" id="playlistcontent">
+						<div class="floating" id="playlists">
+								<div class="floating" id="listofplaylists"></div>
+								<div class="floating" id="playlistcontent">
 										<select id="playlistcontentlist" size="30" multiple="multiple"></select>
 								</div>
 						</div>
-						<div class="mate" id="playlistbuttons">
+						<div class="floating" id="playlistbuttons">
 								<input type="button" value="<<" id="addbutton" name="addbutton">
 								<br />
 								<input type="button" value=">>" id="removebutton" name="removebutton">
@@ -48,9 +51,9 @@
 								<br />
 								<input type="button" value="down" id="downbutton" name="downbutton">
 						</div>
-						<div class="mate" id="searchnlist">
+						<div class="floating" id="searchnlist">
 								Search: <input type="text" id="search1">
-								<div class="mate" id="listoffiles">
+								<div class="floating" id="listoffiles">
 										<select id="filelist" size="30" multiple="multiple"></select>
 								</div>
 						</div>

@@ -1,0 +1,51 @@
+#fileupload {
+		display: none;
+}
+
+#playlistedit {
+		display: none;
+}
+
+#fileupload {
+		display: none;
+}
+
+#fileedit {
+		display: none;
+}
+
+#playlistnfiles {
+		/* width: 90%; */
+}
+
+#listofplaylists select{
+		width: 20em;
+		height: 400px;
+}
+#playlistcontent select {
+		width: 20em;
+		height: 400px;
+}
+#playlistbuttons {
+		width: 5em;
+		padding-left: 20px;
+		padding-right: 20px;
+		margin-top: 150px;
+}
+#searchnlist{
+		height: 400px;
+}
+#searchnlist select{
+		height: 374px;
+}
+#playlists {
+}
+
+select {
+		font-weight: bold;
+		overflow: auto;
+		margin: 0px;
+		padding: 0px;
+		background-color: #eeeeee;
+		color: black;
+}

@@ -56,6 +56,7 @@ $.fn.listFiles = function(searchterm) {
 				if(data.responsen == 0) {
 						t.append($.fn.renderFileList(data.mediafilelist));
 						$('#filelist option').dblclick(function(){ $.fn.getAndLoadFile(this.value); });
+						$('#filelist').resizable({ handles: 'e, s' });
 				} else {
 						//TODO: handle this
 				}
@@ -204,11 +205,13 @@ $.fn.listPlaylists = function() {
 												filelist = $.fn.renderPlayListContent(data.playlist.mediafilelist);
 												t.append(filelist);
 												$('#playlistcontentlist option').dblclick(function() {$.fn.getAndLoadFile(this.value); });
+												$('#playlistcontentlist').resizable({ handles: 'e, s' });
 										} else {
 												// TODO: handle this
 										}
 								});
 						});
+						$('#playlistlist').resizable({ handles: 'e, s' });
 				} else {
 						//TODO: handle this
 				}
@@ -291,7 +294,7 @@ $.fn.removeFilesFromPlaylist = function() {
 		}
 		var filepos = Array();
 		$('#playlistcontent option:selected').each(function() {
-						fileposition = $(this).val();
+						fileposition = $(this).attr('id');
 						filepos.push(fileposition);
 		});
 		var r0 = {request: "removefilesfromplaylist", username: user, sessionid: session, playlistid: playlistid, mediafilepositionlist: filepos};
