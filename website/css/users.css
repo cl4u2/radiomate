@@ -40,3 +40,15 @@ td.noborder {
 		width: 5em;
 }
 
+#newuserform {
+		position: absolute;
+		display: none;
+		width: 200px;
+}
+
+input.clickededit {
+		background-color: black;
+		color: white;
+		font-weight: bold;
+}
+

@@ -23,7 +23,14 @@ $.fn.delUsers = function() {
 		});
 };
 
-$.fn.editUser = function() {
+$.fn.editUser = function(e) {
+		var thisbutton = $(this);
+		if(thisbutton.hasClass('clickededit'))
+		{
+				$('#newuserform').slideUp();
+				$(this).removeClass('clickededit');
+				return true;
+		}
 		rname = this.id.slice(1);
 		var r0 = {request: "getuser", username: user, sessionid: session, name: rname};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
@@ -42,7 +49,14 @@ $.fn.editUser = function() {
 										$('input[id="'+i+'"]').val(curr[i]);
 						}
 				}
-
+				var y = e.pageY + 30;
+				var x = e.pageX - 30;
+				$('#newuserform').css('top', y + 'px').css('left', x + 'px');
+				$('#newuserform').hide();
+				$('#newuserform').slideDown();
+				$('#newuserform input:first').focus();
+				$('.clickededit').removeClass('clickededit');
+				thisbutton.addClass('clickededit');
 		});
 }
 
@@ -117,6 +131,7 @@ $.fn.renderUserTableVert = function(userlist) {
 }
 
 $.fn.listUsers = function() {
+		$('#newuserform').hide();
 		var r0 = {request: "listusers", username: user, sessionid: session};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
@@ -126,11 +141,16 @@ $.fn.listUsers = function() {
 						t.append($.fn.renderUserTableVert(data.userlist));
 						t.removeClass("redclass");
 						
-						/* Role deletion event */ 
+						/* Role management events */ 
 						$("#delbutton").click($.fn.delUsers);
-
-						/* Role editing event */
-						$(".edituser").click($.fn.editUser);
+						$("#addbutton").click($.fn.addUser);
+						$("input.edituser").click($.fn.editUser);
+						/*
+						$(".edituser").toggle($.fn.editUser, function(){
+								$('#newuserform').slideUp(); 
+								$(this).removeClass('open')}
+						);
+						*/
 				} else {
 						//TODO: handle this
 				}
@@ -149,7 +169,28 @@ $.fn.loadRoles = function(element) {
 		});
 };
 
+
+$.fn.addUser = function(e) {
+		var thisbutton = $(this);
+		if(thisbutton.hasClass('clickededit'))
+		{
+				$('#newuserform').slideUp();
+				$(this).removeClass('clickededit');
+				return true;
+		}
+		var y = e.pageY - 30;
+		var x = e.pageX + 30;
+		$('#newuserform').css('top', y + 'px').css('left', x + 'px');
+		$('#newuserform').hide();
+		$('#userreset').click();
+		$('#newuserform').slideDown();
+		$('#newuserform input:first').focus();
+		$('.clickededit').removeClass('clickededit');
+		thisbutton.addClass('clickededit');
+};
+
 $(document).ready(function(){
+				$('#newuserform').hide();
 				$("input, select").each(function(){
 						$(this).after("<br />");
 				});
