@@ -239,6 +239,8 @@ $.fn.playlistMetaEditing = function(e) {
 };
 
 $.fn.playlistEditing = function(e) {
+		$('.opendiv').fadeOut();
+		$('.opendiv').removeClass('opendiv');
 		var r0 = {request: "getplaylist", username: user, sessionid: session, playlistid: this.value};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
