@@ -738,6 +738,7 @@ class JSONProcessor(object):
 		def createplaylist(self, requser, req):
 				rd = {'requested': "createplaylist", 'playlist': None}
 				try:
+						del req['playlist']['id']
 						p = PlayList(req['playlist'])
 						p.creator = requser.name
 						p.addOwner(requser.name)
@@ -770,11 +771,11 @@ class JSONProcessor(object):
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
+				if not p:
+						return JsonResponse(RESPONSE_DONTEXISTS, "Playlist not found", rd)
+
 				if requser.name != p.creator and (not requser.name in p.owners) and not requser.role.canManageAllPlaylists:
 						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-
-				if not p:
-						return JsonResponse(RESPONSE_DONTEXISTS, "Playlist %d not found" % p.id, rd)
 
 				# edit the playlist
 				try:
@@ -797,7 +798,7 @@ class JSONProcessor(object):
 				rd = {'requested': "removeplaylist", 'playlistid': None}
 				try:
 						playlistdao = PlayListDAO(self.connectionmanager)
-						playlistid = req['playlistid']
+						playlistid = int(req['playlistid'])
 						p = playlistdao.getById(playlistid)
 				except RadioMateDAOException, e:
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
@@ -806,11 +807,11 @@ class JSONProcessor(object):
 				except Exception, e:
 						return JsonResponse(RESPONSE_ERROR, str(e), rd)
 
+				if not p:
+						return JsonResponse(RESPONSE_DONTEXISTS, "Playlist not found", rd)
+
 				if requser.name != p.creator and (not requser.name in p.owners) and not requser.role.canManageAllPlaylists:
 						return JsonResponse(RESPONSE_NOTALLOWED, "User role does not allow this action", rd)
-
-				if not p:
-						return JsonResponse(RESPONSE_DONTEXISTS, "Playlist %d not found" % p.id, rd)
 
 				# remove the playlist
 				try:

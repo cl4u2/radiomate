@@ -34,9 +34,5 @@ if (threeSixtyPlayer.config.useWaveformData || threeSixtyPlayer.flash9Options.us
 threeSixtyPlayer.config.useFavIcon = false;
 				</script>
 		</head>
-		<body>
-				<div class="ui360 ui360-vis">
-						<a href="<?=$_GET[url] ?>">play</a>
-				</div>
-		</body>
+		<body><div class="ui360 ui360-vis"><a href="<?=$_GET[url] ?>"></a></div></body>
 </html>
