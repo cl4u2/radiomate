@@ -47,7 +47,31 @@ $.fn.getAndLoadFile = function(v) {
 		});
 };
 
+$.fn.removeFile = function() {
+		var fileids = Array(); 
+		$('#filelist option:selected').each(function() {
+				fileids.push(this.value);
+		});
+		if(fileids.length == 0) 
+			return false; // do nothing and do it quiet
+		if(!confirm("Are you sure that you want do delete " + fileids.length + " elements?"))
+					return false;
+		for(fileidindex in fileids) {
+				var fileid = fileids[fileidindex];
+				var r0 = {request: "unregisterfile", username: user, sessionid: session, mediafileid: fileid};
+				$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+						$.fn.log(data);
+						if(data.responsen != 0) {
+								// TODO display error message
+						}
+						$.fn.listFiles("");
+				});
+		}
+};
+
 $.fn.listFiles = function(searchterm) {
+		$('.opendiv').fadeOut();
+		$('.opendiv').removeClass('opendiv');
 		var r0 = {request: "fullsearchfiles", username: user, sessionid: session, q: searchterm};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 				$.fn.log(data);
@@ -56,6 +80,7 @@ $.fn.listFiles = function(searchterm) {
 				if(data.responsen == 0) {
 						t.append($.fn.renderFileList(data.mediafilelist));
 						$('#filelist option').dblclick(function(){ $.fn.getAndLoadFile(this.value); });
+						$('#fileremovebutton').click($.fn.removeFile);
 						$('#filelist').resizable({ handles: 'e, s' });
 				} else {
 						//TODO: handle this
@@ -74,9 +99,12 @@ $.fn.loadFileEditForm = function(obj) {
 								$('#fileeditform input[id="'+i+'"]').val(obj[i]);
 				}
 		}
-		// TODO: check if obj.path exists
+		/* the inline player */
 		var url = "player.php?url=" + encodeURIComponent(obj.path) + "";
 		$('#player').attr('src', url);
+
+		$('#fileedit').addClass('opendiv'); 
+		$('#fileedit').slideDown();
 };
 
 $.fn.registerFileAndLoad = function(mediafile){
@@ -90,8 +118,8 @@ $.fn.registerFileAndLoad = function(mediafile){
 						//TODO: display error message
 						mf = mediafile;
 				}
-				$.fn.loadFileEditForm(mf);
 				$.fn.listFiles("");
+				$.fn.loadFileEditForm(mf);
 		});
 };
 
@@ -104,7 +132,6 @@ $.fn.processfileupload = function (data){
 				$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
 						$.fn.log(data);
 						var mf = data.mediafile;
-						//$.fn.loadFileEditForm(mf);
 						$.fn.registerFileAndLoad(mf);
 				});
 		} else {
@@ -186,6 +213,30 @@ $.fn.loadPlaylistEditForm = function(obj) {
 		}
 };
 
+$.fn.playlistEditing = function(e) {
+		var y = e.pageY;
+		var x = e.pageX+50;
+		var r0 = {request: "getplaylist", username: user, sessionid: session, playlistid: this.value};
+		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
+				$.fn.log(data);
+				if(data.responsen == 0) {
+						$.fn.loadPlaylistEditForm(data.playlist);
+						$('#playlistedit').css('top', y + 'px').css('left', x + 'px');
+						$('#playlistedit').slideDown();
+						var t = $("#playlistcontent");
+						t.html("");
+						filelist = $.fn.renderPlayListContent(data.playlist.mediafilelist);
+						t.append(filelist);
+						$('#playlistcontentlist option').dblclick(function() {
+								$.fn.getAndLoadFile(this.value); 
+						});
+						$('#playlistcontentlist').resizable({ handles: 'e, s' });
+				} else {
+						// TODO: handle this
+				}
+		});
+};
+
 $.fn.listPlaylists = function() {
 		var r0 = {request: "listuserplaylists", username: user, sessionid: session, user: user};
 		$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
@@ -194,23 +245,7 @@ $.fn.listPlaylists = function() {
 				t.html("");
 				if(data.responsen == 0) {
 						t.append($.fn.renderPlayLists(data.playlistlist));
-						$('#listofplaylists option').dblclick(function(){
-								var r0 = {request: "getplaylist", username: user, sessionid: session, playlistid: this.value};
-								$.getJSON('/cgi-bin/radiomatejson.cgi', {"req": JSON.stringify(r0)}, function(data){
-										$.fn.log(data);
-										if(data.responsen == 0) {
-												$.fn.loadPlaylistEditForm(data.playlist);
-												var t = $("#playlistcontent");
-												t.html("");
-												filelist = $.fn.renderPlayListContent(data.playlist.mediafilelist);
-												t.append(filelist);
-												$('#playlistcontentlist option').dblclick(function() {$.fn.getAndLoadFile(this.value); });
-												$('#playlistcontentlist').resizable({ handles: 'e, s' });
-										} else {
-												// TODO: handle this
-										}
-								});
-						});
+						$('#listofplaylists option').dblclick($.fn.playlistEditing);
 						$('#playlistlist').resizable({ handles: 'e, s' });
 				} else {
 						//TODO: handle this
@@ -356,7 +391,11 @@ $(document).ready(function(){
 				$(this).after("<br />");
 		});
 		$.fn.listFiles("");
-		$('#fileuploadform').ajaxForm({dataType: 'json', success: $.fn.processfileupload, resetForm: true});
+		$('#fileuploadform').ajaxForm({
+				dataType: 'json', 
+				success: $.fn.processfileupload, 
+				resetForm: true
+		});
 		$('#fileeditform').submit($.fn.updatefile);
 		$('#filerescan').click($.fn.rescanfile);
 		$('#search1').focus($.fn.delSearch);
@@ -366,6 +405,26 @@ $(document).ready(function(){
 		$('#removebutton').click($.fn.removeFilesFromPlaylist);
 		$('#upbutton').click(function() { return $.fn.filemove(-1); });
 		$('#downbutton').click(function() { return $.fn.filemove(+1); });
+		$('#fileaddbutton').click(function(e) { 
+				if($('#fileuploaddiv').hasClass('opendiv')) {
+						$('#fileuploaddiv').fadeOut(); 
+						$('#fileuploaddiv').removeClass('opendiv'); 
+				} else {
+						var y = e.pageY-120;
+						var x = e.pageX-300;
+						$('#fileuploaddiv').css('top', y + 'px').css('left', x + 'px');
+						$('#fileuploaddiv').slideDown(); 
+						$('#fileuploaddiv').addClass('opendiv'); 
+				} 
+		});
+		$('#fileclose').click(function() { 
+				$('.opendiv').fadeOut(); 
+				$('.opendiv').removeClass('opendiv');
+		});
+		$('#cancelupload').click(function() { 
+				$('#fileuploaddiv').fadeOut(); 
+				$('#fileuploaddiv').removeClass('opendiv'); 
+		});
 		$.fn.listPlaylists();
 });
 

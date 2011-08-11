@@ -708,7 +708,7 @@ class JSONProcessor(object):
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)
 
 				try:
-						mediafileid = req['mediafileid']
+						mediafileid = int(req['mediafileid'])
 						m = mediafiledao.getById(mediafileid)
 				except RadioMateDAOException, e:
 						return JsonResponse(RESPONSE_SERVERERROR, str(e), rd)

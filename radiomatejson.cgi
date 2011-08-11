@@ -189,7 +189,7 @@ try:
 						if isMp3Valid(longpath):
 								resp = '{"requested": "upload", "warning": null, "description": "file uploaded", "responsen": 0, "response": "ok", "path": "%s"}' % longpath
 						else:
-								resp = '{"requested": "upload", "warning": "file is not a valid mp3", "description": "file not uploaded", "responsen": 501, "response": "requesterror", "path": "%s"}' % longpath
+								resp = '{"requested": "upload", "warning": "file is not a valid mp3", "description": "file uploaded", "responsen": 0, "response": "ok", "path": "%s"}' % longpath
 		else:
 				req = fs.getfirst(rk, "no request")
 except:
