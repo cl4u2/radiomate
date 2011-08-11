@@ -18,7 +18,8 @@
 				<div class="mate" id="playlistedit">
 						<h3> Playlist </h3>
 						<form id="playlisteditform" method="GET" action="#">
-								<input type="hidden" name="id" id="id" value="0" readonly="readonly">
+								<label for="id">id:</label>
+								<input type="text" name="id" id="id" value="0" readonly="readonly">
 								<label for="title">Title:</label>
 								<input type="text" name="title" id="title">
 								<label for="description">Description:</label>
@@ -33,6 +34,7 @@
 								<input type="checkbox" name="random" id="random">
 								<input type="submit" name="playlistsubmit" id="playlistsubmit" value="create/update">
 								<input type="reset" name="playlistreset" id="playlistreset" value="clear">
+								<input type="button" name="playlistclose" id="playlistclose" value="close">
 						</form>
 				</div>
 				<div class="mate" id="playlistnfiles">
